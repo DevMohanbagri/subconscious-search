@@ -1,0 +1,51 @@
+SMO-Pop v2 — Full-Covariance Conscious + Population + IPOP restarts
+
+=== sphere (dim=10, evals=5000, runs=5) ===
+  run 1: loss=1.13605e-27 acc=100.00% improv=100.00% time=1.65s (gens=483 restarts=0 sub=0.03)
+  run 2: loss=7.1479e-28 acc=100.00% improv=100.00% time=1.52s (gens=483 restarts=0 sub=0.03)
+  run 3: loss=1.15975e-27 acc=100.00% improv=100.00% time=1.76s (gens=483 restarts=0 sub=0.03)
+  run 4: loss=1.00641e-27 acc=100.00% improv=100.00% time=1.53s (gens=483 restarts=0 sub=0.03)
+  run 5: loss=1.08302e-27 acc=100.00% improv=100.00% time=1.50s (gens=483 restarts=0 sub=0.03)
+  -> mean loss 1.02e-27 | mean acc 100.00% | success 100%
+
+=== rastrigin (dim=10, evals=5000, runs=5) ===
+  run 1: loss=7.95968 acc=11.16% improv=94.14% time=1.11s (gens=284 restarts=3 sub=0.03)
+  run 2: loss=9.9496 acc=9.13% improv=91.92% time=1.28s (gens=259 restarts=3 sub=0.03)
+  run 3: loss=19.4821 acc=4.88% improv=85.99% time=0.93s (gens=181 restarts=2 sub=0.02)
+  run 4: loss=19.8991 acc=4.78% improv=82.76% time=1.56s (gens=234 restarts=3 sub=0.03)
+  run 5: loss=3.97984 acc=20.08% improv=96.90% time=1.14s (gens=284 restarts=3 sub=0.03)
+  -> mean loss 12.2541 | mean acc 10.01% | success 0%
+
+=== rosenbrock (dim=10, evals=5000, runs=5) ===
+  run 1: loss=5.29638e-08 acc=100.00% improv=100.00% time=1.63s (gens=483 restarts=0 sub=0.03)
+  run 2: loss=0.0573426 acc=94.58% improv=100.00% time=1.50s (gens=483 restarts=0 sub=0.03)
+  run 3: loss=0.124382 acc=88.94% improv=100.00% time=1.46s (gens=483 restarts=0 sub=0.03)
+  run 4: loss=0.00329397 acc=99.67% improv=100.00% time=1.37s (gens=482 restarts=0 sub=0.03)
+  run 5: loss=9.14375e-05 acc=99.99% improv=100.00% time=1.36s (gens=483 restarts=0 sub=0.03)
+  -> mean loss 0.0370221 | mean acc 96.64% | success 100%
+
+=== ackley (dim=10, evals=5000, runs=5) ===
+  run 1: loss=5.01821e-14 acc=100.00% improv=100.00% time=1.35s (gens=483 restarts=0 sub=0.03)
+  run 2: loss=5.01821e-14 acc=100.00% improv=100.00% time=1.40s (gens=483 restarts=0 sub=0.03)
+  run 3: loss=4.66294e-14 acc=100.00% improv=100.00% time=1.37s (gens=483 restarts=0 sub=0.03)
+  run 4: loss=3.95239e-14 acc=100.00% improv=100.00% time=1.35s (gens=483 restarts=0 sub=0.03)
+  run 5: loss=3.59712e-14 acc=100.00% improv=100.00% time=1.37s (gens=483 restarts=0 sub=0.03)
+  -> mean loss 4.44977e-14 | mean acc 100.00% | success 100%
+
+=== griewank (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.012321 acc=98.78% improv=98.82% time=0.84s (gens=234 restarts=3 sub=0.03)
+  run 2: loss=0.0196777 acc=98.07% improv=97.96% time=0.88s (gens=258 restarts=3 sub=0.03)
+  run 3: loss=0 acc=100.00% improv=100.00% time=1.65s (gens=483 restarts=0 sub=0.03)
+  run 4: loss=0.00985733 acc=99.02% improv=99.04% time=0.92s (gens=234 restarts=3 sub=0.03)
+  run 5: loss=0.00739605 acc=99.27% improv=99.29% time=1.05s (gens=259 restarts=3 sub=0.03)
+  -> mean loss 0.00985043 | mean acc 99.03% | success 60%
+
+Total wall time: 33.5s
+
+================ SUMMARY (mean accuracy %) ================
+sphere     acc=100.00%±0.00 (best run 100.00%) loss=1.02e-27 success=100%
+rastrigin  acc= 10.01%±5.61 (best run 20.08%) loss=12.25 success=0%
+rosenbrock acc= 96.64%±4.37 (best run 100.00%) loss=0.03702 success=100%
+ackley     acc=100.00%±0.00 (best run 100.00%) loss=4.45e-14 success=100%
+griewank   acc= 99.03%±0.63 (best run 100.00%) loss=0.00985 success=60%
+===========================================================

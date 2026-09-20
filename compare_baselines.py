@@ -16,6 +16,7 @@ from scipy.optimize import differential_evolution, dual_annealing
 import cma
 
 from smo_upgraded import SMOUpgraded, BENCHMARKS, TOLS, accuracy_score
+from smo_pop import SMOPop
 
 
 def run_random_search(func, dim, lo, hi, max_evals, seed):
@@ -61,8 +62,15 @@ def run_smo(func, dim, lo, hi, max_evals, seed):
     return best_y
 
 
+def run_smo_pop(func, dim, lo, hi, max_evals, seed):
+    opt = SMOPop(dim, lo, hi, seed=seed)
+    _, best_y, _ = opt.optimize(func, max_evals)
+    return best_y
+
+
 METHODS = [
-    ("SMO (ours)", run_smo),
+    ("SMO-v1", run_smo),
+    ("SMO-Pop", run_smo_pop),
     ("CMA-ES", run_cma_es),
     ("DiffEvol", run_differential_evolution),
     ("DualAnneal", run_dual_annealing),
