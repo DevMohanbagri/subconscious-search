@@ -1,0 +1,51 @@
+SMO Upgraded — Natural Metric Latent + Sep-CMA Conscious + Sigmoid Gate
+
+=== sphere (dim=10, evals=5000, runs=5) ===
+  run 1: loss=2.25011e-06 acc=100.00% improv=100.00% time=8.59s
+  run 2: loss=3.77677e-08 acc=100.00% improv=100.00% time=6.84s
+  run 3: loss=2.26378e-07 acc=100.00% improv=100.00% time=8.40s
+  run 4: loss=1.09461e-07 acc=100.00% improv=100.00% time=7.58s
+  run 5: loss=1.2669e-06 acc=100.00% improv=100.00% time=8.49s
+  -> mean loss 7.78124e-07 | mean acc 100.00% | success 100%
+
+=== rastrigin (dim=10, evals=5000, runs=5) ===
+  run 1: loss=13.9305 acc=6.70% improv=89.74% time=10.26s
+  run 2: loss=14.9286 acc=6.28% improv=87.88% time=11.30s
+  run 3: loss=20.8991 acc=4.57% improv=84.97% time=10.62s
+  run 4: loss=3.98156 acc=20.07% improv=96.55% time=10.15s
+  run 5: loss=45.7869 acc=2.14% improv=64.30% time=10.91s
+  -> mean loss 19.9053 | mean acc 7.95% | success 0%
+
+=== rosenbrock (dim=10, evals=5000, runs=5) ===
+  run 1: loss=4.31855 acc=18.80% improv=99.99% time=8.08s
+  run 2: loss=4.41183 acc=18.48% improv=99.99% time=7.80s
+  run 3: loss=1.62811 acc=38.05% improv=100.00% time=7.77s
+  run 4: loss=5.5766 acc=15.21% improv=99.96% time=7.33s
+  run 5: loss=5.60317 acc=15.14% improv=99.98% time=8.37s
+  -> mean loss 4.30765 | mean acc 21.14% | success 0%
+
+=== ackley (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.00070569 acc=99.93% improv=99.99% time=8.55s
+  run 2: loss=0.000296438 acc=99.97% improv=100.00% time=7.73s
+  run 3: loss=1.15549 acc=46.39% improv=90.35% time=10.37s
+  run 4: loss=0.00549454 acc=99.45% improv=99.94% time=9.28s
+  run 5: loss=0.00042591 acc=99.96% improv=100.00% time=8.83s
+  -> mean loss 0.232482 | mean acc 89.14% | success 80%
+
+=== griewank (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.0738223 acc=93.13% improv=92.90% time=9.14s
+  run 2: loss=0.0885811 acc=91.86% improv=90.82% time=11.35s
+  run 3: loss=0.0492064 acc=95.31% improv=95.33% time=12.38s
+  run 4: loss=0.230919 acc=81.24% improv=77.62% time=10.83s
+  run 5: loss=0.0467254 acc=95.54% improv=95.52% time=10.69s
+  -> mean loss 0.0978509 | mean acc 91.41% | success 0%
+
+Total wall time: 231.6s
+
+================ SUMMARY (mean accuracy %) ================
+sphere     acc=100.00%±0.00 (best run 100.00%) loss=7.781e-07 success=100%
+rastrigin  acc=  7.95%±6.27 (best run 20.07%) loss=19.91 success=0%
+rosenbrock acc= 21.14%±8.60 (best run 38.05%) loss=4.308 success=0%
+ackley     acc= 89.14%±21.37 (best run 99.97%) loss=0.2325 success=80%
+griewank   acc= 91.41%±5.27 (best run 95.54%) loss=0.09785 success=0%
+===========================================================
