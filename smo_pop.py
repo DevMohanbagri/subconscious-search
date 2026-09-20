@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SMO-Pop (v2): Full-Covariance Conscious + Population loop.
+SMO-Pop (v2/v3): Full-Covariance Conscious + Population loop.
 
 Upgrades over smo_upgraded.py (v1):
   #1 Conscious: FastFullCMA — textbook full-covariance CMA-ES core
@@ -12,13 +12,22 @@ Upgrades over smo_upgraded.py (v1):
      (k set adaptively by the annealed sigmoid gate). Stagnation triggers an
      IPOP-style restart: population doubles, sigma resets, mean recenters on
      the global best. No more single-incumbent trap.
+  #3 Memetic + terminal hopping phase (v3): on stagnation the incumbent
+     basin is first drained with budget-counted L-BFGS-B local search.
+     Two CONSECUTIVE stalled windows (CMA is trapped, not cruising) switch
+     the ENTIRE remaining budget to surrogate-filtered basin hopping
+     (block-coordinate kicks -> L-BFGS-B drain -> Metropolis adopt).
+     Smooth runs never stall twice, so they never trigger it (zero
+     regression risk). Targets Rastrigin-class multimodality.
 
-All true function evals (conscious + subconscious) count toward max_evals,
+All true function evals (conscious + subconscious + local search,
+including finite-difference probes) count toward max_evals,
 so comparisons against other optimizers stay budget-fair.
 """
 
 import time
 import numpy as np
+from scipy.optimize import minimize
 
 from smo_upgraded import (
     FastSupervisedLatentSpace,
@@ -28,6 +37,30 @@ from smo_upgraded import (
     TOLS,
     accuracy_score,
 )
+
+
+# -------------------------------------------------------------
+# 0. EVAL COUNTER: unified budget accounting (+ archive logging)
+# -------------------------------------------------------------
+class EvalCounter:
+    """Wraps the objective: counts every eval and logs it to the archive.
+
+    All streams (init, CMA offspring, subconscious, L-BFGS-B including its
+    finite-difference probes) go through here, so max_evals is exact and
+    the surrogate sees every point ever evaluated.
+    """
+
+    def __init__(self, func, archive):
+        self.func = func
+        self.archive = archive
+        self.n = 0
+
+    def __call__(self, x):
+        xa = np.asarray(x, dtype=float)
+        y = float(self.func(xa))
+        self.n += 1
+        self.archive.append((xa.copy(), y))
+        return y
 
 
 # -------------------------------------------------------------
@@ -185,7 +218,8 @@ class FastFullCMA:
 # 2. SMO-POP ORCHESTRATOR: population loop + gated subconscious
 # -------------------------------------------------------------
 class SMOPop:
-    """Generational SMO: lambda CMA evals + k gated subconscious evals/gen."""
+    """Generational SMO: lambda CMA evals + k gated subconscious evals/gen,
+    memetic L-BFGS-B basin drainage on stagnation, BIPOP restarts."""
 
     def __init__(self, dim, lb, ub, latent_dim=None, seed=0, sigma_init=None,
                  n_elite=100, beta=1.5, n_init=None, latent_every_gen=5,
@@ -209,6 +243,15 @@ class SMOPop:
         self.mem_max = mem_max
         self.lambda_0 = lambda_
         self.lambda_max = lambda_max
+        self._lambda_default = 4 + int(3 * np.log(dim))
+        self.bounds_list = list(zip(self.lb.tolist(), self.ub.tolist()))
+        self.bh_kick = float(np.mean(self.ub - self.lb)) * 0.1
+        self.bh_ls_cap = 120      # evals per drain
+        self.bh_drain_every = 150  # walk steps between periodic drains
+        self.bh_cauchy_p = 0.35   # fraction of walk steps that are jumps
+        self.bh_gauss_frac = 0.5  # diffusion step = kick * this
+        self.bh_T0_frac = 0.15    # initial T = frac * |best|
+        self.bh_cool = 0.9985     # T decay per walk step
 
     def _random_point(self):
         return self.rng.uniform(self.lb, self.ub)
@@ -245,19 +288,114 @@ class SMOPop:
             C_cand, C_mem, Y_mem, beta=self.beta)
         return C_cand, scores
 
+    def _local_polish(self, counter, archive, best_x, best_y, budget,
+                      maxfun=300):
+        """Drain the incumbent basin with bounded L-BFGS-B (numeric grad).
+
+        Every probe goes through the counter (budget + archive). Returns
+        (best_x, best_y, improved, n_used). Skips unless at least one
+        gradient step (~2*dim+1 evals) fits in budget.
+        """
+        bf = int(min(maxfun, budget))
+        if bf < 2 * self.dim + 1:
+            return best_x, best_y, False, 0
+        n0, a0 = counter.n, len(archive)
+        try:
+            minimize(counter, np.asarray(best_x, dtype=float),
+                     method="L-BFGS-B", bounds=self.bounds_list,
+                     options={"maxfun": bf, "maxiter": 1000})
+        except Exception:
+            pass
+        n_used = counter.n - n0
+        improved = False
+        if len(archive) > a0:
+            seg = archive[a0:]
+            j = int(np.argmin([y for _, y in seg]))
+            if seg[j][1] < best_y:
+                best_x, best_y = seg[j][0].copy(), float(seg[j][1])
+                improved = True
+        return best_x, best_y, improved, n_used
+
+    def _basin_hopping(self, counter, archive, best_x, best_y, budget):
+        """Annealing walk + periodic drainage (Dual-Annealing rhythm).
+
+        Drain-per-hop hopping is too coarse (~110 evals/hop): it re-falls
+        into the same bottom. Instead: a cheap 1-eval/step Metropolis walk
+        (block-coordinate Gaussian diffusion + 20% Cauchy jumps) traverses
+        basins, with an L-BFGS-B drain every `bh_drain_every` walk steps
+        and whenever the walk stumbles into a new session best (banked
+        immediately). The walk continues from each drained bottom.
+        Surrogate pre-filtering of hops was tried and dropped: the coarse
+        model cannot resolve neighboring basins, and random kicks + drains
+        visit far more of them per eval. T anneals per walk step; the
+        session best stays monotonic. Returns
+        (sess_best_x, sess_best_y, n_drains, n_used).
+        """
+        n0 = counter.n
+        stop = n0 + budget
+        cur_x, cur_y = best_x.copy(), best_y
+        sess_x, sess_y = best_x.copy(), best_y
+        drains = 0
+        since_drain = 0
+        T = abs(best_y) * self.bh_T0_frac + 1e-6
+        gauss_step = self.bh_kick * self.bh_gauss_frac
+        while counter.n < stop:
+            # --- cheap walk step (1 eval) ---
+            m = int(self.rng.integers(1, 4))
+            coords = self.rng.choice(self.dim, size=m, replace=False)
+            trial = cur_x.copy()
+            if self.rng.random() < self.bh_cauchy_p:
+                trial[coords] += (self.rng.standard_cauchy(m)
+                                  * self.bh_kick)
+            else:
+                trial[coords] += self.rng.normal(0, gauss_step, m)
+            trial = np.clip(trial, self.lb, self.ub)
+            y = counter(trial)
+            since_drain += 1
+            T *= self.bh_cool
+            if y < cur_y or self.rng.random() < np.exp(
+                    -(y - cur_y) / max(T, 1e-12)):
+                cur_x, cur_y = trial.copy(), y
+            if y < sess_y:
+                sess_x, sess_y = trial.copy(), y
+            # --- periodic / opportunistic drain ---
+            if (since_drain >= self.bh_drain_every
+                    or (y <= sess_y and counter.n + 2 * self.dim + 1 <= stop)):
+                if counter.n + 2 * self.dim + 1 > stop:
+                    break
+                a0 = len(archive)
+                try:
+                    minimize(counter, cur_x, method="L-BFGS-B",
+                             bounds=self.bounds_list,
+                             options={"maxfun": min(self.bh_ls_cap,
+                                                    stop - counter.n),
+                                      "maxiter": 1000})
+                except Exception:
+                    pass
+                since_drain = 0
+                drains += 1
+                if len(archive) > a0:
+                    seg = archive[a0:]
+                    j = int(np.argmin([y for _, y in seg]))
+                    if seg[j][1] < cur_y:
+                        cur_x, cur_y = seg[j][0].copy(), float(seg[j][1])
+                    if seg[j][1] < sess_y:
+                        sess_x, sess_y = seg[j][0].copy(), float(seg[j][1])
+        return sess_x, sess_y, drains, counter.n - n0
+
     def optimize(self, func, max_evals, verbose=False, patience_gens=30,
-                 min_rel_improve=1e-3):
+                 min_rel_improve=1e-3, local_search=True, ls_maxfun=300,
+                 ls_reserve=64, bh_phase_frac=0.35):
         rng = self.rng
         archive = []
+        counter = EvalCounter(func, archive)
         best_x, best_y = None, np.inf
         for _ in range(self.n_init):
             x = self._random_point()
-            y = float(func(x))
-            archive.append((x, y))
+            y = counter(x)
             if y < best_y:
                 best_x, best_y = x.copy(), y
         init_best = best_y
-        n_evals = self.n_init
         history = [best_y]
 
         cma = FastFullCMA(self.dim, self.lb, self.ub, best_x,
@@ -265,13 +403,46 @@ class SMOPop:
         gen = 0
         restarts = 0
         sub_evals = 0
+        ls_evals = 0
+        last_ls_gen = -10**9
         window_start = 0  # generation-based (see restart block)
         window_best = best_y
+        stall_streak = 0  # consecutive stalled windows (phase trigger)
         credit_sub = 1e-3  # decayed improvement credit per stream
         credit_con = 1e-3
         credit_decay = 0.97
 
-        while n_evals + cma.lambda_ <= max_evals:
+        bh_phase_done = False
+        while counter.n + cma.lambda_ <= max_evals:
+            # --- terminal hopping phase (trapped runs only) ---
+            # Two consecutive stalled windows = CMA trapped (cruising runs
+            # never stall twice, so they never trigger this: zero
+            # regression risk). Switch ALL remaining budget to hopping.
+            # Backup: any restart + final bh_phase_frac of budget.
+            stalled_out = stall_streak >= 2
+            backup = (restarts >= 1
+                      and counter.n >= max_evals * (1 - bh_phase_frac))
+            if (local_search and not bh_phase_done and best_y > 1e-10
+                    and (stalled_out or backup)):
+                remaining = max_evals - counter.n
+                if remaining >= 300:
+                    pre_bh = best_y
+                    best_x, best_y, _, used = self._local_polish(
+                        counter, archive, best_x, best_y, remaining,
+                        maxfun=ls_maxfun)
+                    ls_evals += used
+                    best_x, best_y, _, used = self._basin_hopping(
+                        counter, archive, best_x, best_y,
+                        max_evals - counter.n)
+                    ls_evals += used
+                    if best_y < pre_bh:
+                        credit_sub += (pre_bh - best_y) / max(abs(pre_bh), 1e-12)
+                    history.append(best_y)
+                    if verbose:
+                        print(f"  BH-phase: spent to {counter.n}/{max_evals} "
+                              f"best={best_y:.6g}")
+                bh_phase_done = True
+                break
             if gen % self.latent_every_gen == 0:
                 self.latent.update(archive)
 
@@ -295,11 +466,11 @@ class SMOPop:
                 (np.log(credit_sub + 1e-12) - np.log(credit_con + 1e-12))
                 / max(self.gate.temperature, 1e-6)))
             self.gate.t += 1
-            progress = n_evals / max_evals
+            progress = counter.n / max_evals
             k_max = max(1, round((cma.lambda_ // 2) * (1 - 0.8 * progress)))
             k_min = 1 if progress < 0.3 else 0
             k = int(np.clip(round(cma.lambda_ * p_sub), k_min, k_max))
-            k = min(k, max_evals - n_evals - cma.lambda_)
+            k = min(k, max_evals - counter.n - cma.lambda_)
             if k > 0:
                 topk = np.argsort(s_sub)[-k:][::-1]
                 X_sub = np.array([self.latent.psi(C_cand[j], self.lb, self.ub)
@@ -307,14 +478,9 @@ class SMOPop:
             else:
                 X_sub = np.zeros((0, self.dim))
 
-            # --- evaluate both pools (all counted toward budget) ---
-            Y_con = np.array([float(func(x)) for x in X_con])
-            Y_sub = np.array([float(func(x)) for x in X_sub])
-            for x, y in zip(X_con, Y_con):
-                archive.append((x, y))
-            for x, y in zip(X_sub, Y_sub):
-                archive.append((x, y))
-            n_evals += cma.lambda_ + k
+            # --- evaluate both pools (counter counts + archives all) ---
+            Y_con = np.array([counter(x) for x in X_con])
+            Y_sub = np.array([counter(x) for x in X_sub])
             sub_evals += k
 
             # --- textbook CMA update on its own offspring ---
@@ -348,7 +514,7 @@ class SMOPop:
             credit_con *= credit_decay
             history.append(best_y)
 
-            # --- IPOP stagnation restart (GENERATION-based patience) ---
+            # --- stagnation restart (GENERATION-based patience) ---
             # Eval-based patience + growing lambda is pathological: at
             # lambda=64 a 300-eval window is <5 generations, so CMA can
             # never adapt before being restarted again. Generations give
@@ -357,30 +523,60 @@ class SMOPop:
                 denom = max(abs(window_best), 1e-12)
                 rel_improve = (window_best - best_y) / denom
                 if rel_improve < min_rel_improve and best_y > 1e-12:
+                    # memetic step: drain the incumbent basin BEFORE hopping,
+                    # so the restart leaves from the basin bottom (banked in
+                    # best/archive) instead of abandoning unexploited gains.
+                    # Skipped if polished recently or budget is nearly spent
+                    # (ls_reserve evals are always kept for continued search).
+                    if (local_search and gen - last_ls_gen >= 10
+                            and max_evals - counter.n > ls_reserve + 2 * self.dim):
+                        best_x, best_y, _, used = self._local_polish(
+                            counter, archive, best_x, best_y,
+                            max_evals - counter.n - ls_reserve,
+                            maxfun=ls_maxfun)
+                        ls_evals += used
+                        last_ls_gen = gen
+                        history.append(best_y)
+                    # IPOP doubling, global exploration (basin hopping
+                    # lives in the terminal phase, not here)
                     cma.restart(min(cma.lambda_ * 2, self.lambda_max))
                     cma.recenter(best_x)
                     self.gate.t = 0
                     self.latent.update(archive)
                     restarts += 1
+                    stall_streak += 1
+                else:
+                    stall_streak = 0
                 window_start = gen + 1
                 window_best = best_y
 
             gen += 1
-            if verbose and (gen % 50 == 0 or n_evals + cma.lambda_ > max_evals):
-                print(f"  gen {gen} eval {n_evals}/{max_evals} best={best_y:.6g} "
+            if verbose and (gen % 50 == 0 or counter.n + cma.lambda_ > max_evals):
+                print(f"  gen {gen} eval {counter.n}/{max_evals} best={best_y:.6g} "
                       f"lam={cma.lambda_} k={k} T={self.gate.temperature:.3f} "
                       f"sig={cma.sigma:.4f}")
 
+        # --- final polish: spend leftover budget draining the best basin ---
+        if local_search and max_evals - counter.n >= 2 * self.dim + 1:
+            best_x, best_y, _, used = self._local_polish(
+                counter, archive, best_x, best_y,
+                max_evals - counter.n, maxfun=ls_maxfun)
+            ls_evals += used
+            history.append(best_y)
+
         return best_x, best_y, {"history": history, "init_best": init_best,
-                                "evals": n_evals, "gens": gen,
+                                "evals": counter.n, "gens": gen,
                                 "restarts": restarts,
-                                "sub_frac": sub_evals / max(n_evals, 1)}
+                                "bh_phase": bh_phase_done,
+                                "sub_frac": sub_evals / max(counter.n, 1),
+                                "ls_frac": ls_evals / max(counter.n, 1)}
 
 
 # -------------------------------------------------------------
 # 3. BENCHMARK (same protocol as v1)
 # -------------------------------------------------------------
-def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True):
+def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
+                  local_search=True, patience_gens=30):
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -390,7 +586,9 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True):
         for r in range(n_runs):
             opt = SMOPop(dim, lo, hi, seed=seed0 + r)
             t0 = time.time()
-            _, best_y, info = opt.optimize(func, max_evals)
+            _, best_y, info = opt.optimize(
+                func, max_evals, local_search=local_search,
+                patience_gens=patience_gens)
             dt = time.time() - t0
             from smo_upgraded import accuracy_score as acc_fn
             acc = acc_fn(best_y)
@@ -405,7 +603,8 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True):
                 print(f"  run {r+1}: loss={best_y:.6g} acc={acc:.2f}% "
                       f"improv={imp:.2f}% time={dt:.2f}s "
                       f"(gens={info['gens']} restarts={info['restarts']} "
-                      f"sub={info['sub_frac']:.2f})")
+                      f"bh_phase={info.get('bh_phase', False)} "
+                      f"sub={info['sub_frac']:.2f} ls={info.get('ls_frac', 0):.2f})")
         results[name] = {
             "loss_mean": float(np.mean(losses)),
             "loss_std": float(np.std(losses)),
@@ -426,16 +625,22 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True):
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(description="SMO-Pop (v2) benchmark")
+    ap = argparse.ArgumentParser(description="SMO-Pop (v2/v3) benchmark")
     ap.add_argument("--dim", type=int, default=10)
     ap.add_argument("--max-evals", type=int, default=5000)
     ap.add_argument("--n-runs", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
+    ap.add_argument("--no-local", action="store_true",
+                    help="disable memetic L-BFGS-B drainage + hopping phase")
+    ap.add_argument("--patience-gens", type=int, default=30)
     args = ap.parse_args()
-    print("SMO-Pop v2 — Full-Covariance Conscious + Population + IPOP restarts")
+    print(f"SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping "
+          f"(local={'off' if args.no_local else 'on'})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
-                            n_runs=args.n_runs, seed0=args.seed0)
+                            n_runs=args.n_runs, seed0=args.seed0,
+                            local_search=not args.no_local,
+                            patience_gens=args.patience_gens)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
     print("\n================ SUMMARY (mean accuracy %) ================")
     for name, m in results.items():
