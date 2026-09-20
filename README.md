@@ -27,7 +27,30 @@ restart (sigma reset + annealing reboot + guided global leap).
 ```bash
 pip install numpy scipy
 python smo_upgraded.py --dim 10 --max-evals 5000 --n-runs 5
+# comparison vs baselines (needs scipy + cma):
+pip install cma
+python compare_baselines.py --dim 10 --max-evals 5000 --n-runs 5
 ```
+
+## Comparison vs established optimizers (dim=10, 5000 evals, 5 runs)
+
+Same eval budget for every method. Full log: `comparison_results.txt`.
+
+| function   | SMO (ours) | CMA-ES  | DiffEvol | DualAnneal | RandSearch |
+|------------|------------|---------|----------|------------|------------|
+| sphere     | 100.00%    | 100.00% | 88.95%   | 100.00%    | 6.37%      |
+| rastrigin  | 7.95%      | 7.02%   | 2.14%    | 76.71%     | 1.27%      |
+| rosenbrock | 21.14%     | 99.61%  | 2.84%    | 84.01%     | 0.05%      |
+| ackley     | 89.14%     | 100.00% | 37.77%   | 100.00%    | 11.02%     |
+| griewank   | 91.41%     | 99.04%  | 66.75%   | 96.14%     | 68.31%     |
+| **MEAN**   | **61.93%** | **81.13%** | **39.69%** | **91.37%** | **17.40%** |
+
+Takeaways: SMO beats Differential Evolution and Random Search on all 5
+functions, ties CMA-ES on sphere/rastrigin, but trails it on rosenbrock
+(full covariance wins in the curved valley — SMO is diagonal-only) and
+trails Dual Annealing overall (SciPy's local-search hybrid is very strong
+on smooth benchmarks). SMO's surrogate overhead (~8 s/run vs <0.5 s) pays
+off only when true function evals are expensive — the intended use case.
 
 ## Results (dim=10, 5 runs)
 
