@@ -62,3 +62,28 @@ both CMA-ES and Dual Annealing) and griewank, tied on sphere/ackley, and
 within 2 points of Dual Annealing overall — trailing only on rastrigin,
 where annealing specialists still lead but the gap closed from 69 to 27
 points (7x accuracy gain over v2).
+
+## SMO on real data: BRFSS 2015 diabetes (`ml_benchmark.py`)
+
+Binary 50/50 split (70,692 rows, 21 features; data mirrors UCI id 891 —
+place CSVs in `data/`, gitignored). Stratified 70/15/15 split, seed 42.
+Full log: `ml_results.txt`.
+
+| method | test acc | test F1 | test AUC |
+|---|---|---|---|
+| dummy (majority) | 50.00% | 0.0000 | — |
+| logreg (sklearn LBFGS) | 74.76% | 0.7522 | 0.8250 |
+| **SMO-direct** (22-D weights) | **74.55%** | 0.7489 | 0.8239 |
+| randomforest (300) | 73.64% | 0.7471 | 0.8119 |
+| hgb (defaults) | 75.26% | 0.7630 | 0.8301 |
+| mlp (64x32) | 73.21% | 0.7298 | 0.8082 |
+| randsearch-HPO (108 evals) | 75.29% | 0.7625 | 0.8301 |
+| **SMO-HPO** (108 evals) | **75.11%** | 0.7618 | 0.8299 |
+
+Takeaways: SMO trained logistic weights from scratch to within 0.2pp of
+LBFGS (74.55 vs 74.76%, 2000 evals, 0.8 s). For HPO all three (defaults /
+random / SMO) tie at ~75.1–75.3%: this dataset plateaus there and tuning
+barely matters (SMO actually found the best *validation* loss, 0.50110
+vs 0.50129; test noise flips the ranking). Note: the 3-class `012` file
+is 84/14/2 imbalanced, so raw accuracy is misleading there
+(dummy = 84.24%; HGB = 84.91%, macro-F1 0.40).
