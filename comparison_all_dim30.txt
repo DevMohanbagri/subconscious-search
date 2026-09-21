@@ -1,0 +1,114 @@
+  (skip michalewicz: no reference optimum for dim=30)
+Comparison: suite=all dim=30, budget=5000 evals, 3 runs per method/function
+
+=== sphere ===
+  SMO-Pop    acc=100.00% loss=1.403e-10 success=100% time=0.9s
+  CMA-ES     acc=100.00% loss=3.754e-11 success=100% time=0.4s
+  DiffEvol   acc=  2.05% loss=48.16 success=0% time=0.1s
+  DualAnneal acc=100.00% loss=1.479e-11 success=100% time=0.1s
+  RandSearch acc=  0.91% loss=109.5 success=0% time=0.0s
+
+=== rastrigin ===
+  SMO-Pop    acc=  2.12% loss=48.22 success=0% time=0.5s
+  CMA-ES     acc=  1.74% loss=57.71 success=0% time=0.4s
+  DiffEvol   acc=  0.34% loss=289.3 success=0% time=0.1s
+  DualAnneal acc=  5.20% loss=19.57 success=0% time=0.1s
+  RandSearch acc=  0.30% loss=338.7 success=0% time=0.0s
+
+=== rosenbrock ===
+  SMO-Pop    acc=  3.61% loss=26.78 success=0% time=0.8s
+  CMA-ES     acc=  3.41% loss=28.4 success=0% time=0.3s
+  DiffEvol   acc=  0.00% loss=3.195e+04 success=0% time=0.1s
+  DualAnneal acc=100.00% loss=8.916e-10 success=100% time=0.1s
+  RandSearch acc=  0.00% loss=9.691e+04 success=0% time=0.0s
+
+=== ackley ===
+  SMO-Pop    acc=100.00% loss=3.964e-05 success=100% time=0.8s
+  CMA-ES     acc=100.00% loss=1.011e-05 success=100% time=0.4s
+  DiffEvol   acc= 10.28% loss=8.744 success=0% time=0.1s
+  DualAnneal acc= 19.20% loss=4.21 success=0% time=0.1s
+  RandSearch acc=  8.50% loss=10.77 success=0% time=0.0s
+
+=== griewank ===
+  SMO-Pop    acc=100.00% loss=5.209e-09 success=100% time=0.8s
+  CMA-ES     acc=100.00% loss=1.932e-09 success=100% time=0.4s
+  DiffEvol   acc= 48.84% loss=1.048 success=0% time=0.1s
+  DualAnneal acc=100.00% loss=1.278e-09 success=100% time=0.1s
+  RandSearch acc= 47.41% loss=1.109 success=0% time=0.0s
+
+=== schwefel ===
+  SMO-Pop    acc=  0.03% loss=3499 success=0% time=0.5s
+  CMA-ES     acc=  0.02% loss=4440 success=0% time=0.5s
+  DiffEvol   acc=  0.01% loss=8093 success=0% time=0.1s
+  DualAnneal acc= 33.61% loss=151.3 success=33% time=0.1s
+  RandSearch acc=  0.01% loss=9014 success=0% time=0.0s
+
+=== levy ===
+  SMO-Pop    acc= 88.49% loss=0.1628 success=33% time=0.8s
+  CMA-ES     acc= 63.24% loss=0.7251 success=0% time=0.5s
+  DiffEvol   acc=  1.43% loss=69.26 success=0% time=0.1s
+  DualAnneal acc= 26.55% loss=5.994 success=0% time=0.1s
+  RandSearch acc=  0.79% loss=127.9 success=0% time=0.1s
+
+=== styblinski ===
+  SMO-Pop    acc=  0.76% loss=131.9 success=0% time=0.7s
+  CMA-ES     acc=  0.63% loss=160.2 success=0% time=0.5s
+  DiffEvol   acc=  0.21% loss=485.2 success=0% time=0.1s
+  DualAnneal acc=100.00% loss=-2.313e-08 success=100% time=0.1s
+  RandSearch acc=  0.18% loss=557 success=0% time=0.1s
+
+=== ellipsoid ===
+  SMO-Pop    acc=  0.06% loss=1895 success=0% time=1.0s
+  CMA-ES     acc=  0.03% loss=3478 success=0% time=0.5s
+  DiffEvol   acc=  0.00% loss=4.215e+05 success=0% time=0.1s
+  DualAnneal acc=  2.06% loss=54.52 success=0% time=0.1s
+  RandSearch acc=  0.00% loss=2.261e+06 success=0% time=0.0s
+
+=== zakharov ===
+  SMO-Pop    acc=  0.47% loss=217.8 success=0% time=0.5s
+  CMA-ES     acc=  0.43% loss=240 success=0% time=0.4s
+  DiffEvol   acc=  0.38% loss=264.8 success=0% time=0.1s
+  DualAnneal acc=100.00% loss=3.511e-11 success=100% time=0.1s
+  RandSearch acc=  0.13% loss=2157 success=0% time=0.0s
+
+=== noisy_sphere ===
+  SMO-Pop    acc=100.00% loss=-1.041 success=100% time=1.2s
+  CMA-ES     acc=100.00% loss=-1.009 success=100% time=0.4s
+  DiffEvol   acc=  2.29% loss=43.24 success=0% time=0.1s
+  DualAnneal acc=  1.27% loss=81.82 success=0% time=0.1s
+  RandSearch acc=  0.91% loss=109.4 success=0% time=0.0s
+
+================ MEAN ACCURACY % (higher better) ================
+function         SMO-Pop      CMA-ES    DiffEvol  DualAnneal  RandSearch
+sphere           100.00%     100.00%       2.05%     100.00%       0.91%
+rastrigin          2.12%       1.74%       0.34%       5.20%       0.30%
+rosenbrock         3.61%       3.41%       0.00%     100.00%       0.00%
+ackley           100.00%     100.00%      10.28%      19.20%       8.50%
+griewank         100.00%     100.00%      48.84%     100.00%      47.41%
+schwefel           0.03%       0.02%       0.01%      33.61%       0.01%
+levy              88.49%      63.24%       1.43%      26.55%       0.79%
+styblinski         0.76%       0.63%       0.21%     100.00%       0.18%
+ellipsoid          0.06%       0.03%       0.00%       2.06%       0.00%
+zakharov           0.47%       0.43%       0.38%     100.00%       0.13%
+noisy_sphere     100.00%     100.00%       2.29%       1.27%       0.91%
+------------------------------------------------------------------------
+MEAN              45.05%      42.68%       5.99%      53.45%       5.38%
+MEAN RANK           2.00        2.45        3.91        1.64        5.00
+========================================================================
+
+================ MEAN LOSS (lower better) =======================
+function         SMO-Pop      CMA-ES    DiffEvol  DualAnneal  RandSearch
+sphere         1.403e-10   3.754e-11       48.16   1.479e-11       109.5
+rastrigin          48.22       57.71       289.3       19.57       338.7
+rosenbrock         26.78        28.4   3.195e+04   8.916e-10   9.691e+04
+ackley         3.964e-05   1.011e-05       8.744        4.21       10.77
+griewank       5.209e-09   1.932e-09       1.048   1.278e-09       1.109
+schwefel            3499        4440        8093       151.3        9014
+levy              0.1628      0.7251       69.26       5.994       127.9
+styblinski         131.9       160.2       485.2  -2.313e-08         557
+ellipsoid           1895        3478   4.215e+05       54.52   2.261e+06
+zakharov           217.8         240       264.8   3.511e-11        2157
+noisy_sphere      -1.041      -1.009       43.24       81.82       109.4
+========================================================================
+
+Total wall time: 45.5s

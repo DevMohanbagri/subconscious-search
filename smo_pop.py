@@ -75,13 +75,15 @@ class FastFullCMA:
     zero-decay negative-weight finalization).
     """
 
-    def __init__(self, dim, lb, ub, m_init, sigma_init, lambda_=None):
+    def __init__(self, dim, lb, ub, m_init, sigma_init, lambda_=None,
+                 active=True):
         self.N = dim
         self.lb = np.asarray(lb, dtype=float)
         self.ub = np.asarray(ub, dtype=float)
         width = float(np.mean(self.ub - self.lb))
         self.sigma_init = sigma_init
         self.sigma_max = width
+        self.active = active
         self.set_population(lambda_ or (4 + int(3 * np.log(dim))))
         self.m = np.array(m_init, dtype=float).copy()
         self.sigma = sigma_init
@@ -125,6 +127,12 @@ class FastFullCMA:
         raw = np.log(self.mu + 0.5) - np.log(np.arange(1, self.lambda_ + 1))
         pos = raw[:self.mu]
         pos = pos / pos.sum()
+        if not self.active:
+            # ablation: plain (non-active) CMA-ES, negatives zeroed
+            self.w = pos
+            self.w_all = np.concatenate([pos, np.zeros(self.lambda_ - self.mu)])
+            self.sum_w_all = 1.0
+            return
         neg = raw[self.mu:] / np.abs(raw[self.mu:]).sum()  # sum = -1
         # (1) zero decay
         S = 1.0 + self.c1 / self.cmu
@@ -219,12 +227,15 @@ class FastFullCMA:
 # -------------------------------------------------------------
 class SMOPop:
     """Generational SMO: lambda CMA evals + k gated subconscious evals/gen,
-    memetic L-BFGS-B basin drainage on stagnation, BIPOP restarts."""
+    memetic L-BFGS-B basin drainage on stagnation, IPOP restarts, terminal
+    hopping phase on repeated stalls."""
 
     def __init__(self, dim, lb, ub, latent_dim=None, seed=0, sigma_init=None,
                  n_elite=100, beta=1.5, n_init=None, latent_every_gen=5,
                  n_latent_cand=256, sub_noise=0.7, mem_max=512,
-                 lambda_=None, lambda_max=64):
+                 lambda_=None, lambda_max=64,
+                 active_cma=True, subconscious=True, credit_gate=True,
+                 use_bh_phase=True):
         self.dim = dim
         self.lb = np.broadcast_to(np.asarray(lb, dtype=float), (dim,)).copy()
         self.ub = np.broadcast_to(np.asarray(ub, dtype=float), (dim,)).copy()
@@ -243,6 +254,11 @@ class SMOPop:
         self.mem_max = mem_max
         self.lambda_0 = lambda_
         self.lambda_max = lambda_max
+        # ablation switches (all True = full v3)
+        self.active_cma = active_cma
+        self.subconscious = subconscious
+        self.credit_gate = credit_gate
+        self.use_bh_phase = use_bh_phase
         self._lambda_default = 4 + int(3 * np.log(dim))
         self.bounds_list = list(zip(self.lb.tolist(), self.ub.tolist()))
         self.bh_kick = float(np.mean(self.ub - self.lb)) * 0.1
@@ -399,7 +415,8 @@ class SMOPop:
         history = [best_y]
 
         cma = FastFullCMA(self.dim, self.lb, self.ub, best_x,
-                          self.sigma_init, lambda_=self.lambda_0)
+                          self.sigma_init, lambda_=self.lambda_0,
+                          active=self.active_cma)
         gen = 0
         restarts = 0
         sub_evals = 0
@@ -422,8 +439,8 @@ class SMOPop:
             stalled_out = stall_streak >= 2
             backup = (restarts >= 1
                       and counter.n >= max_evals * (1 - bh_phase_frac))
-            if (local_search and not bh_phase_done and best_y > 1e-10
-                    and (stalled_out or backup)):
+            if (local_search and self.use_bh_phase and not bh_phase_done
+                    and best_y > 1e-10 and (stalled_out or backup)):
                 remaining = max_evals - counter.n
                 if remaining >= 300:
                     pre_bh = best_y
@@ -452,30 +469,39 @@ class SMOPop:
             # --- subconscious: surrogate-ranked latent pool ---
             # (surrogate scores SELECT which candidates; the gate below
             #  decides HOW MANY via stream credits, not raw scores)
-            C_mem, Y_mem = self._memory_matrices(archive)
-            C_cand, s_sub = self._subconscious_pool(best_x, C_mem, Y_mem)
+            if self.subconscious:
+                C_mem, Y_mem = self._memory_matrices(archive)
+                C_cand, s_sub = self._subconscious_pool(best_x, C_mem, Y_mem)
 
-            # --- credit-assignment gate: allocation follows production ---
-            # Raw acquisition scores cannot see the information value of CMA
-            # offspring (they train the covariance model), so a score gate
-            # always over-allocates to subconscious look-alikes of the best.
-            # Instead each stream earns future allocation from the relative
-            # improvements it recently produced (bandit-style, decayed).
-            # Annealed T: soft/exploratory early, greedy late.
-            p_sub = float(self.gate.sigmoid(
-                (np.log(credit_sub + 1e-12) - np.log(credit_con + 1e-12))
-                / max(self.gate.temperature, 1e-6)))
-            self.gate.t += 1
-            progress = counter.n / max_evals
-            k_max = max(1, round((cma.lambda_ // 2) * (1 - 0.8 * progress)))
-            k_min = 1 if progress < 0.3 else 0
-            k = int(np.clip(round(cma.lambda_ * p_sub), k_min, k_max))
-            k = min(k, max_evals - counter.n - cma.lambda_)
-            if k > 0:
-                topk = np.argsort(s_sub)[-k:][::-1]
-                X_sub = np.array([self.latent.psi(C_cand[j], self.lb, self.ub)
-                                  for j in topk])
+                # --- credit-assignment gate: allocation follows production
+                # Raw acquisition scores cannot see the information value of
+                # CMA offspring (they train the covariance model), so a score
+                # gate always over-allocates to subconscious look-alikes of
+                # the best. Instead each stream earns future allocation from
+                # the relative improvements it recently produced
+                # (bandit-style, decayed). Annealed T: soft early, greedy
+                # late. Ablation credit_gate=False fixes p_sub = 0.5.
+                if self.credit_gate:
+                    p_sub = float(self.gate.sigmoid(
+                        (np.log(credit_sub + 1e-12) - np.log(credit_con + 1e-12))
+                        / max(self.gate.temperature, 1e-6)))
+                    self.gate.t += 1
+                else:
+                    p_sub = 0.5
+                progress = counter.n / max_evals
+                k_max = max(1, round((cma.lambda_ // 2) * (1 - 0.8 * progress)))
+                k_min = 1 if progress < 0.3 else 0
+                k = int(np.clip(round(cma.lambda_ * p_sub), k_min, k_max))
+                k = min(k, max_evals - counter.n - cma.lambda_)
+                if k > 0:
+                    topk = np.argsort(s_sub)[-k:][::-1]
+                    X_sub = np.array([self.latent.psi(C_cand[j], self.lb, self.ub)
+                                      for j in topk])
+                else:
+                    X_sub = np.zeros((0, self.dim))
             else:
+                # ablation: pure CMA stream, no subconscious evals
+                k = 0
                 X_sub = np.zeros((0, self.dim))
 
             # --- evaluate both pools (counter counts + archives all) ---

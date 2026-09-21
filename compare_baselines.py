@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fair comparison: SMO Upgraded vs established black-box optimizers.
+"""Fair comparison: SMO vs established black-box optimizers.
 
 Baselines (all given the SAME function-evaluation budget):
   - random_search : uniform sampling (sanity floor)
@@ -7,7 +7,10 @@ Baselines (all given the SAME function-evaluation budget):
   - dual_annealing (scipy)
   - cma_es (pycma, the gold-standard evolution strategy)
 
-Metrics identical to smo_upgraded.py: accuracy = 100/(1+best_loss).
+Suites: core (sphere/rastrigin/rosenbrock/ackley/griewank),
+extra (schwefel/levy/michalewicz/styblinski/ellipsoid/zakharov/
+noisy_sphere), or all. Metrics: accuracy = 100/(1+best_loss),
+success rate at per-function tolerances, and mean rank.
 """
 
 import time
@@ -17,6 +20,7 @@ import cma
 
 from smo_upgraded import SMOUpgraded, BENCHMARKS, TOLS, accuracy_score
 from smo_pop import SMOPop
+from extra_benchmarks import NEWBENCHMARKS, get_func
 
 
 def run_random_search(func, dim, lo, hi, max_evals, seed):
@@ -68,7 +72,7 @@ def run_smo_pop(func, dim, lo, hi, max_evals, seed):
     return best_y
 
 
-METHODS = [
+ALL_METHODS = [
     ("SMO-v1", run_smo),
     ("SMO-Pop", run_smo_pop),
     ("CMA-ES", run_cma_es),
@@ -78,19 +82,45 @@ METHODS = [
 ]
 
 
-def compare(dim=10, max_evals=5000, n_runs=5, seed0=0):
-    print(f"Comparison: dim={dim}, budget={max_evals} evals, {n_runs} runs "
-          f"per method/function")
-    table = {}  # func -> method -> dict
-    for fname, (func, lo, hi) in BENCHMARKS.items():
+def build_suite(suite, dim):
+    """Return ordered [(fname, lo, hi, tol, needs_seed)] + func resolver."""
+    items = []
+    if suite in ("core", "all"):
+        for fname, (_, lo, hi) in BENCHMARKS.items():
+            items.append((fname, lo, hi, TOLS[fname], False))
+    if suite in ("extra", "all"):
+        for fname, (_, lo, hi, tol, dims) in NEWBENCHMARKS.items():
+            if dims is not None and dim not in dims:
+                print(f"  (skip {fname}: no reference optimum for dim={dim})")
+                continue
+            items.append((fname, lo, hi, tol, fname == "noisy_sphere"))
+    return items
+
+
+def resolve_func(fname, dim, seed):
+    if fname in BENCHMARKS:
+        return BENCHMARKS[fname][0]
+    f, _, _, _ = get_func(fname, dim, seed=seed)
+    return f
+
+
+def compare(dim=10, max_evals=5000, n_runs=5, seed0=0, suite="core",
+            methods=None):
+    methods = methods or ALL_METHODS
+    items = build_suite(suite, dim)
+    print(f"Comparison: suite={suite} dim={dim}, budget={max_evals} evals, "
+          f"{n_runs} runs per method/function")
+    table = {}
+    for fname, lo, hi, tol, needs_seed in items:
         print(f"\n=== {fname} ===")
         table[fname] = {}
-        for mname, mrun in METHODS:
+        for mname, mrun in methods:
             losses, accs, times = [], [], []
             succ = 0
             for r in range(n_runs):
                 t0 = time.time()
                 try:
+                    func = resolve_func(fname, dim, seed0 + r)
                     best = mrun(func, dim, lo, hi, max_evals, seed0 + r)
                 except Exception as e:  # never let one baseline kill the run
                     print(f"  {mname} run {r+1} FAILED: {e}")
@@ -99,7 +129,7 @@ def compare(dim=10, max_evals=5000, n_runs=5, seed0=0):
                 losses.append(best)
                 accs.append(accuracy_score(best))
                 times.append(dt)
-                if best <= TOLS[fname]:
+                if best <= tol:
                     succ += 1
             row = {"loss": float(np.mean(losses)),
                    "acc": float(np.mean(accs)),
@@ -111,24 +141,33 @@ def compare(dim=10, max_evals=5000, n_runs=5, seed0=0):
     return table
 
 
-def print_summary(table):
-    names = [m for m, _ in METHODS]
+def print_summary(table, methods):
+    names = [m for m, _ in methods]
+    fnames = list(table.keys())
     print("\n================ MEAN ACCURACY % (higher better) ================")
-    hdr = f"{'function':10s}" + "".join(f"{m:>12s}" for m in names)
+    hdr = f"{'function':12s}" + "".join(f"{m:>12s}" for m in names)
     print(hdr)
-    for fname in BENCHMARKS:
-        line = f"{fname:10s}" + "".join(
+    for fname in fnames:
+        line = f"{fname:12s}" + "".join(
             f"{table[fname][m]['acc']:>11.2f}%" for m in names)
         print(line)
-    means = {m: float(np.mean([table[f][m]["acc"] for f in BENCHMARKS]))
+    means = {m: float(np.mean([table[f][m]["acc"] for f in fnames]))
              for m in names}
     print("-" * len(hdr))
-    print(f"{'MEAN':10s}" + "".join(f"{means[m]:>11.2f}%" for m in names))
+    print(f"{'MEAN':12s}" + "".join(f"{means[m]:>11.2f}%" for m in names))
+    # mean rank (robust to loss-scale differences across functions)
+    ranks = {m: [] for m in names}
+    for fname in fnames:
+        order = sorted(names, key=lambda m: -table[fname][m]["acc"])
+        for rank, m in enumerate(order, start=1):
+            ranks[m].append(rank)
+    print(f"{'MEAN RANK':12s}" + "".join(
+        f"{np.mean(ranks[m]):>12.2f}" for m in names))
     print("=" * len(hdr))
     print("\n================ MEAN LOSS (lower better) =======================")
     print(hdr)
-    for fname in BENCHMARKS:
-        line = f"{fname:10s}" + "".join(
+    for fname in fnames:
+        line = f"{fname:12s}" + "".join(
             f"{table[fname][m]['loss']:>12.4g}" for m in names)
         print(line)
     print("=" * len(hdr))
@@ -141,11 +180,20 @@ def main():
     ap.add_argument("--max-evals", type=int, default=5000)
     ap.add_argument("--n-runs", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
+    ap.add_argument("--suite", choices=["core", "extra", "all"], default="core")
+    ap.add_argument("--methods", default="",
+                    help="comma-separated subset of: "
+                         "SMO-v1,SMO-Pop,CMA-ES,DiffEvol,DualAnneal,RandSearch")
     args = ap.parse_args()
+    methods = ALL_METHODS
+    if args.methods:
+        want = set(s.strip() for s in args.methods.split(","))
+        methods = [m for m in ALL_METHODS if m[0] in want]
     t0 = time.time()
     table = compare(dim=args.dim, max_evals=args.max_evals,
-                    n_runs=args.n_runs, seed0=args.seed0)
-    print_summary(table)
+                    n_runs=args.n_runs, seed0=args.seed0, suite=args.suite,
+                    methods=methods)
+    print_summary(table, methods)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
 
 

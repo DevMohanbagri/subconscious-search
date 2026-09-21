@@ -1,0 +1,75 @@
+
+=== sphere (dim=10) ===
+  full       acc=100.00% loss=1.039e-27 (5s)
+  no-active  acc=100.00% loss=2.091e-27 (6s)
+  no-sub     acc=100.00% loss=9.654e-28 (1s)
+  no-credit  acc=100.00% loss=5.96e-24 (5s)
+  no-restart acc=100.00% loss=1.039e-27 (5s)
+  no-LS      acc=100.00% loss=1.039e-27 (5s)
+  no-phase   acc=100.00% loss=1.039e-27 (5s)
+  cma-only   acc=100.00% loss=9.654e-28 (1s)
+
+=== rastrigin (dim=10) ===
+  full       acc= 50.09% loss=1.791 (3s)
+  no-active  acc= 35.11% loss=2.189 (2s)
+  no-sub     acc= 48.70% loss=1.857 (0s)
+  no-credit  acc= 30.10% loss=2.786 (3s)
+  no-restart acc=  8.72% loss=14.73 (5s)
+  no-LS      acc=  8.69% loss=14.84 (4s)
+  no-phase   acc=  8.52% loss=15.72 (3s)
+  cma-only   acc=  6.66% loss=15.12 (1s)
+
+=== rosenbrock (dim=10) ===
+  full       acc= 96.64% loss=0.03702 (5s)
+  no-active  acc= 78.80% loss=0.4207 (5s)
+  no-sub     acc= 67.54% loss=1.6 (1s)
+  no-credit  acc= 69.61% loss=0.6086 (5s)
+  no-restart acc= 96.64% loss=0.03702 (6s)
+  no-LS      acc= 96.64% loss=0.03702 (6s)
+  no-phase   acc= 96.64% loss=0.03702 (6s)
+  cma-only   acc= 67.54% loss=1.6 (1s)
+
+=== schwefel (dim=10) ===
+  full       acc=  0.15% loss=724 (3s)
+  no-active  acc=  0.16% loss=919.3 (3s)
+  no-sub     acc=  0.16% loss=707.3 (1s)
+  no-credit  acc=  0.15% loss=724.3 (3s)
+  no-restart acc=  0.06% loss=1665 (6s)
+  no-LS      acc=  0.06% loss=1614 (3s)
+  no-phase   acc=  0.06% loss=1663 (3s)
+  cma-only   acc=  0.07% loss=1409 (1s)
+
+=== ellipsoid (dim=10) ===
+  full       acc=100.00% loss=2.443e-12 (6s)
+  no-active  acc= 94.30% loss=0.0664 (6s)
+  no-sub     acc=100.00% loss=1.771e-11 (1s)
+  no-credit  acc=100.00% loss=6.488e-06 (5s)
+  no-restart acc=100.00% loss=2.443e-12 (6s)
+  no-LS      acc=100.00% loss=2.443e-12 (5s)
+  no-phase   acc=100.00% loss=2.443e-12 (5s)
+  cma-only   acc=100.00% loss=1.771e-11 (1s)
+
+================ ABLATION: mean acc % (higher better) ============
+config          sphere   rastrigin  rosenbrock    schwefel   ellipsoid        MEAN
+full           100.00%      50.09%      96.64%       0.15%     100.00%      69.37%
+no-active      100.00%      35.11%      78.80%       0.16%      94.30%      61.67%
+no-sub         100.00%      48.70%      67.54%       0.16%     100.00%      63.28%
+no-credit      100.00%      30.10%      69.61%       0.15%     100.00%      59.97%
+no-restart     100.00%       8.72%      96.64%       0.06%     100.00%      61.08%
+no-LS          100.00%       8.69%      96.64%       0.06%     100.00%      61.08%
+no-phase       100.00%       8.52%      96.64%       0.06%     100.00%      61.04%
+cma-only       100.00%       6.66%      67.54%       0.07%     100.00%      54.85%
+
+================ DELTA vs full (pp; negative = component helped) =
+config          sphere   rastrigin  rosenbrock    schwefel   ellipsoid        MEAN
+full             +0.00       +0.00       +0.00       +0.00       +0.00       +0.00
+no-active        +0.00      -14.98      -17.84       +0.01       -5.70       -7.70
+no-sub           +0.00       -1.39      -29.10       +0.01       -0.00       -6.10
+no-credit        +0.00      -19.99      -27.02       -0.00       -0.00       -9.40
+no-restart       +0.00      -41.37       +0.00       -0.09       +0.00       -8.29
+no-LS            +0.00      -41.40       +0.00       -0.09       +0.00       -8.30
+no-phase         +0.00      -41.57       +0.00       -0.09       +0.00       -8.33
+cma-only         +0.00      -43.43      -29.10       -0.08       -0.00      -14.52
+==================================================================================
+
+Total wall time: 142.2s
