@@ -399,6 +399,16 @@ class SMOPop:
                         sess_x, sess_y = seg[j][0].copy(), float(seg[j][1])
         return sess_x, sess_y, drains, counter.n - n0
 
+    # --- extension hooks (no-op in v3; SMOGhost overrides them) ---
+    def _hook_latent_updated(self):
+        """Called right after self.latent.update(archive)."""
+
+    def _hook_new_evals(self, X_all, Y_all):
+        """Called after each generation's true evals (raw-space arrays)."""
+
+    def _hook_end_of_generation(self, gen):
+        """Called at the end of every generation."""
+
     def optimize(self, func, max_evals, verbose=False, patience_gens=30,
                  min_rel_improve=1e-3, local_search=True, ls_maxfun=300,
                  ls_reserve=64, bh_phase_frac=0.35):
@@ -462,6 +472,7 @@ class SMOPop:
                 break
             if gen % self.latent_every_gen == 0:
                 self.latent.update(archive)
+                self._hook_latent_updated()
 
             # --- conscious: lambda CMA offspring ---
             X_con = cma.sample(rng)
@@ -508,6 +519,11 @@ class SMOPop:
             Y_con = np.array([counter(x) for x in X_con])
             Y_sub = np.array([counter(x) for x in X_sub])
             sub_evals += k
+            if k > 0:
+                self._hook_new_evals(np.vstack([X_con, X_sub]),
+                                     np.concatenate([Y_con, Y_sub]))
+            else:
+                self._hook_new_evals(X_con, Y_con)
 
             # --- textbook CMA update on its own offspring ---
             order = np.argsort(Y_con)
@@ -569,6 +585,7 @@ class SMOPop:
                     cma.recenter(best_x)
                     self.gate.t = 0
                     self.latent.update(archive)
+                    self._hook_latent_updated()
                     restarts += 1
                     stall_streak += 1
                 else:
@@ -576,6 +593,7 @@ class SMOPop:
                 window_start = gen + 1
                 window_best = best_y
 
+            self._hook_end_of_generation(gen)
             gen += 1
             if verbose and (gen % 50 == 0 or counter.n + cma.lambda_ > max_evals):
                 print(f"  gen {gen} eval {counter.n}/{max_evals} best={best_y:.6g} "

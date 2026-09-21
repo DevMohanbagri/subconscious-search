@@ -1,0 +1,51 @@
+SMO-Ghost v4 — ideas #8-#14 ({'ghost_w': 0.5, 'n_dream': 64, 'n_conflict': 32})
+
+=== sphere (dim=10, evals=5000, runs=5) ===
+  run 1: loss=1.04664e-27 acc=100.00% improv=100.00% time=2.88s (ghosts=512)
+  run 2: loss=1.35989e-27 acc=100.00% improv=100.00% time=3.01s (ghosts=512)
+  run 3: loss=1.70379e-27 acc=100.00% improv=100.00% time=2.85s (ghosts=512)
+  run 4: loss=1.48378e-27 acc=100.00% improv=100.00% time=2.41s (ghosts=512)
+  run 5: loss=1.10995e-27 acc=100.00% improv=100.00% time=2.94s (ghosts=512)
+  -> mean loss 1.34081e-27 | mean acc 100.00% | success 100%
+
+=== rastrigin (dim=10, evals=5000, runs=5) ===
+  run 1: loss=3.97983 acc=20.08% improv=96.77% time=1.39s (ghosts=512)
+  run 2: loss=1.98992 acc=33.45% improv=98.57% time=0.82s (ghosts=512)
+  run 3: loss=2.84217e-14 acc=100.00% improv=100.00% time=0.63s (ghosts=512)
+  run 4: loss=2.98488 acc=25.09% improv=97.67% time=0.92s (ghosts=512)
+  run 5: loss=1.7053e-13 acc=100.00% improv=100.00% time=0.48s (ghosts=512)
+  -> mean loss 1.79093 | mean acc 55.72% | success 40%
+
+=== rosenbrock (dim=10, evals=5000, runs=5) ===
+  run 1: loss=3.9994 acc=20.00% improv=99.99% time=2.97s (ghosts=512)
+  run 2: loss=2.21104e-05 acc=100.00% improv=100.00% time=3.03s (ghosts=512)
+  run 3: loss=6.80309e-07 acc=100.00% improv=100.00% time=2.73s (ghosts=512)
+  run 4: loss=0.0120939 acc=98.81% improv=100.00% time=2.67s (ghosts=512)
+  run 5: loss=0.000163303 acc=99.98% improv=100.00% time=3.05s (ghosts=512)
+  -> mean loss 0.802336 | mean acc 83.76% | success 80%
+
+=== ackley (dim=10, evals=5000, runs=5) ===
+  run 1: loss=3.59712e-14 acc=100.00% improv=100.00% time=2.79s (ghosts=512)
+  run 2: loss=5.01821e-14 acc=100.00% improv=100.00% time=2.91s (ghosts=512)
+  run 3: loss=5.01821e-14 acc=100.00% improv=100.00% time=2.86s (ghosts=512)
+  run 4: loss=3.95239e-14 acc=100.00% improv=100.00% time=2.91s (ghosts=512)
+  run 5: loss=4.30767e-14 acc=100.00% improv=100.00% time=2.53s (ghosts=512)
+  -> mean loss 4.37872e-14 | mean acc 100.00% | success 100%
+
+=== griewank (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.012321 acc=98.78% improv=98.72% time=1.16s (ghosts=512)
+  run 2: loss=0.00985728 acc=99.02% improv=99.07% time=1.34s (ghosts=512)
+  run 3: loss=0.0172263 acc=98.31% improv=98.33% time=1.10s (ghosts=512)
+  run 4: loss=0.00986467 acc=99.02% improv=99.05% time=1.01s (ghosts=512)
+  run 5: loss=0.00985728 acc=99.02% improv=99.05% time=1.18s (ghosts=512)
+  -> mean loss 0.0118253 | mean acc 98.83% | success 60%
+
+Total wall time: 52.6s
+
+================ SUMMARY (mean accuracy %) ================
+sphere     acc=100.00%±0.00 (best run 100.00%) loss=1.341e-27 success=100%
+rastrigin  acc= 55.72%±36.40 (best run 100.00%) loss=1.791 success=40%
+rosenbrock acc= 83.76%±31.88 (best run 100.00%) loss=0.8023 success=80%
+ackley     acc=100.00%±0.00 (best run 100.00%) loss=4.379e-14 success=100%
+griewank   acc= 98.83%±0.28 (best run 99.02%) loss=0.01183 success=60%
+===========================================================

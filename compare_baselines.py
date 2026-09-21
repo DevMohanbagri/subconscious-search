@@ -20,6 +20,7 @@ import cma
 
 from smo_upgraded import SMOUpgraded, BENCHMARKS, TOLS, accuracy_score
 from smo_pop import SMOPop
+from smo_ghost import SMOGhost
 from extra_benchmarks import NEWBENCHMARKS, get_func
 
 
@@ -72,9 +73,16 @@ def run_smo_pop(func, dim, lo, hi, max_evals, seed):
     return best_y
 
 
+def run_smo_ghost(func, dim, lo, hi, max_evals, seed):
+    opt = SMOGhost(dim, lo, hi, seed=seed)
+    _, best_y, _ = opt.optimize(func, max_evals)
+    return best_y
+
+
 ALL_METHODS = [
     ("SMO-v1", run_smo),
     ("SMO-Pop", run_smo_pop),
+    ("SMO-Ghost", run_smo_ghost),
     ("CMA-ES", run_cma_es),
     ("DiffEvol", run_differential_evolution),
     ("DualAnneal", run_dual_annealing),

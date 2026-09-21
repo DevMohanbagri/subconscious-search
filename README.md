@@ -144,6 +144,52 @@ every configuration equally (see frontier note above) — deltas are
 noise. Net: full v3 beats pure active-CMA by +14.5pp mean
 (69.37 vs 54.85).
 
+## SMO-Ghost v4: ideas #8–#14 (`smo_ghost.py`) — a documented negative result
+
+Ideas #8 Ghost Landscape, #9 Conflict Search, #10 Latent Vector Memory,
+#11 Salience/Surprise, #12 Adaptive Memory Decay, #13 Dreaming, and
+#14 Uncertainty-driven exploration, implemented in a **separate file**
+(`smo_ghost.py`) behind 4 no-op hooks in `smo_pop.py`. Ghost-OFF matches
+v3 **bit-for-bit** (sphere s1 7.147898581204078e-28, rastrigin s1
+1.989918114186608 — exact), so the harness is verified and all deltas
+below are real.
+
+Ghost-ON hardware: a sliding 512-ghost memory with salience + surprise
+scoring and adaptive half-life decay, scoring-bonus/uncertainty/noise
+gating on the v3 streams, plus up to 96 extra evals/gen of mask-crossover
+dreams and extrapolated conflict probes (blend-dreams were tried first
+and failed worse — latent midpoints decode to barrier ridges the
+smoothing surrogate over-scores).
+
+Result: the extras are **net negative**, verifiably, on the core suite
+(dim=10, 5k evals; full log `comparison_ghost_dim10.txt`):
+
+| function   | SMO-Pop (v3) | SMO-Ghost | Δ ghost−v3 |
+|------------|--------------|-----------|------------|
+| sphere     | 100.00%      | 100.00%   | 0.00pp     |
+| rastrigin  | 50.09%       | 55.72%    | +5.63pp ⚠  |
+| rosenbrock | 96.64%       | 83.76%    | −12.88pp   |
+| ackley     | 100.00%      | 100.00%   | 0.00pp     |
+| griewank   | 99.27%       | 98.83%    | −0.44pp    |
+| **MEAN RANK** | **1.40**  | **2.40**  | worse      |
+
+⚠ The 5-seed rastrigin "+5.63pp" is noise: a decisive 12-seed rerun
+(seeds 1–12) reverses it — v3 60.48±34.67 (mean loss 1.49) vs ghost
+40.20±28.00 (mean loss 2.42), ghost worse on 8 of 12 seeds. Same story
+on rosenbrock (12-seed: v3 97.75±3.69 vs ghost 79.56±34.38, mean loss
+0.0245 vs 1.0). A ghost-ON mini-ablation confirms the mechanism: with
+dream/conflict evals disabled the scoring bonus + adaptive noise are
+byte-inert (config matches v3 exactly), so **all** of the damage rides
+on the speculative evals — the smoothing SurrogateGP can't rank
+boundary-crossing candidates on multimodal landscapes and early ghost
+evaluations poison basin selection before v3's escape system engages.
+Schwefel spot check: 0.21% vs 0.16%, both total failures as before.
+
+Kept in the repo as infrastructure (hooks + verified harness + negative
+evidence) for a future v5 that would need a non-smoothing ranker
+(e.g. landscape-aware surrogate) before speculative evals can help.
+**v3 stays the recommended optimizer.**
+
 ## SMO on real data: BRFSS 2015 diabetes (`ml_benchmark.py`)
 
 Binary 50/50 split (70,692 rows, 21 features; data mirrors UCI id 891 —
