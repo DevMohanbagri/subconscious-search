@@ -89,6 +89,12 @@ def run_smo_ghost(func, dim, lo, hi, max_evals, seed):
     return best_y
 
 
+def run_smo_rank(func, dim, lo, hi, max_evals, seed):
+    opt = SMOPop(dim, lo, hi, seed=seed, rank_surrogate=True)
+    _, best_y, _ = opt.optimize(func, max_evals)
+    return best_y
+
+
 ALL_METHODS = [
     ("SMO-v1", run_smo),
     ("SMO-Pop", run_smo_pop),

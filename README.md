@@ -182,6 +182,47 @@ mean) holds up on tougher rotated ground — with the failure modes
 now precisely located (dim-30 smooth-unimodal overhead, F28/F29-class
 compositions).
 
+## v5-track: rank-based surrogate (`FastRankSurrogate`) — neutral result
+
+Motivation: the v4 autopsy + Loshchilov et al. (2010) prescribe
+rank-based ("comparison-based") surrogates over value-regression ones,
+which smooth barrier ridges into fake valleys. Implemented as
+`FastRankSurrogate` in `smo_upgraded.py`: pairwise-logistic
+(RankNet-style) utility model on random-Fourier features, trained by
+SGD on ~1500 sampled memory pairs per generation, plus a
+Matérn-UCB-style novelty bonus (same `beta` knob, same interface).
+Opt-in via `SMOPop(..., rank_surrogate=True)` / `--rank-surrogate`;
+default OFF is **bit-identical v3** (verified: exact seed-1 matches).
+Also pluggable into `SMOGhost` (forwards `**kwargs`, zero changes).
+
+Surrogate-level check (synthetic 8-D bowl + sharp barrier ridge, 400
+memory / 300 test points): ranking quality (Kendall tau, higher better)
+**0.33 rank vs 0.20 Matérn** — the ranker is genuinely better at
+ordering barrier landscapes.
+
+Optimizer-level result — neutral in all three architectures:
+1. **v3 core suite** (`results_rank_dim10_5k.txt`): 23/25 runs
+   bit-identical to v3 (sphere/ackley/griewank exact; rastrigin 50.09%
+   exact; rosenbrock 96.59 vs 96.64).
+2. **v3 CEC dim-10** (140 SMO-Rank runs appended to `cec_dim10.jsonl`;
+   `cec_dim10.txt` stays the 6-method baseline snapshot): head-to-head
+   12 rank-wins / 8 pop-wins / 8 exact ties, Wilcoxon n.s. both ways
+   (p=0.40/0.60).
+3. **Ghost dreams+conflicts scored by rank** (5-seed): rastrigin 55.21
+   (vs 55.72 ghost+Matérn), rosenbrock 82.47 (vs 83.76) — identical.
+
+Mechanism (instrumented): on rastrigin seed-1 the two surrogates agree
+on the top pick in **0/210 generations**, yet trajectories stay
+identical — the picked candidates never win/improve, so the
+credit-gated stream (sub_frac ~0.03–0.07) never feeds back into CMA.
+v3's bottleneck is NOT surrogate ranking quality; it is that the gate
+rationally starves a rarely-decisive stream. Rank candidates do win
+slightly more credit (F15 sub_frac 0.073 vs 0.027) without moving
+finals. Cost: 2.7× wall-clock (736s vs 271s on CEC dim-10) for zero
+accuracy gain — not worth it in this architecture. Kept as verified
+infrastructure for a future v5 in which the subconscious stream earns
+real allocation.
+
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `bbob_dim10.txt`, `bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),

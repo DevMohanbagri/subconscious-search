@@ -23,13 +23,14 @@ import time
 import numpy as np
 
 from compare_baselines import (
-    run_smo_pop, run_cma_es, run_bipop, run_differential_evolution,
-    run_dual_annealing, run_random_search,
+    run_smo_pop, run_smo_rank, run_cma_es, run_bipop,
+    run_differential_evolution, run_dual_annealing, run_random_search,
 )
 from opfunu.cec_based import cec2017
 
 METHODS = {
     "SMO-Pop": run_smo_pop,
+    "SMO-Rank": run_smo_rank,
     "CMA-ES": run_cma_es,
     "BIPOP": run_bipop,
     "DiffEvol": run_differential_evolution,

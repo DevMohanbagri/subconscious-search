@@ -15,8 +15,10 @@ Upgrades over smo_upgraded.py (v1):
   #3 Memetic + terminal hopping phase (v3): on stagnation the incumbent
      basin is first drained with budget-counted L-BFGS-B local search.
      Two CONSECUTIVE stalled windows (CMA is trapped, not cruising) switch
-     the ENTIRE remaining budget to surrogate-filtered basin hopping
-     (block-coordinate kicks -> L-BFGS-B drain -> Metropolis adopt).
+     the ENTIRE remaining budget to a terminal annealing walk
+     (cheap 1-eval block-coordinate steps + Cauchy jumps, periodic
+     L-BFGS-B drains, Metropolis adopt; surrogate pre-filtering of hops
+     was tried and dropped — the coarse model can't resolve basins).
      Smooth runs never stall twice, so they never trigger it (zero
      regression risk). Targets Rastrigin-class multimodality.
 
@@ -32,6 +34,7 @@ from scipy.optimize import minimize
 from smo_upgraded import (
     FastSupervisedLatentSpace,
     FastMaternSurrogate,
+    FastRankSurrogate,
     SigmoidGate,
     BENCHMARKS,
     TOLS,
@@ -235,14 +238,19 @@ class SMOPop:
                  n_latent_cand=256, sub_noise=0.7, mem_max=512,
                  lambda_=None, lambda_max=64,
                  active_cma=True, subconscious=True, credit_gate=True,
-                 use_bh_phase=True):
+                 use_bh_phase=True, rank_surrogate=False):
         self.dim = dim
         self.lb = np.broadcast_to(np.asarray(lb, dtype=float), (dim,)).copy()
         self.ub = np.broadcast_to(np.asarray(ub, dtype=float), (dim,)).copy()
         self.latent_dim = latent_dim or min(dim, 8)
         self.rng = np.random.default_rng(seed)
         self.latent = FastSupervisedLatentSpace(self.latent_dim, n_elite=n_elite)
-        self.surrogate = FastMaternSurrogate(self.latent_dim)
+        # v5-track: rank-based intuition module (default OFF = exact v3)
+        self.rank_surrogate = rank_surrogate
+        if rank_surrogate:
+            self.surrogate = FastRankSurrogate(self.latent_dim, seed=seed)
+        else:
+            self.surrogate = FastMaternSurrogate(self.latent_dim)
         self.gate = SigmoidGate(T0=1.0, T_min=0.05, decay=0.99)
         self.beta = beta
         width = float(np.mean(self.ub - self.lb))
@@ -620,7 +628,7 @@ class SMOPop:
 # 3. BENCHMARK (same protocol as v1)
 # -------------------------------------------------------------
 def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
-                  local_search=True, patience_gens=30):
+                  local_search=True, patience_gens=30, rank_surrogate=False):
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -628,7 +636,8 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
         if verbose:
             print(f"\n=== {name} (dim={dim}, evals={max_evals}, runs={n_runs}) ===")
         for r in range(n_runs):
-            opt = SMOPop(dim, lo, hi, seed=seed0 + r)
+            opt = SMOPop(dim, lo, hi, seed=seed0 + r,
+                         rank_surrogate=rank_surrogate)
             t0 = time.time()
             _, best_y, info = opt.optimize(
                 func, max_evals, local_search=local_search,
@@ -677,14 +686,18 @@ def main():
     ap.add_argument("--no-local", action="store_true",
                     help="disable memetic L-BFGS-B drainage + hopping phase")
     ap.add_argument("--patience-gens", type=int, default=30)
+    ap.add_argument("--rank-surrogate", action="store_true",
+                    help="v5-track: rank-based surrogate (default: Matérn v3)")
     args = ap.parse_args()
     print(f"SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping "
-          f"(local={'off' if args.no_local else 'on'})")
+          f"(local={'off' if args.no_local else 'on'}, "
+          f"surrogate={'rank' if args.rank_surrogate else 'matern'})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0,
                             local_search=not args.no_local,
-                            patience_gens=args.patience_gens)
+                            patience_gens=args.patience_gens,
+                            rank_surrogate=args.rank_surrogate)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
     print("\n================ SUMMARY (mean accuracy %) ================")
     for name, m in results.items():

@@ -123,6 +123,95 @@ class FastMaternSurrogate:
 
 
 # -------------------------------------------------------------
+# 3b. RANK SURROGATE: Pairwise-Logistic (RankNet-style) + RFF
+# -------------------------------------------------------------
+class FastRankSurrogate:
+    """Rank-based surrogate: learns *orderings*, not values.
+
+    Model: P(i beats j) = sigmoid(s_i - s_j), s(c) = w . phi(c), with
+    random-Fourier-feature map phi (RBF approximation, median-heuristic
+    bandwidth). Trained by SGD on pairs sampled from memory. Candidates
+    are scored by predicted utility s(c) plus a beta-weighted novelty
+    bonus (min-distance to memory), mirroring the Matérn UCB's beta knob.
+
+    Why ranks: value-regression smooths barrier ridges into fake valleys
+    and over-scores them (the v4-ghost autopsy); comparison-based
+    optimizers need comparison-based surrogates (Loshchilov et al. 2010).
+    Rank utilities are invariant to monotone transforms of Y and robust
+    to barrier-scale outliers. Same interface as FastMaternSurrogate
+    (higher score = better); deterministic given (seed, data sequence).
+    """
+
+    def __init__(self, d, n_features=128, n_pairs=1500, n_steps=150,
+                 batch=64, lr=0.2, l2=1e-4, seed=0):
+        self.d = d
+        self.F = n_features
+        self.n_pairs = n_pairs
+        self.n_steps = n_steps
+        self.batch = batch
+        self.lr = lr
+        self.l2 = l2
+        self.rng = np.random.default_rng(seed)
+        # Fixed RFF projection (frequencies redrawn never; bandwidth adapts)
+        self.W = self.rng.standard_normal((self.F, d))
+        self.b = self.rng.uniform(0, 2 * np.pi, self.F)
+
+    def _features(self, C, gamma):
+        return np.sqrt(2.0 / self.F) * np.cos(C @ self.W.T / gamma + self.b)
+
+    def evaluate_acquisition(self, C_cand, C_mem, Y_mem, beta=1.5):
+        C_cand = np.asarray(C_cand, dtype=float)
+        C_mem = np.asarray(C_mem, dtype=float)
+        Y_mem = np.asarray(Y_mem, dtype=float)
+        n_cand = len(C_cand)
+        if n_cand == 0:
+            return np.zeros(0)
+        if len(C_mem) < 4:
+            return np.zeros(n_cand)
+        # --- standardize with memory stats (RFF + SGD need ~O(1) inputs)
+        mu = C_mem.mean(axis=0)
+        sd = C_mem.std(axis=0) + 1e-9
+        Zm = (C_mem - mu) / sd
+        Zc = (C_cand - mu) / sd
+        # --- median-heuristic bandwidth on a memory subsample
+        sub = Zm if len(Zm) <= 256 else Zm[self.rng.choice(
+            len(Zm), 256, replace=False)]
+        pd = cdist(sub, sub)
+        gamma = float(np.median(pd[pd > 1e-12])) if np.any(
+            pd > 1e-12) else 1.0
+        gamma = max(gamma, 1e-6)
+        Phi_m = self._features(Zm, gamma)
+        # --- sample ordered pairs (better, worse), skip ties
+        n_mem = len(Zm)
+        ii = self.rng.integers(0, n_mem, self.n_pairs * 2).reshape(-1, 2)
+        dy = Y_mem[ii[:, 0]] - Y_mem[ii[:, 1]]
+        keep = np.abs(dy) > 1e-12
+        ii = ii[keep][:self.n_pairs]
+        w = np.zeros(self.F)
+        if len(ii) > 0:
+            better_first = Y_mem[ii[:, 0]] < Y_mem[ii[:, 1]]
+            A = np.where(better_first, ii[:, 0], ii[:, 1])
+            B = np.where(better_first, ii[:, 1], ii[:, 0])
+            D = Phi_m[A] - Phi_m[B]  # (P, F): pair differences
+            # --- SGD on pairwise logistic loss + L2
+            lr = self.lr
+            for _ in range(self.n_steps):
+                bb = self.rng.integers(0, len(D), self.batch)
+                margins = D[bb] @ w
+                # d/dw -log sigmoid(margin) = -sigmoid(-margin) * d_margin
+                neg = 1.0 / (1.0 + np.exp(np.clip(-margins, -30, 30)))
+                grad = -(neg[:, None] * D[bb]).mean(axis=0) + self.l2 * w
+                w -= lr * grad
+        # --- score: standardized utility + novelty bonus (Matérn-like balance:
+        # signal ~O(1), exploration capped, beta keeps a stable meaning)
+        s = self._features(Zc, gamma) @ w
+        s = (s - s.mean()) / (s.std() + 1e-9)
+        dmin = cdist(Zc, Zm).min(axis=1)
+        novelty = dmin / (np.median(dmin) + 1e-9)
+        return s + beta * np.clip(novelty, 0.0, 2.0)
+
+
+# -------------------------------------------------------------
 # 4. GATE OPTIMIZER: Sigmoid Relaxation + Temperature Annealing
 # -------------------------------------------------------------
 class SigmoidGate:
