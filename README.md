@@ -119,6 +119,60 @@ ackley (DA's LS drowns in ripples, 19%) and noisy_sphere (DA chases
 noise, 1.3%). Regimes are now clear: DA = smooth/multimodal + high-D
 valleys; SMO = ill-conditioning, sharp basins, noise, rippled landscapes.
 
+## Tougher benchmarks: CEC2017 (`cec_benchmark.py`, `cec_dim10.txt`, `cec_dim30.txt`)
+
+28 functions via `opfunu` (F1, F3–F29; F2 officially excluded, F30
+unimplemented) — shifted, rotated, hybrid, and composition landscapes,
+bounds [−100, 100]^D. Fixed budget of 10k evals for all methods
+(disclosed: official CEC protocol is 10000×D; this is a fixed-budget
+comparison, 5 seeds dim-10 / 3 seeds dim-30). Metric is mean error to
+the known optimum; ranks are per-function (1 = best); significance is
+Wilcoxon signed-rank paired by function. Raw per-run records:
+`cec_dim10.jsonl` (700 runs), `cec_dim30.jsonl` (420 runs).
+
+Dim 10 (mean error rank, #functions won, Wilcoxon vs SMO):
+
+| method | mean rank | #best/28 | Wilcoxon vs SMO |
+|--------|-----------|----------|-----------------|
+| **SMO-Pop** | **1.71** | **12** | — |
+| CMA-ES | 2.18 | 10 | 16/28 wins, p=0.29 n.s. |
+| DualAnneal | 2.93 | 4 | 23/28 wins, p=0.0003 ✅ |
+| DiffEvol | 3.18 | 2 | 25/28 wins, p<0.0001 ✅ |
+| RandSearch | 5.00 | 0 | 28/28 wins, p<0.0001 ✅ |
+
+Dim-10 class ranks: SMO is best-or-tied in every class (unimodal 1.50
+tie, multimodal 1.71, hybrid 2.00, composition 1.44). Dual Annealing —
+the overall leader on the custom suite — collapses to rank 2.93:
+rotation + shifts + hybrids defeat its local search, exactly as
+predicted. SMO's highlights: F1 bent cigar to 3.6e-06, best-on-12.
+Residual weak spots: F28/F29 compositions (CMA 1640/4746 vs SMO
+1873/14900) and F10/F18 (plain CMA wins big).
+
+Dim 30 (same format):
+
+| method | mean rank | #best/28 | Wilcoxon vs SMO |
+|--------|-----------|----------|-----------------|
+| CMA-ES | 1.89 | 12 | 12/28 SMO wins, p=0.55 n.s. |
+| DualAnneal | 2.04 | 9 | 14/28 SMO wins, p=0.93 n.s. |
+| **SMO-Pop** | **2.07** | 7 | — |
+| DiffEvol | 4.00 | 0 | 28/28 wins, p<0.0001 ✅ |
+| RandSearch | 5.00 | 0 | 28/28 wins, p<0.0001 ✅ |
+
+Dim-30 is a 3-way tie at the top (CMA 1.89 / DA 2.04 / SMO 2.07, no
+significant pairwise differences). Class split: DA owns hybrids (1.40)
+and unimodal (1.50 tie); SMO ties multimodal (1.71) and takes
+composition silver (1.89). SMO's dim-30 tax is visible on smooth
+unimodal F1 (DA 0.03, CMA 144, SMO 4138): subconscious overhead slows
+the sprint where plain CMA/LS converges — evidence for the roadmap
+(diagonal-start covariance, surrogate prescreening to *save* evals).
+
+Net across both dims: **SMO is never significantly beaten by anyone,
+significantly beats DE/RS everywhere and DA at dim 10, and ties
+plain CMA-ES both dims.** The custom-suite story (best rank, DA ahead
+on mean) holds up on tougher rotated ground — with the failure modes
+now precisely located (dim-30 smooth-unimodal overhead, F28/F29-class
+compositions).
+
 ## Ablation study (`ablation.py`, `ablation_results.txt`)
 
 Each v3 component removed in isolation; dim=10, 5k evals, seeds 1–5.

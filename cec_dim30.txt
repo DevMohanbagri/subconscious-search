@@ -1,0 +1,55 @@
+
+===== cec_dim30.jsonl (28 funcs, 3 seeds) =====
+--- MEAN ERROR per function (lower better) ---
+func       SMO-Pop      CMA-ES    DiffEvol  DualAnneal  RandSearch
+F1            4138       143.8   1.056e+10     0.03422   7.006e+10
+F3           31.81       31.81        2069       31.81   1.613e+04
+F4           56.71       54.39   1.943e+04       549.9   8.684e+04
+F5        0.001525   2.413e-06     0.02981    0.002258     0.04964
+F6           86.77       81.62   6.463e+05        1155   2.933e+06
+F7           344.3         156       551.1       294.6       818.4
+F8            1.18       1.423       17.99       9.033       53.78
+F9            2753        4244        7616        3082        7908
+F10          373.6        5367   5.554e+07        1220   2.218e+09
+F11      6.001e+04   1.244e+05   1.026e+09        2785    7.29e+09
+F12      4.334e+04   6.055e+04   6.214e+08        5281   1.124e+10
+F13      1.169e+05   1.099e+05   2.509e+06        2515   6.138e+06
+F14      5.027e+04    8.84e+04   2.841e+08        2098   5.822e+09
+F15          845.6        1110   6.728e+06       14.77    1.15e+09
+F16      1.208e+04       416.5   3.328e+08        5990   6.788e+11
+F17      9.375e+04   7.316e+04   5.103e+06       967.7   2.803e+07
+F18      3.107e+04   1.145e+05   2.022e+09    1.73e+04   1.693e+12
+F19            117       333.7        3852        2657   1.294e+04
+F20          261.6       162.5        6017       234.2   4.229e+04
+F21          174.9       176.3       459.1       221.6        2173
+F22            200         200   1.836e+04         426    5.53e+04
+F23            200       251.1   1.062e+04         200    3.66e+04
+F24          422.2       420.6        1352         427        7280
+F25          809.7       835.5        1632       818.2        7304
+F26          536.5       517.3       839.1       557.8        1605
+F27         0.5485   0.0004167        1057        75.1        3368
+F28      2.283e+05        7028   3.763e+09        8716   2.243e+11
+F29       1.59e+05    8.04e+04   2.139e+09   5.378e+04   8.301e+10
+--- MEAN RANK (lower better) + #best ---
+SMO-Pop    rank=2.07  best-on=7/28
+CMA-ES     rank=1.89  best-on=12/28
+DiffEvol   rank=4.00  best-on=0/28
+DualAnneal rank=2.04  best-on=9/28
+RandSearch rank=5.00  best-on=0/28
+--- MEAN RANK by class ---
+class            SMO-Pop      CMA-ES    DiffEvol  DualAnneal  RandSearch
+unimodal            3.00        1.50        4.00        1.50        5.00
+multimodal          1.71        1.71        4.00        2.57        5.00
+hybrid              2.30        2.30        4.00        1.40        5.00
+composition         1.89        1.67        4.00        2.44        5.00
+--- WILCOXON vs SMO-Pop (paired by func, lower error better) ---
+SMO-Pop vs CMA-ES: W=208 p=0.5491 wins=12/28 -> not significant
+SMO-Pop vs DiffEvol: W=0 p=0.0000 wins=28/28 -> SIGNIFICANTLY BETTER
+SMO-Pop vs DualAnneal: W=269 p=0.9343 wins=14/28 -> not significant
+SMO-Pop vs RandSearch: W=0 p=0.0000 wins=28/28 -> SIGNIFICANTLY BETTER
+--- WALL TIME per method ---
+SMO-Pop    267.1s total
+CMA-ES     239.1s total
+DiffEvol   130.1s total
+DualAnneal 175.9s total
+RandSearch 125.1s total
