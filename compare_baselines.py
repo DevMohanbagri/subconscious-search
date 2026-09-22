@@ -61,6 +61,16 @@ def run_cma_es(func, dim, lo, hi, max_evals, seed):
     return float(res[1])
 
 
+def run_bipop(func, dim, lo, hi, max_evals, seed):
+    width = hi - lo
+    x0 = np.random.RandomState(seed).uniform(lo, hi, size=dim)
+    res = cma.fmin(func, x0, width / 4.0,
+                   options={'bounds': [lo, hi], 'maxfevals': max_evals,
+                            'seed': seed, 'verbose': -9, 'verb_log': 0},
+                   restarts=100, bipop=True)
+    return float(res[1])
+
+
 def run_smo(func, dim, lo, hi, max_evals, seed):
     opt = SMOUpgraded(dim, lo, hi, seed=seed)
     _, best_y, _ = opt.optimize(func, max_evals)

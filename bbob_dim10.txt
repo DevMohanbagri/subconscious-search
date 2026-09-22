@@ -1,0 +1,70 @@
+
+===== bbob_dim10.jsonl (24 funcs x 5 inst, budget=10000) =====
+--- FIXED-BUDGET mean precision per func (lower better) ---
+func       SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+f1        7.56e-13   7.105e-15   7.105e-15   0.0009258   2.912e-12       12.36
+f2       3.023e-05   8.527e-15   8.527e-15      0.8274   0.0008088   4.401e+04
+f3           3.582       14.73       9.976       32.64       0.597       125.9
+f4           5.373       21.69       11.34       38.25       0.597         163
+f5           1.695     2.7e-14   4.263e-15        4.79           0       57.23
+f6        0.000314   3.915e-13   3.915e-13       4.431     0.00296        3075
+f7          0.4415       1.131     0.07627       1.003       9.009       48.53
+f8       9.419e-10   4.263e-15   4.263e-15       6.891   7.646e-06        2405
+f9        0.002163   1.563e-14   1.563e-14       8.826   5.659e-09        2903
+f10      5.622e-05   2.132e-14   2.132e-14        8098       8.012   8.223e+04
+f11        0.02827   1.172e-14   1.172e-14       29.34     0.01641       71.55
+f12        0.08273      0.2027      0.2027        4328    0.004949   1.052e+07
+f13        0.04398   1.122e-08   1.122e-08       19.74       13.77         652
+f14      1.509e-05   5.745e-12   5.745e-12    0.009656   2.768e-05       4.537
+f15          13.33       11.94       5.283       37.11       52.18       136.6
+f16         0.3756       1.802       1.798       10.75       7.747       11.52
+f17        0.05452      0.1328      0.0458      0.2965       2.075       4.942
+f18         0.1661      0.2562       0.102       1.379       8.606       16.33
+f19         0.3387       1.214       1.058       2.967       1.864       7.727
+f20          1.524       1.745       1.248       2.036      0.9709       551.9
+f21          1.801       1.812       1.718       4.259       1.507       16.08
+f22          5.187        5.01       3.694       3.413       1.186       19.29
+f23          1.133       1.617       1.509        1.36      0.9242       1.672
+f24          21.06        24.8       20.18       63.83       43.41       112.9
+--- FIXED-BUDGET mean rank + #best ---
+SMO-Pop    rank=2.71  best-on=2/24
+CMA-ES     rank=2.54  best-on=9/24
+BIPOP      rank=2.08  best-on=5/24
+DiffEvol   rank=4.58  best-on=0/24
+DualAnneal rank=3.08  best-on=8/24
+RandSearch rank=6.00  best-on=0/24
+--- FIXED-BUDGET mean rank by group ---
+group            SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+separable           2.80        2.60        2.40        5.00        2.20        6.00
+low-cond            3.00        1.75        1.75        4.50        4.00        6.00
+high-cond           3.00        1.40        2.40        5.00        3.20        6.00
+multi-strong        1.80        2.80        1.40        4.40        4.60        6.00
+multi-weak          3.00        4.00        2.40        4.00        1.60        6.00
+--- WILCOXON vs SMO-Pop on mean precision (paired by func) ---
+SMO-Pop vs CMA-ES: W=101 p=0.0844 wins=12/24 -> not significant
+SMO-Pop vs BIPOP: W=190 p=0.8739 wins=6/24 -> not significant
+SMO-Pop vs DiffEvol: W=9 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+SMO-Pop vs DualAnneal: W=111 p=0.1384 wins=14/24 -> not significant
+SMO-Pop vs RandSearch: W=0 p=0.0000 wins=24/24 -> SIGNIFICANTLY BETTER
+--- FIXED-TARGET fraction of (run,target) pairs solved ---
+method     solved/total    frac ECDF@0.1  ECDF@0.3  ECDF@1.0
+SMO-Pop      3085/6120    50.4%     17.7%     31.5%     50.4%
+CMA-ES       3402/6120    55.6%     17.1%     32.2%     55.6%
+BIPOP        3660/6120    59.8%     17.1%     33.0%     59.8%
+DiffEvol      932/6120    15.2%      5.0%      8.2%     15.2%
+DualAnneal   2498/6120    40.8%     27.8%     34.0%     40.8%
+RandSearch    300/6120     4.9%      3.8%      4.4%      4.9%
+--- FIXED-TARGET solved fraction by group ---
+group            SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+separable          68.0%       63.6%       64.3%       19.8%       73.3%        2.7%
+low-cond           72.8%       80.2%       96.3%       14.8%       62.8%        1.2%
+high-cond          70.3%       93.3%       93.3%       11.0%       38.0%        3.3%
+multi-strong       26.0%       23.9%       29.5%       15.6%       12.7%        9.1%
+multi-weak         19.4%       21.8%       22.9%       14.9%       21.6%        7.5%
+--- WALL TIME per method ---
+SMO-Pop    244.4s total
+CMA-ES     71.7s total
+BIPOP      120.1s total
+DiffEvol   13.6s total
+DualAnneal 29.5s total
+RandSearch 6.5s total

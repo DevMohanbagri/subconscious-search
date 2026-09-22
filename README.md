@@ -128,23 +128,28 @@ bounds [−100, 100]^D. Fixed budget of 10k evals for all methods
 comparison, 5 seeds dim-10 / 3 seeds dim-30). Metric is mean error to
 the known optimum; ranks are per-function (1 = best); significance is
 Wilcoxon signed-rank paired by function. Raw per-run records:
-`cec_dim10.jsonl` (700 runs), `cec_dim30.jsonl` (420 runs).
+`cec_dim10.jsonl` (840 runs), `cec_dim30.jsonl` (504 runs).
 
 Dim 10 (mean error rank, #functions won, Wilcoxon vs SMO):
 
 | method | mean rank | #best/28 | Wilcoxon vs SMO |
 |--------|-----------|----------|-----------------|
-| **SMO-Pop** | **1.71** | **12** | — |
-| CMA-ES | 2.18 | 10 | 16/28 wins, p=0.29 n.s. |
-| DualAnneal | 2.93 | 4 | 23/28 wins, p=0.0003 ✅ |
-| DiffEvol | 3.18 | 2 | 25/28 wins, p<0.0001 ✅ |
-| RandSearch | 5.00 | 0 | 28/28 wins, p<0.0001 ✅ |
+| **SMO-Pop** | **2.00** | **10** | — |
+| CMA-ES | 2.39 | 10 | 16/28 wins, p=0.29 n.s. |
+| DualAnneal | 3.36 | 4 | 23/28 wins, p=0.0003 ✅ |
+| BIPOP | 3.50 | 2 | 20/28 wins, p=0.020 ✅ |
+| DiffEvol | 3.79 | 2 | 25/28 wins, p<0.0001 ✅ |
+| RandSearch | 5.96 | 0 | 28/28 wins, p<0.0001 ✅ |
 
 Dim-10 class ranks: SMO is best-or-tied in every class (unimodal 1.50
-tie, multimodal 1.71, hybrid 2.00, composition 1.44). Dual Annealing —
-the overall leader on the custom suite — collapses to rank 2.93:
+tie, multimodal 2.14, hybrid 2.30, composition 1.67). Dual Annealing —
+the overall leader on the custom suite — collapses to rank 3.36:
 rotation + shifts + hybrids defeat its local search, exactly as
-predicted. SMO's highlights: F1 bent cigar to 3.6e-06, best-on-12.
+predicted. Notably SMO also beats BIPOP significantly (p=0.020):
+at a tight 10k budget on hard rotated/hybrid landscapes, BIPOP's
+restart overhead burns evals without time to pay off, while SMO's
+stall-gated design (no restart until stagnation is proven) wins.
+SMO's highlights: F1 bent cigar to 3.6e-06, best-on-10.
 Residual weak spots: F28/F29 compositions (CMA 1640/4746 vs SMO
 1873/14900) and F10/F18 (plain CMA wins big).
 
@@ -153,25 +158,85 @@ Dim 30 (same format):
 | method | mean rank | #best/28 | Wilcoxon vs SMO |
 |--------|-----------|----------|-----------------|
 | CMA-ES | 1.89 | 12 | 12/28 SMO wins, p=0.55 n.s. |
-| DualAnneal | 2.04 | 9 | 14/28 SMO wins, p=0.93 n.s. |
-| **SMO-Pop** | **2.07** | 7 | — |
-| DiffEvol | 4.00 | 0 | 28/28 wins, p<0.0001 ✅ |
-| RandSearch | 5.00 | 0 | 28/28 wins, p<0.0001 ✅ |
+| DualAnneal | 2.50 | 9 | 14/28 SMO wins, p=0.93 n.s. |
+| **SMO-Pop** | **2.61** | 7 | — |
+| BIPOP | 3.04 | 0 | 13/28 SMO wins, p=0.42 n.s. |
+| DiffEvol | 4.96 | 0 | 28/28 wins, p<0.0001 ✅ |
+| RandSearch | 6.00 | 0 | 28/28 wins, p<0.0001 ✅ |
 
-Dim-30 is a 3-way tie at the top (CMA 1.89 / DA 2.04 / SMO 2.07, no
-significant pairwise differences). Class split: DA owns hybrids (1.40)
-and unimodal (1.50 tie); SMO ties multimodal (1.71) and takes
-composition silver (1.89). SMO's dim-30 tax is visible on smooth
-unimodal F1 (DA 0.03, CMA 144, SMO 4138): subconscious overhead slows
-the sprint where plain CMA/LS converges — evidence for the roadmap
-(diagonal-start covariance, surrogate prescreening to *save* evals).
+Dim-30 is a 3-way tie at the top (CMA 1.89 / DA 2.50 / SMO 2.61, no
+significant pairwise differences); BIPOP sinks to 4th with 0/28 wins —
+again, restarts need budget headroom that 10k evals in dim 30 don't
+give. Class split: DA owns hybrids (1.70) and unimodal (1.50 tie);
+SMO is 2nd on multimodal (2.29) and composition (2.56). SMO's dim-30
+tax is visible on smooth unimodal F1 (DA 0.03, CMA 144, SMO 4138):
+subconscious overhead slows the sprint where plain CMA/LS converges —
+evidence for the roadmap (diagonal-start covariance, surrogate
+prescreening to *save* evals).
 
-Net across both dims: **SMO is never significantly beaten by anyone,
-significantly beats DE/RS everywhere and DA at dim 10, and ties
-plain CMA-ES both dims.** The custom-suite story (best rank, DA ahead
-on mean) holds up on tougher rotated ground — with the failure modes
+Net across both dims: **SMO is never significantly beaten by anyone
+(reverse Wilcoxon p≥0.07 everywhere), significantly beats DE/RS
+everywhere, DA at dim 10, and BIPOP at dim 10**, and ties plain
+CMA-ES both dims. The custom-suite story (best rank, DA ahead on
+mean) holds up on tougher rotated ground — with the failure modes
 now precisely located (dim-30 smooth-unimodal overhead, F28/F29-class
 compositions).
+
+## BBOB via IOHexperimenter (`bbob_benchmark.py`, `bbob_dim10.txt`, `bbob_dim20.txt`)
+
+The venue-standard suite: 24 noiseless BBOB functions (f1–f24),
+bounds [−5, 5]^D, 6 methods incl. a pycma **BIPOP** baseline
+(`run_bipop` in `compare_baselines.py`). Dim 10: 10k evals, instances
+1–5 (720 runs); dim 20: 20k evals, instances 1–3 (432 runs). Both
+fixed-budget (mean precision, ranks, Wilcoxon paired by function) and
+fixed-target analysis (fraction of run×target pairs solved over 51
+COCO targets 1e2–1e-8). Raw records: `bbob_dim10.jsonl`,
+`bbob_dim20.jsonl`.
+
+Dim 10 — fixed-budget rank / fixed-target solved:
+
+| method | mean rank | #best/24 | targets solved | Wilcoxon vs SMO |
+|--------|-----------|----------|----------------|-----------------|
+| BIPOP | 2.08 | 5 | 59.8% | SMO wins 6/24, n.s. |
+| CMA-ES | 2.54 | 9 | 55.6% | SMO wins 12/24, n.s. |
+| **SMO-Pop** | **2.71** | 2 | **50.4%** | — |
+| DualAnneal | 3.08 | 8 | 40.8% | SMO wins 14/24, n.s. |
+| DiffEvol | 4.58 | 0 | 15.2% | ✅ SMO, p<0.0001 |
+| RandSearch | 6.00 | 0 | 4.9% | ✅ SMO, p<0.0001 |
+
+Dim 20 — same format:
+
+| method | mean rank | #best/24 | targets solved | Wilcoxon vs SMO |
+|--------|-----------|----------|----------------|-----------------|
+| BIPOP | 2.33 | 4 | 45.8% | SMO wins 10/24, n.s. |
+| CMA-ES | 2.38 | 8 | 44.5% | SMO wins 13/24, n.s. |
+| **SMO-Pop** | **2.54** | 5 | **40.2%** | — |
+| DualAnneal | 3.08 | 7 | 32.2% | SMO wins 12/24, n.s. |
+| DiffEvol | 4.79 | 0 | 7.5% | ✅ SMO, p<0.0001 |
+| RandSearch | 5.88 | 0 | 2.8% | ✅ SMO, p<0.0001 |
+
+Honest read: on BBOB's structured landscapes BIPOP is the best method
+(rank ~2.1–2.3, most targets solved) — restarts pay off here, the
+mirror image of CEC2017 where they burned budget. SMO ranks 3rd both
+dims but **inside a 4-way statistical tie** (no significant difference
+vs BIPOP/CMA/DA in either direction; reverse p≥0.13), significantly
+ahead of DE/RS. Group detail: SMO is 2nd on structured multimodal
+f15–19 (rank 1.80 dim-10; wins f16+f19 outright) and **1st on
+separable f1–5 at dim 20 (rank 1.80)** — but pays a precision-depth tax
+on smooth/conditioned functions (f10: CMA 1.6e-13 vs SMO 5.6e-05 at
+dim 10; f10/f11 similar at dim 20): evals spent on the subconscious
+stream and hopping are evals plain CMA spends converging to 1e-14.
+Dual Annealing sprints early (best ECDF@10% budget both dims) then
+stalls on conditioning. New roadmap item from this suite: precision
+refinement (cheaper convergence to 1e-12 once the right basin is found).
+
+Cross-suite net (custom + CEC2017 + BBOB): SMO is top-3 by rank on all
+6 tables, #1 twice, and **never significantly beaten by any method on
+any suite** — the consistency story holds at venue-standard level. A
+performance-superiority claim over BIPOP/CMA is NOT supported (and not
+claimed); the novelty claim rests on the mechanisms (M1–M3,
+`PRIOR_ART.md`), for which SMO is now shown competitive with the
+restart state of the art.
 
 ## Ablation study (`ablation.py`, `ablation_results.txt`)
 
