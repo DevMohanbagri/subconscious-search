@@ -223,6 +223,29 @@ accuracy gain — not worth it in this architecture. Kept as verified
 infrastructure for a future v5 in which the subconscious stream earns
 real allocation.
 
+## Experiment 1: forced subconscious quantity — negative (diagnostic)
+
+Question: is the stream starved (needs MORE turns) or weak (more turns
+= more waste)? Implemented `--sub-boost N` (N guaranteed extra
+subconscious evals/generation; 0 = bit-identical v3). Rastrigin seed-1:
+sub_frac 0.028 → 0.107 → 0.215 for N = 0/2/5 — the lever works.
+Core suite, dim-10/5k/seeds 1–5 (`results_subboost_dim10_5k.txt`):
+
+| function | v3 (N=0) | N=2 | N=5 |
+|---|---|---|---|
+| sphere | 100.00% (1.0e-27) | 100.00% (2.4e-25) | 100.00% (8.2e-20) |
+| rastrigin | 50.09% | 47.40% | 29.65% |
+| rosenbrock | 96.64% | 75.88% | 47.22% |
+| ackley | 100.00% | 100.00% | 100.00% |
+| griewank | 99.27% | 99.27% | 99.27% |
+
+Monotone dose-response damage: rosenbrock −21pp/−49pp, rastrigin
+−3pp/−20pp, precision depth decayed on sphere/ackley. Forced quantity
+is pure budget theft from CMA — the credit gate's stinginess is
+*optimal*, not a bug. Conclusion: the stream is QUALITY-capped, not
+quantity-capped. v5 must go through prescreening (save-evals, exp-2)
+and/or braver-pool + rank-filter (exp-3), never raw allocation.
+
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `bbob_dim10.txt`, `bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),
