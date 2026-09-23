@@ -288,7 +288,7 @@ def main():
     ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--methods", type=str, default=",".join(METHODS))
     ap.add_argument("--fids", type=str, default="all")
-    ap.add_argument("--out", type=str, default="bbob_results.jsonl")
+    ap.add_argument("--out", type=str, default="results/bbob/bbob_results.jsonl")
     ap.add_argument("--summarize", type=str, default=None)
     ap.add_argument("--baseline", type=str, default="SMO-Pop")
     args = ap.parse_args()

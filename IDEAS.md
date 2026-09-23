@@ -84,6 +84,6 @@ better intuition, not lobotomy.
 
 - This statement: 2026-09-21 (draft for author review).
 - The git history of this repository timestamps the ideas as implemented.
-- Evidence: `results_popv3_dim10_5k.txt`, `ablation_results.txt`,
-  `comparison_results_v3.txt`, `comparison_ghost_dim10.txt`,
-  `results_ghost_dim10_5k.txt`.
+- Evidence: `results/core/results_popv3_dim10_5k.txt`, `results/core/ablation_results.txt`,
+  `results/core/comparison_results_v3.txt`, `results/core/comparison_ghost_dim10.txt`,
+  `results/core/results_ghost_dim10_5k.txt`.

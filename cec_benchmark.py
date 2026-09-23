@@ -218,7 +218,7 @@ def main():
     ap.add_argument("--seed0", type=int, default=1)
     ap.add_argument("--methods", type=str, default=",".join(METHODS))
     ap.add_argument("--funcs", type=str, default="all")
-    ap.add_argument("--out", type=str, default="cec_results.jsonl")
+    ap.add_argument("--out", type=str, default="results/cec/cec_results.jsonl")
     ap.add_argument("--summarize", type=str, default=None)
     ap.add_argument("--baseline", type=str, default="SMO-Pop")
     args = ap.parse_args()

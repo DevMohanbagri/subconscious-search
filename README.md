@@ -29,11 +29,16 @@ pip install cma
 python compare_baselines.py --dim 10 --max-evals 5000 --n-runs 5 --seed0 1
 ```
 
+Layout: optimizers + benchmark harnesses (`*.py`) live at root;
+`results/{core,cec,bbob,esdrp,ml}/` hold raw logs (`.jsonl`) and
+summary snapshots (`.txt`); `papers/` holds reference PDFs;
+`data/` (gitignored) holds datasets.
+
 ## Results (dim=10, 5 runs, 5000 evals)
 
 Accuracy = `100 / (1 + best_loss)` (100% at the global optimum).
-Full per-run logs: `results_popv3_dim10_5k.txt` (v3),
-`results_pop_dim10_5k.txt` (v2), `results_dim10_5k.txt` (v1).
+Full per-run logs: `results/core/results_popv3_dim10_5k.txt` (v3),
+`results/core/results_pop_dim10_5k.txt` (v2), `results/core/results_dim10_5k.txt` (v1).
 
 | function   | v3 acc  | v3 loss | v2 acc | v1 acc  |
 |------------|---------|---------|--------|---------|
@@ -46,7 +51,7 @@ Full per-run logs: `results_popv3_dim10_5k.txt` (v3),
 
 ## Comparison vs established optimizers (dim=10, 5000 evals, seeds 1–5)
 
-Same eval budget for every method. Full log: `comparison_results_v3.txt`.
+Same eval budget for every method. Full log: `results/core/comparison_results_v3.txt`.
 
 | function   | SMO-Pop (v3) | SMO-v1 | CMA-ES | DiffEvol | DualAnneal | RandSearch |
 |------------|--------------|--------|--------|----------|------------|------------|
@@ -63,7 +68,7 @@ within 2 points of Dual Annealing overall — trailing only on rastrigin,
 where annealing specialists still lead but the gap closed from 69 to 27
 points (7x accuracy gain over v2).
 
-## Extended suite: 7 more functions, dim 10 (`comparison_extra_dim10.txt`)
+## Extended suite: 7 more functions, dim 10 (`results/core/comparison_extra_dim10.txt`)
 
 schwefel / levy / michalewicz / styblinski / ellipsoid / zakharov /
 noisy_sphere — same 5k-eval budget, seeds 1–5.
@@ -88,7 +93,7 @@ trend) defeats the whole CMA family. SMO beats DA on ellipsoid
 (covariance learning > numeric gradients at cond 1e6) and noisy_sphere
 (LS chases noise; ES averages it out).
 
-## Stress test: all 11 functions, dim 30 (`comparison_all_dim30.txt`)
+## Stress test: all 11 functions, dim 30 (`results/core/comparison_all_dim30.txt`)
 
 Same 5k-eval budget (starvation rations in 30-D), 3 runs, seeds 1–3
 (michalewicz skipped: no dim-30 reference optimum).
@@ -119,7 +124,7 @@ ackley (DA's LS drowns in ripples, 19%) and noisy_sphere (DA chases
 noise, 1.3%). Regimes are now clear: DA = smooth/multimodal + high-D
 valleys; SMO = ill-conditioning, sharp basins, noise, rippled landscapes.
 
-## Tougher benchmarks: CEC2017 (`cec_benchmark.py`, `cec_dim10.txt`, `cec_dim30.txt`)
+## Tougher benchmarks: CEC2017 (`cec_benchmark.py`, `results/cec/cec_dim10.txt`, `results/cec/cec_dim30.txt`)
 
 28 functions via `opfunu` (F1, F3–F29; F2 officially excluded, F30
 unimplemented) — shifted, rotated, hybrid, and composition landscapes,
@@ -128,7 +133,7 @@ bounds [−100, 100]^D. Fixed budget of 10k evals for all methods
 comparison, 5 seeds dim-10 / 3 seeds dim-30). Metric is mean error to
 the known optimum; ranks are per-function (1 = best); significance is
 Wilcoxon signed-rank paired by function. Raw per-run records:
-`cec_dim10.jsonl` (840 runs), `cec_dim30.jsonl` (504 runs).
+`results/cec/cec_dim10.jsonl` (840 runs), `results/cec/cec_dim30.jsonl` (504 runs).
 
 Dim 10 (mean error rank, #functions won, Wilcoxon vs SMO):
 
@@ -201,11 +206,11 @@ memory / 300 test points): ranking quality (Kendall tau, higher better)
 ordering barrier landscapes.
 
 Optimizer-level result — neutral in all three architectures:
-1. **v3 core suite** (`results_rank_dim10_5k.txt`): 23/25 runs
+1. **v3 core suite** (`results/core/results_rank_dim10_5k.txt`): 23/25 runs
    bit-identical to v3 (sphere/ackley/griewank exact; rastrigin 50.09%
    exact; rosenbrock 96.59 vs 96.64).
-2. **v3 CEC dim-10** (140 SMO-Rank runs appended to `cec_dim10.jsonl`;
-   `cec_dim10.txt` stays the 6-method baseline snapshot): head-to-head
+2. **v3 CEC dim-10** (140 SMO-Rank runs appended to `results/cec/cec_dim10.jsonl`;
+   `results/cec/cec_dim10.txt` stays the 6-method baseline snapshot): head-to-head
    12 rank-wins / 8 pop-wins / 8 exact ties, Wilcoxon n.s. both ways
    (p=0.40/0.60).
 3. **Ghost dreams+conflicts scored by rank** (5-seed): rastrigin 55.21
@@ -229,7 +234,7 @@ Question: is the stream starved (needs MORE turns) or weak (more turns
 = more waste)? Implemented `--sub-boost N` (N guaranteed extra
 subconscious evals/generation; 0 = bit-identical v3). Rastrigin seed-1:
 sub_frac 0.028 → 0.107 → 0.215 for N = 0/2/5 — the lever works.
-Core suite, dim-10/5k/seeds 1–5 (`results_subboost_dim10_5k.txt`):
+Core suite, dim-10/5k/seeds 1–5 (`results/core/results_subboost_dim10_5k.txt`):
 
 | function | v3 (N=0) | N=2 | N=5 |
 |---|---|---|---|
@@ -251,7 +256,7 @@ and/or braver-pool + rank-filter (exp-3), never raw allocation.
 Design: sample 3×/5× CMA offspring per generation, surrogate-score in
 latent space, truly evaluate only the best λ (`--prescreen-mult N`,
 1 = bit-identical v3, verified). Per-gen eval cost unchanged — only
-offspring quality changes. 5-seed screen (`results_prescreen_dim10_5k.txt`)
+offspring quality changes. 5-seed screen (`results/core/results_prescreen_dim10_5k.txt`)
 looked mixed-promising: rosenbrock 96.64 → 99.58 → 99.99 (loss ×370!),
 but rastrigin 50.09 → 24.61 → 34.92 and precision depth damaged
 elsewhere (sphere 1e-27 → 0.003 → 2e-14; griewank monotone-worse).
@@ -277,7 +282,7 @@ impoverishes it. Second lesson in a row: **the 5-seed core suite is a
 screen, the 12-seed is the verdict** (same reversal as ghost v4).
 Exp-2 closed as negative.
 
-## BBOB via IOHexperimenter (`bbob_benchmark.py`, `bbob_dim10.txt`, `bbob_dim20.txt`)
+## BBOB via IOHexperimenter (`bbob_benchmark.py`, `results/bbob/bbob_dim10.txt`, `results/bbob/bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),
 bounds [−5, 5]^D, 6 methods incl. a pycma **BIPOP** baseline
@@ -285,8 +290,8 @@ bounds [−5, 5]^D, 6 methods incl. a pycma **BIPOP** baseline
 1–5 (720 runs); dim 20: 20k evals, instances 1–3 (432 runs). Both
 fixed-budget (mean precision, ranks, Wilcoxon paired by function) and
 fixed-target analysis (fraction of run×target pairs solved over 51
-COCO targets 1e2–1e-8). Raw records: `bbob_dim10.jsonl`,
-`bbob_dim20.jsonl`.
+COCO targets 1e2–1e-8). Raw records: `results/bbob/bbob_dim10.jsonl`,
+`results/bbob/bbob_dim20.jsonl`.
 
 Dim 10 — fixed-budget rank / fixed-target solved:
 
@@ -340,8 +345,8 @@ conditioned landscapes; would NOT extend to modern L-SHADE-class DE.
 Tested via `mealpy` (`zoo_methods.py`): PSO, GA, GWO, WOA, ABC, plus
 SHADE as a modern-DE reference, plus FOX/HBA/TSO (the three optimizers
 from the ESDRP diabetes paper, see next section) — 1080 runs appended
-to `bbob_dim10.jsonl` (now 1800 rows; `bbob_dim10.txt` stays the
-6-method snapshot, full 15-method log in `bbob_zoo_dim10.txt`). Budget
+to `results/bbob/bbob_dim10.jsonl` (now 1800 rows; `results/bbob/bbob_dim10.txt` stays the
+6-method snapshot, full 15-method log in `results/bbob/bbob_zoo_dim10.txt`). Budget
 fairness: nominal epoch×pop≈10k plus a hard cap wrapper asserting
 **exactly** 10000 true evals per run (post-budget calls return
 worst-seen, no new signal). Same IOH dim-10 protocol, instances 1–5.
@@ -389,14 +394,14 @@ in the repo beyond vanilla DE/RS.
 
 ## ESDRP wrapper: v3 beats the paper's swarm optimizers on their own problem
 
-Sarker et al. (Sci Rep 2026, PDF in repo) use FOX/HBA/TSO as wrapper
+Sarker et al. (Sci Rep 2026, PDF in `papers/`) use FOX/HBA/TSO as wrapper
 optimizers for RF feature-selection + hyperparameter tuning on the
 ESDRP diabetes dataset (UCI-529, 520×16). We replicate their problem
 exactly — same 20-D space (4 RF hparams + 16-bit mask), same
 train-F1 fitness, same sliding-window 70/30×10 folds, same
 majority-vote pipeline — and swap in SMO-Pop v3 as the optimizer, plus
 the random-search baseline the paper lacks (`esdrp_wrapper.py`,
-`esdrp_arm1_*.jsonl`, `esdrp_results.txt`; data in `data/esdrp.csv`,
+`results/esdrp/esdrp_arm1_*.jsonl`, `results/esdrp/esdrp_results.txt`; data in `data/esdrp.csv`,
 verified against their Table 2). Every run consumes exactly 1000
 evals/fold (asserted; v3 uses ~6 under by generational granularity),
 seeds paired per fold across methods.
@@ -443,7 +448,7 @@ at 5000). Footnote: the first two Arm-1 runs allowed depth-11 at
 exact-bound hits; affected folds (SMO f8, HBA f7) were rerun
 in-spec and still perfected — final numbers fully in-spec.
 
-## Ablation study (`ablation.py`, `ablation_results.txt`)
+## Ablation study (`ablation.py`, `results/core/ablation_results.txt`)
 
 Each v3 component removed in isolation; dim=10, 5k evals, seeds 1–5.
 Mean accuracy %, and delta vs full in percentage points:
@@ -486,7 +491,7 @@ and failed worse — latent midpoints decode to barrier ridges the
 smoothing surrogate over-scores).
 
 Result: the extras are **net negative**, verifiably, on the core suite
-(dim=10, 5k evals; full log `comparison_ghost_dim10.txt`):
+(dim=10, 5k evals; full log `results/core/comparison_ghost_dim10.txt`):
 
 | function   | SMO-Pop (v3) | SMO-Ghost | Δ ghost−v3 |
 |------------|--------------|-----------|------------|
@@ -518,7 +523,7 @@ evidence) for a future v5 that would need a non-smoothing ranker
 
 Binary 50/50 split (70,692 rows, 21 features; data mirrors UCI id 891 —
 place CSVs in `data/`, gitignored). Stratified 70/15/15 split, seed 42.
-Full log: `ml_results.txt`.
+Full log: `results/ml/ml_results.txt`.
 
 | method | test acc | test F1 | test AUC |
 |---|---|---|---|
