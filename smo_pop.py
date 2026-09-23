@@ -238,7 +238,8 @@ class SMOPop:
                  n_latent_cand=256, sub_noise=0.7, mem_max=512,
                  lambda_=None, lambda_max=64,
                  active_cma=True, subconscious=True, credit_gate=True,
-                 use_bh_phase=True, rank_surrogate=False, sub_boost=0):
+                 use_bh_phase=True, rank_surrogate=False, sub_boost=0,
+                 prescreen_mult=1):
         self.dim = dim
         self.lb = np.broadcast_to(np.asarray(lb, dtype=float), (dim,)).copy()
         self.ub = np.broadcast_to(np.asarray(ub, dtype=float), (dim,)).copy()
@@ -270,6 +271,7 @@ class SMOPop:
         self._lambda_default = 4 + int(3 * np.log(dim))
         self.bounds_list = list(zip(self.lb.tolist(), self.ub.tolist()))
         self.sub_boost = sub_boost  # exp-1: guaranteed extra sub evals/gen (0 = v3)
+        self.prescreen_mult = prescreen_mult  # exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)
         self.bh_kick = float(np.mean(self.ub - self.lb)) * 0.1
         self.bh_ls_cap = 120      # evals per drain
         self.bh_drain_every = 150  # walk steps between periodic drains
@@ -483,8 +485,22 @@ class SMOPop:
                 self.latent.update(archive)
                 self._hook_latent_updated()
 
-            # --- conscious: lambda CMA offspring ---
-            X_con = cma.sample(rng)
+            # --- conscious: lambda CMA offspring (optionally prescreened)
+            # Exp-2: oversample λ×mult offspring, surrogate-score them in
+            # latent space, truly evaluate only the best λ. Per-gen eval
+            # cost is unchanged (λ + k); only offspring quality changes.
+            # Skipped offspring cost nothing and never touch the archive.
+            # prescreen_mult=1 takes the exact v3 path (no reorder risk).
+            if self.prescreen_mult > 1:
+                X_big = cma.sample(rng, k=cma.lambda_ * self.prescreen_mult)
+                C_mem_pre, Y_mem_pre = self._memory_matrices(archive)
+                S_pre = self.surrogate.evaluate_acquisition(
+                    self.latent.phi(X_big), C_mem_pre, Y_mem_pre,
+                    beta=self.beta)
+                keep = np.argsort(S_pre)[-cma.lambda_:][::-1]
+                X_con = X_big[keep]
+            else:
+                X_con = cma.sample(rng)
 
             # --- subconscious: surrogate-ranked latent pool ---
             # (surrogate scores SELECT which candidates; the gate below
@@ -631,7 +647,7 @@ class SMOPop:
 # -------------------------------------------------------------
 def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
                   local_search=True, patience_gens=30, rank_surrogate=False,
-                  sub_boost=0):
+                  sub_boost=0, prescreen_mult=1):
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -640,7 +656,8 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
             print(f"\n=== {name} (dim={dim}, evals={max_evals}, runs={n_runs}) ===")
         for r in range(n_runs):
             opt = SMOPop(dim, lo, hi, seed=seed0 + r,
-                         rank_surrogate=rank_surrogate, sub_boost=sub_boost)
+                         rank_surrogate=rank_surrogate, sub_boost=sub_boost,
+                         prescreen_mult=prescreen_mult)
             t0 = time.time()
             _, best_y, info = opt.optimize(
                 func, max_evals, local_search=local_search,
@@ -693,18 +710,21 @@ def main():
                     help="v5-track: rank-based surrogate (default: Matérn v3)")
     ap.add_argument("--sub-boost", type=int, default=0,
                     help="exp-1: guaranteed extra subconscious evals/gen (0 = v3)")
+    ap.add_argument("--prescreen-mult", type=int, default=1,
+                    help="exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)")
     args = ap.parse_args()
     print(f"SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping "
           f"(local={'off' if args.no_local else 'on'}, "
           f"surrogate={'rank' if args.rank_surrogate else 'matern'}, "
-          f"sub_boost={args.sub_boost})")
+          f"sub_boost={args.sub_boost}, prescreen={args.prescreen_mult})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0,
                             local_search=not args.no_local,
                             patience_gens=args.patience_gens,
                             rank_surrogate=args.rank_surrogate,
-                            sub_boost=args.sub_boost)
+                            sub_boost=args.sub_boost,
+                            prescreen_mult=args.prescreen_mult)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
     print("\n================ SUMMARY (mean accuracy %) ================")
     for name, m in results.items():

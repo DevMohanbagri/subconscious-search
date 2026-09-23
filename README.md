@@ -246,6 +246,37 @@ is pure budget theft from CMA — the credit gate's stinginess is
 quantity-capped. v5 must go through prescreening (save-evals, exp-2)
 and/or braver-pool + rank-filter (exp-3), never raw allocation.
 
+## Experiment 2: surrogate prescreening of CMA offspring — negative
+
+Design: sample 3×/5× CMA offspring per generation, surrogate-score in
+latent space, truly evaluate only the best λ (`--prescreen-mult N`,
+1 = bit-identical v3, verified). Per-gen eval cost unchanged — only
+offspring quality changes. 5-seed screen (`results_prescreen_dim10_5k.txt`)
+looked mixed-promising: rosenbrock 96.64 → 99.58 → 99.99 (loss ×370!),
+but rastrigin 50.09 → 24.61 → 34.92 and precision depth damaged
+elsewhere (sphere 1e-27 → 0.003 → 2e-14; griewank monotone-worse).
+
+Decisive 12-seed test (seeds 1–12, + prescreen×rank-surrogate arm):
+
+| function | v3 | pre×5 | pre×5+rank |
+|---|---|---|---|
+| rosenbrock acc | 97.75±3.69 | 96.53±10.29 | 73.78±30.72 |
+| rastrigin acc | 60.48±34.67 | 31.63±12.00 | 27.95±12.65 |
+
+The 5-seed rosenbrock "win" was noise — pre×5 is neutral-to-worse with
+3× worse reliability, and the rank combo collapses (73.78). On
+rastrigin prescreening halves accuracy while *collapsing variance*
+(34.7 → 12.0): reliable mediocrity — the filter systematically removes
+the lucky basin jumps behind v3's high mean. Mechanism: prescreening is
+a greed filter. It deletes the offspring that look bad to a
+history-trained model — precisely the exploratory steps a population
+needs (basin jumps; valley-wall probes that train the covariance; bad
+offspring the active update learns from). CMA's update already does
+optimal selection-from-randomness; pre-filtering the randomness
+impoverishes it. Second lesson in a row: **the 5-seed core suite is a
+screen, the 12-seed is the verdict** (same reversal as ghost v4).
+Exp-2 closed as negative.
+
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `bbob_dim10.txt`, `bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),
