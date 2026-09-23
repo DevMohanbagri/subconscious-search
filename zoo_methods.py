@@ -74,3 +74,18 @@ def run_abc(func, dim, lo, hi, max_evals, seed):
 def run_shade(func, dim, lo, hi, max_evals, seed):
     from mealpy.evolutionary_based.SHADE import OriginalSHADE
     return _run_mealpy(OriginalSHADE, func, dim, lo, hi, max_evals, seed)
+
+
+def run_fox(func, dim, lo, hi, max_evals, seed):
+    from mealpy.swarm_based.FOX import OriginalFOX
+    return _run_mealpy(OriginalFOX, func, dim, lo, hi, max_evals, seed)
+
+
+def run_hba(func, dim, lo, hi, max_evals, seed):
+    from mealpy.swarm_based.HBA import OriginalHBA
+    return _run_mealpy(OriginalHBA, func, dim, lo, hi, max_evals, seed)
+
+
+def run_tso(func, dim, lo, hi, max_evals, seed):
+    from mealpy.swarm_based.TSO import OriginalTSO
+    return _run_mealpy(OriginalTSO, func, dim, lo, hi, max_evals, seed)

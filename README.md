@@ -338,45 +338,110 @@ restart state of the art.
 Pre-registered prediction: SMO's CMA core beats the 90s–00s zoo on
 conditioned landscapes; would NOT extend to modern L-SHADE-class DE.
 Tested via `mealpy` (`zoo_methods.py`): PSO, GA, GWO, WOA, ABC, plus
-SHADE as a modern-DE reference — 720 runs appended to
-`bbob_dim10.jsonl` (now 1440 rows; `bbob_dim10.txt` stays the 6-method
-snapshot, full 12-method log in `bbob_zoo_dim10.txt`). Budget fairness:
-nominal epoch×pop≈10k plus a hard cap wrapper asserting **exactly**
-10000 true evals per run (post-budget calls return worst-seen, no new
-signal). Same IOH dim-10 protocol, instances 1–5.
+SHADE as a modern-DE reference, plus FOX/HBA/TSO (the three optimizers
+from the ESDRP diabetes paper, see next section) — 1080 runs appended
+to `bbob_dim10.jsonl` (now 1800 rows; `bbob_dim10.txt` stays the
+6-method snapshot, full 15-method log in `bbob_zoo_dim10.txt`). Budget
+fairness: nominal epoch×pop≈10k plus a hard cap wrapper asserting
+**exactly** 10000 true evals per run (post-budget calls return
+worst-seen, no new signal). Same IOH dim-10 protocol, instances 1–5.
 
 | method | mean rank | #best/24 | targets | Wilcoxon vs SMO (SMO wins) |
 |--------|-----------|----------|---------|----------------------------|
-| BIPOP | 2.58 | 5 | 59.8% | 6/24, n.s. |
-| **SMO-Pop** | **3.33** | 2 | **50.4%** | — |
-| CMA-ES | 3.42 | 9 | 55.6% | 12/24, n.s. |
-| DualAnneal | 4.29 | 6 | 40.8% | 14/24, n.s. |
-| SHADE | 5.29 | 1 | 23.1% | ✅ 20/24, p=0.0005 |
-| PSO | 6.12 | 0 | 23.7% | ✅ 20/24, p<0.0001 |
-| GWO | 6.54 | 0 | 17.6% | ✅ 21/24, p<0.0001 |
-| DiffEvol | 7.17 | 0 | 15.2% | ✅ 23/24, p<0.0001 |
-| GA | 8.00 | 1 | 12.8% | ✅ 22/24, p<0.0001 |
-| WOA | 9.58 | 0 | 13.0% | ✅ 23/24, p<0.0001 |
-| ABC | 9.75 | 0 | 12.0% | ✅ 23/24, p<0.0001 |
-| RandSearch | 11.92 | 0 | 4.9% | ✅ 24/24, p<0.0001 |
+| BIPOP | 2.88 | 5 | 59.8% | 6/24, n.s. |
+| **SMO-Pop** | **3.67** | 1 | **50.4%** | — |
+| CMA-ES | 3.75 | 9 | 55.6% | 12/24, n.s. |
+| DualAnneal | 4.88 | 6 | 40.8% | 14/24, n.s. |
+| SHADE | 5.71 | 1 | 23.1% | ✅ 20/24, p=0.0005 |
+| PSO | 6.79 | 0 | 23.7% | ✅ 20/24, p<0.0001 |
+| GWO | 7.29 | 0 | 17.6% | ✅ 21/24, p<0.0001 |
+| HBA | 7.71 | 0 | 18.1% | ✅ 21/24, p<0.0001 |
+| DiffEvol | 8.04 | 0 | 15.2% | ✅ 23/24, p<0.0001 |
+| TSO | 8.92 | 1 | 16.1% | ✅ 20/24, p<0.0001 |
+| GA | 9.21 | 1 | 12.8% | ✅ 22/24, p<0.0001 |
+| WOA | 11.42 | 0 | 13.0% | ✅ 23/24, p<0.0001 |
+| ABC | 11.50 | 0 | 12.0% | ✅ 23/24, p<0.0001 |
+| RandSearch | 13.96 | 0 | 4.9% | ✅ 24/24, p<0.0001 |
+| FOX | 14.29 | 0 | 4.6% | ✅ 23/24, p<0.0001 |
 
-Prediction confirmed — and then some: SMO significantly beats all six
+Prediction confirmed — and then some: SMO significantly beats all nine
 zoo methods, **including the modern SHADE reference** (20/24,
 p=0.0005), and solves 2× the fixed-target pairs of the best zoo member
 (50.4% vs 23.7% PSO). Group detail: the zoo collapses hardest on
-conditioned functions (high-cond ranks: SHADE 5.6, PSO 5.8, GWO 7.4,
-GA/WOA/ABC 10+), exactly where covariance learning pays. Disclosed
-caveats: (1) `mealpy` implementations (incl. a stub `OriginalGA` — used
-functional `BaseGA` instead), not authors' code; (2) default pop=100
-for all zoo methods — different tunings could shift zoo-vs-zoo order,
-but every run consumed exactly 10000 evals; (3) ABC evaluates ~2×/epoch
-so the cap truncates it mid-schedule (budget fairness by design);
-(4) SHADE is designed for 10000×D-scale budgets and is underpowered at
-fixed 10k — this is a fixed-budget comparison, not a SHADE obituary;
-(5) dim-10 BBOB only. Earned claim, scoped: *v3 significantly
-outperforms 6 representative nature-inspired optimizers (PSO, GA, GWO,
-WOA, ABC, SHADE) on BBOB dim-10 at a fixed 10k budget* — the first
-positive superiority result in the repo beyond vanilla DE/RS.
+conditioned functions (high-cond ranks: SHADE 5.8, PSO 6.0, HBA 7.6,
+GWO 8.0, TSO 10.8, rest 11+), exactly where covariance learning pays.
+Striking: **FOX ranks below random search** (14.29 vs 13.96, 4.6% vs
+4.9% targets) — verified functional (beats RS head-to-head on f1/f9),
+just a weak optimizer under defaults; it also loses to RS on the
+ESDRP wrapper below, so the weakness replicates on two grounds.
+Disclosed caveats: (1) `mealpy` implementations (incl. a stub
+`OriginalGA` — used functional `BaseGA` instead), not authors' code;
+(2) default pop=100 for all zoo methods — different tunings could shift
+zoo-vs-zoo order, but every run consumed exactly 10000 evals;
+(3) ABC evaluates ~2×/epoch so the cap truncates it mid-schedule
+(budget fairness by design); (4) SHADE is designed for 10000×D-scale
+budgets and is underpowered at fixed 10k — this is a fixed-budget
+comparison, not a SHADE obituary; (5) dim-10 BBOB only. Earned claim,
+scoped: *v3 significantly outperforms 9 representative nature-inspired
+optimizers (PSO, GA, GWO, WOA, ABC, SHADE, FOX, HBA, TSO) on BBOB
+dim-10 at a fixed 10k budget* — the first positive superiority result
+in the repo beyond vanilla DE/RS.
+
+## ESDRP wrapper: v3 beats the paper's swarm optimizers on their own problem
+
+Sarker et al. (Sci Rep 2026, PDF in repo) use FOX/HBA/TSO as wrapper
+optimizers for RF feature-selection + hyperparameter tuning on the
+ESDRP diabetes dataset (UCI-529, 520×16). We replicate their problem
+exactly — same 20-D space (4 RF hparams + 16-bit mask), same
+train-F1 fitness, same sliding-window 70/30×10 folds, same
+majority-vote pipeline — and swap in SMO-Pop v3 as the optimizer, plus
+the random-search baseline the paper lacks (`esdrp_wrapper.py`,
+`esdrp_arm1_*.jsonl`, `esdrp_results.txt`; data in `data/esdrp.csv`,
+verified against their Table 2). Every run consumes exactly 1000
+evals/fold (asserted; v3 uses ~6 under by generational granularity),
+seeds paired per fold across methods.
+
+Optimizer capability (best train-F1 found, 1000 evals/fold):
+
+| method | mean train-F1 | perfect 1.0 folds | median evals-to-perfect | clean test-F1 |
+|--------|---------------|-------------------|-------------------------|---------------|
+| **SMO-Pop** | **1.0000** | **10/10** | **104** | 0.9695 |
+| TSO | 0.9989 | 9/10 | 163 | 0.9683 |
+| HBA | 0.9989 | 7/10 | 101 | 0.9722 |
+| RandSearch | 0.9921 | 0/10 | — | 0.9609 |
+| FOX | 0.9677 | 0/10 | — | 0.9452 |
+
+Voted-model replication (their leaky pipeline) vs paper-reported:
+
+| method | ours (acc / feats) | paper (acc / feats) |
+|--------|--------------------|---------------------|
+| SMO-Pop | 97.18 / 12 | — |
+| HBA | 97.69 / 16 | 97.24 / 10 |
+| TSO | 97.69 / 15 | 98.14 / 14 |
+| RandSearch | 96.73 / 9 | — |
+| FOX | 95.26 / 15 | 98.01 / 13 |
+
+Findings: (1) **v3 is the most reliable wrapper** — only method
+perfect on all 10 folds; (2) **FOX loses to random search** on both
+train-F1 (0.9677 vs 0.9921) and clean test (Wilcoxon SMO>FOX p=0.008;
+v3's BBOB result replicates on real data); (3) our voted hparams
+converge to (300,10,2,1) — the paper's (10,2,1) corner — independently
+reproducing their "memorize with deep unpruned trees" finding, with
+`n_estimators` confirmed irrelevant; (4) **feature reduction is
+shuffle-unstable**: our HBA keeps all 16 features (vs their 10) under
+an identical pipeline with a different shuffle — the "10 features"
+claim doesn't survive a seed change; (5) honest tie: on *clean*
+per-fold test-F1 all memorizers are statistically tied (~0.97,
+Wilcoxon n.s. at n=10 except vs FOX) — the separation is in optimizer
+capability/speed, not generalization. Arm 2 spot-check at their full
+5000-eval budget (fold 1): both v3 and TSO perfect, v3 12× faster to
+perfect (89 vs 1118 evals); v3's trajectory deterministically
+reproduces Arm 1. Disclosed deviations: fixed shuffle/RF seeds
+(paper: none), deterministic fitness (paper: stochastic default),
+1000-eval budget (their plots show saturation by ~350; Arm 2 confirms
+at 5000). Footnote: the first two Arm-1 runs allowed depth-11 at
+exact-bound hits; affected folds (SMO f8, HBA f7) were rerun
+in-spec and still perfected — final numbers fully in-spec.
 
 ## Ablation study (`ablation.py`, `ablation_results.txt`)
 

@@ -30,6 +30,7 @@ from compare_baselines import (
 )
 from zoo_methods import (
     run_pso, run_ga, run_gwo, run_woa, run_abc, run_shade,
+    run_fox, run_hba, run_tso,
 )
 
 METHODS = {
@@ -45,6 +46,9 @@ METHODS = {
     "WOA": run_woa,
     "ABC": run_abc,
     "SHADE": run_shade,
+    "FOX": run_fox,
+    "HBA": run_hba,
+    "TSO": run_tso,
 }
 
 FIDS = list(range(1, 25))
