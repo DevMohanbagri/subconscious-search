@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extended benchmark suite: 6 more functions + noisy variant.
 
-Complements smo_upgraded.BENCHMARKS (sphere/rastrigin/rosenbrock/ackley/
+Complements bicameral_v1.BENCHMARKS (sphere/rastrigin/rosenbrock/ackley/
 griewank) with different landscape pathologies:
   schwefel    - multimodal, deceptive (optimum far from center, no global trend)
   levy        - multimodal, sharp narrow global basin

@@ -7,7 +7,7 @@ Diabetes Risk Prediction dataset (UCI-529, 520x16+class):
   - fitness = F1 on the 70% train fold (their choice, warts included)
   - sliding-window 70/30 x 10 folds (their Eq. 22-23)
   - majority-vote final model (their Eq. 24-25)
-Methods: SMO-Pop v3, FOX, HBA, TSO (mealpy), + random search (missing
+Methods: Bicameral v3, FOX, HBA, TSO (mealpy), + random search (missing
 from the paper). Every run consumes EXACTLY `evals` true RF trainings
 (asserted) with seeds paired per fold across methods.
 
@@ -152,9 +152,9 @@ def run_one(method, Xtr, ytr, Xte, yte, seed, evals, fitness="train"):
         recall_score
     fit = Fitness(Xtr, ytr, rf_seed=seed, max_evals=evals, fitness=fitness)
     t0 = time.time()
-    if method == "smo":
-        from compare_baselines import run_smo_pop
-        run_smo_pop(fit, DIM, 0.0, 1.0, evals, seed)
+    if method == "bicameral":
+        from compare_baselines import run_bicameral
+        run_bicameral(fit, DIM, 0.0, 1.0, evals, seed)
     elif method == "rs":
         rng = np.random.RandomState(seed)
         for _ in range(evals):
@@ -176,7 +176,7 @@ def run_one(method, Xtr, ytr, Xte, yte, seed, evals, fitness="train"):
     # topping up, so it may use a few evals UNDER budget (conservative,
     # reported as evals_used). It must never exceed. Others are exact.
     assert fit.n <= evals, f"budget leak: {fit.n} > {evals}"
-    if method != "smo":
+    if method != "bicameral":
         assert fit.n == evals, f"budget leak: {fit.n} != {evals}"
     n_est, depth, split, leaf, mask = decode(fit.best_x)
     cols = [j for j, m in enumerate(mask) if m]
@@ -218,7 +218,7 @@ def run_fold(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--method", required=True,
-                    choices=["smo", "fox", "hba", "tso", "rs"])
+                    choices=["bicameral", "fox", "hba", "tso", "rs"])
     ap.add_argument("--folds", default="1-10")
     ap.add_argument("--evals", type=int, default=1000)
     ap.add_argument("--seed0", type=int, default=12345)

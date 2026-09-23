@@ -1,12 +1,12 @@
 # subconscious-search
 
-**SMO: a gated conscious/subconscious black-box optimizer.**
+**Bicameral: a gated conscious/subconscious black-box optimizer.**
 
 Two versions:
-- **v1** (`smo_upgraded.py`) — diagonal Sep-CMA-ES conscious step +
+- **v1** (`bicameral_v1.py`) — diagonal Sep-CMA-ES conscious step +
   supervised latent space + Matérn surrogate + annealed sigmoid gate.
   Single-incumbent, one eval per iteration.
-- **v2/v3** (`smo_pop.py`, current best) — **full-covariance Active-CMA-ES**
+- **v2/v3** (`bicameral.py`, current best) — **full-covariance Active-CMA-ES**
   conscious core in a **generational population loop**: each generation
   evaluates λ CMA offspring plus k surrogate-selected subconscious
   candidates, where k is set by a **credit-assignment gate** (each stream
@@ -22,8 +22,8 @@ Two versions:
 
 ```bash
 pip install numpy scipy
-python smo_pop.py --dim 10 --max-evals 5000 --n-runs 5        # v3 (best)
-python smo_upgraded.py --dim 10 --max-evals 5000 --n-runs 5   # v1
+python bicameral.py --dim 10 --max-evals 5000 --n-runs 5        # v3 (best)
+python bicameral_v1.py --dim 10 --max-evals 5000 --n-runs 5   # v1
 # comparison vs baselines (needs scipy + cma):
 pip install cma
 python compare_baselines.py --dim 10 --max-evals 5000 --n-runs 5 --seed0 1
@@ -53,7 +53,7 @@ Full per-run logs: `results/core/results_popv3_dim10_5k.txt` (v3),
 
 Same eval budget for every method. Full log: `results/core/comparison_results_v3.txt`.
 
-| function   | SMO-Pop (v3) | SMO-v1 | CMA-ES | DiffEvol | DualAnneal | RandSearch |
+| function   | Bicameral (v3) | Bicameral-v1 | CMA-ES | DiffEvol | DualAnneal | RandSearch |
 |------------|--------------|--------|--------|----------|------------|------------|
 | sphere     | 100.00%      | 100.00%| 100.00%| 92.26%   | 100.00%    | 6.02%      |
 | rastrigin  | 50.09%       | 6.93%  | 7.51%  | 2.27%    | 76.71%     | 1.33%      |
@@ -62,7 +62,7 @@ Same eval budget for every method. Full log: `results/core/comparison_results_v3
 | griewank   | 99.27%       | 91.16% | 99.04% | 66.72%   | 95.60%     | 66.22%     |
 | **MEAN**   | **89.20%**   | **58.85%** | **78.03%** | **40.51%** | **91.26%** | **16.89%** |
 
-Takeaways: SMO-Pop v3 is best-in-class on rosenbrock (96.64%, beating
+Takeaways: Bicameral v3 is best-in-class on rosenbrock (96.64%, beating
 both CMA-ES and Dual Annealing) and griewank, tied on sphere/ackley, and
 within 2 points of Dual Annealing overall — trailing only on rastrigin,
 where annealing specialists still lead but the gap closed from 69 to 27
@@ -73,7 +73,7 @@ points (7x accuracy gain over v2).
 schwefel / levy / michalewicz / styblinski / ellipsoid / zakharov /
 noisy_sphere — same 5k-eval budget, seeds 1–5.
 
-| function   | SMO-Pop | CMA-ES | DiffEvol | DualAnneal | RandSearch |
+| function   | Bicameral | CMA-ES | DiffEvol | DualAnneal | RandSearch |
 |------------|---------|--------|----------|------------|------------|
 | schwefel   | 0.15%   | 0.10%  | 0.07%    | 99.99%     | 0.05%      |
 | levy       | 100.00% | 100.00%| 65.50%   | 100.00%    | 6.90%      |
@@ -85,11 +85,11 @@ noisy_sphere — same 5k-eval budget, seeds 1–5.
 | **MEAN**   | **73.21%** | **62.61%** | **28.64%** | **92.15%** | **4.65%** |
 | **M.RANK** | **1.71** | **2.29** | **3.71** | **2.29**  | **5.00**   |
 
-Takeaways: SMO has the best mean rank (most consistent — top-2 on 6/7)
+Takeaways: Bicameral has the best mean rank (most consistent — top-2 on 6/7)
 and beats CMA-ES on mean again, but Dual Annealing's mean is higher via
 schwefel/styblinski blowouts: deceptive landscapes with smooth basins are
 annealing+LS territory, and schwefel (optimum near the corner, no global
-trend) defeats the whole CMA family. SMO beats DA on ellipsoid
+trend) defeats the whole CMA family. Bicameral beats DA on ellipsoid
 (covariance learning > numeric gradients at cond 1e6) and noisy_sphere
 (LS chases noise; ES averages it out).
 
@@ -98,7 +98,7 @@ trend) defeats the whole CMA family. SMO beats DA on ellipsoid
 Same 5k-eval budget (starvation rations in 30-D), 3 runs, seeds 1–3
 (michalewicz skipped: no dim-30 reference optimum).
 
-| function   | SMO-Pop | CMA-ES | DiffEvol | DualAnneal | RandSearch |
+| function   | Bicameral | CMA-ES | DiffEvol | DualAnneal | RandSearch |
 |------------|---------|--------|----------|------------|------------|
 | sphere     | 100.00% | 100.00%| 2.03%    | 100.00%    | 0.91%      |
 | rastrigin  | 2.03%   | 1.70%  | 0.34%    | 4.86%      | 0.29%      |
@@ -118,11 +118,11 @@ Takeaways: at dim 30 the CMA family is eval-starved (learning a 30x30
 covariance needs ~1k+ evals before it can converge), so Dual Annealing's
 gradient-based local search wins valleys/multimodal (rosenbrock,
 zakharov, styblinski, schwefel, rastrigin, ellipsoid — least-bad on the
-last two). SMO is a solid 2nd by mean and rank, beats CMA-ES on 9/11,
+last two). Bicameral is a solid 2nd by mean and rank, beats CMA-ES on 9/11,
 wins levy outright (88.5 vs 63.2/26.6), and owns the robustness corner:
 ackley (DA's LS drowns in ripples, 19%) and noisy_sphere (DA chases
 noise, 1.3%). Regimes are now clear: DA = smooth/multimodal + high-D
-valleys; SMO = ill-conditioning, sharp basins, noise, rippled landscapes.
+valleys; Bicameral = ill-conditioning, sharp basins, noise, rippled landscapes.
 
 ## Tougher benchmarks: CEC2017 (`cec_benchmark.py`, `results/cec/cec_dim10.txt`, `results/cec/cec_dim30.txt`)
 
@@ -135,51 +135,51 @@ the known optimum; ranks are per-function (1 = best); significance is
 Wilcoxon signed-rank paired by function. Raw per-run records:
 `results/cec/cec_dim10.jsonl` (840 runs), `results/cec/cec_dim30.jsonl` (504 runs).
 
-Dim 10 (mean error rank, #functions won, Wilcoxon vs SMO):
+Dim 10 (mean error rank, #functions won, Wilcoxon vs Bicameral):
 
-| method | mean rank | #best/28 | Wilcoxon vs SMO |
+| method | mean rank | #best/28 | Wilcoxon vs Bicameral |
 |--------|-----------|----------|-----------------|
-| **SMO-Pop** | **2.00** | **10** | — |
+| **Bicameral** | **2.00** | **10** | — |
 | CMA-ES | 2.39 | 10 | 16/28 wins, p=0.29 n.s. |
 | DualAnneal | 3.36 | 4 | 23/28 wins, p=0.0003 ✅ |
 | BIPOP | 3.50 | 2 | 20/28 wins, p=0.020 ✅ |
 | DiffEvol | 3.79 | 2 | 25/28 wins, p<0.0001 ✅ |
 | RandSearch | 5.96 | 0 | 28/28 wins, p<0.0001 ✅ |
 
-Dim-10 class ranks: SMO is best-or-tied in every class (unimodal 1.50
+Dim-10 class ranks: Bicameral is best-or-tied in every class (unimodal 1.50
 tie, multimodal 2.14, hybrid 2.30, composition 1.67). Dual Annealing —
 the overall leader on the custom suite — collapses to rank 3.36:
 rotation + shifts + hybrids defeat its local search, exactly as
-predicted. Notably SMO also beats BIPOP significantly (p=0.020):
+predicted. Notably Bicameral also beats BIPOP significantly (p=0.020):
 at a tight 10k budget on hard rotated/hybrid landscapes, BIPOP's
-restart overhead burns evals without time to pay off, while SMO's
+restart overhead burns evals without time to pay off, while Bicameral's
 stall-gated design (no restart until stagnation is proven) wins.
-SMO's highlights: F1 bent cigar to 3.6e-06, best-on-10.
-Residual weak spots: F28/F29 compositions (CMA 1640/4746 vs SMO
+Bicameral's highlights: F1 bent cigar to 3.6e-06, best-on-10.
+Residual weak spots: F28/F29 compositions (CMA 1640/4746 vs Bicameral
 1873/14900) and F10/F18 (plain CMA wins big).
 
 Dim 30 (same format):
 
-| method | mean rank | #best/28 | Wilcoxon vs SMO |
+| method | mean rank | #best/28 | Wilcoxon vs Bicameral |
 |--------|-----------|----------|-----------------|
-| CMA-ES | 1.89 | 12 | 12/28 SMO wins, p=0.55 n.s. |
-| DualAnneal | 2.50 | 9 | 14/28 SMO wins, p=0.93 n.s. |
-| **SMO-Pop** | **2.61** | 7 | — |
-| BIPOP | 3.04 | 0 | 13/28 SMO wins, p=0.42 n.s. |
+| CMA-ES | 1.89 | 12 | 12/28 Bicameral wins, p=0.55 n.s. |
+| DualAnneal | 2.50 | 9 | 14/28 Bicameral wins, p=0.93 n.s. |
+| **Bicameral** | **2.61** | 7 | — |
+| BIPOP | 3.04 | 0 | 13/28 Bicameral wins, p=0.42 n.s. |
 | DiffEvol | 4.96 | 0 | 28/28 wins, p<0.0001 ✅ |
 | RandSearch | 6.00 | 0 | 28/28 wins, p<0.0001 ✅ |
 
-Dim-30 is a 3-way tie at the top (CMA 1.89 / DA 2.50 / SMO 2.61, no
+Dim-30 is a 3-way tie at the top (CMA 1.89 / DA 2.50 / Bicameral 2.61, no
 significant pairwise differences); BIPOP sinks to 4th with 0/28 wins —
 again, restarts need budget headroom that 10k evals in dim 30 don't
 give. Class split: DA owns hybrids (1.70) and unimodal (1.50 tie);
-SMO is 2nd on multimodal (2.29) and composition (2.56). SMO's dim-30
-tax is visible on smooth unimodal F1 (DA 0.03, CMA 144, SMO 4138):
+Bicameral is 2nd on multimodal (2.29) and composition (2.56). Bicameral's dim-30
+tax is visible on smooth unimodal F1 (DA 0.03, CMA 144, Bicameral 4138):
 subconscious overhead slows the sprint where plain CMA/LS converges —
 evidence for the roadmap (diagonal-start covariance, surrogate
 prescreening to *save* evals).
 
-Net across both dims: **SMO is never significantly beaten by anyone
+Net across both dims: **Bicameral is never significantly beaten by anyone
 (reverse Wilcoxon p≥0.07 everywhere), significantly beats DE/RS
 everywhere, DA at dim 10, and BIPOP at dim 10**, and ties plain
 CMA-ES both dims. The custom-suite story (best rank, DA ahead on
@@ -192,13 +192,13 @@ compositions).
 Motivation: the v4 autopsy + Loshchilov et al. (2010) prescribe
 rank-based ("comparison-based") surrogates over value-regression ones,
 which smooth barrier ridges into fake valleys. Implemented as
-`FastRankSurrogate` in `smo_upgraded.py`: pairwise-logistic
+`FastRankSurrogate` in `bicameral_v1.py`: pairwise-logistic
 (RankNet-style) utility model on random-Fourier features, trained by
 SGD on ~1500 sampled memory pairs per generation, plus a
 Matérn-UCB-style novelty bonus (same `beta` knob, same interface).
-Opt-in via `SMOPop(..., rank_surrogate=True)` / `--rank-surrogate`;
+Opt-in via `Bicameral(..., rank_surrogate=True)` / `--rank-surrogate`;
 default OFF is **bit-identical v3** (verified: exact seed-1 matches).
-Also pluggable into `SMOGhost` (forwards `**kwargs`, zero changes).
+Also pluggable into `Reverie` (forwards `**kwargs`, zero changes).
 
 Surrogate-level check (synthetic 8-D bowl + sharp barrier ridge, 400
 memory / 300 test points): ranking quality (Kendall tau, higher better)
@@ -209,12 +209,12 @@ Optimizer-level result — neutral in all three architectures:
 1. **v3 core suite** (`results/core/results_rank_dim10_5k.txt`): 23/25 runs
    bit-identical to v3 (sphere/ackley/griewank exact; rastrigin 50.09%
    exact; rosenbrock 96.59 vs 96.64).
-2. **v3 CEC dim-10** (140 SMO-Rank runs appended to `results/cec/cec_dim10.jsonl`;
+2. **v3 CEC dim-10** (140 Bicameral-Rank runs appended to `results/cec/cec_dim10.jsonl`;
    `results/cec/cec_dim10.txt` stays the 6-method baseline snapshot): head-to-head
    12 rank-wins / 8 pop-wins / 8 exact ties, Wilcoxon n.s. both ways
    (p=0.40/0.60).
-3. **Ghost dreams+conflicts scored by rank** (5-seed): rastrigin 55.21
-   (vs 55.72 ghost+Matérn), rosenbrock 82.47 (vs 83.76) — identical.
+3. **Reverie dreams+conflicts scored by rank** (5-seed): rastrigin 55.21
+   (vs 55.72 reverie+Matérn), rosenbrock 82.47 (vs 83.76) — identical.
 
 Mechanism (instrumented): on rastrigin seed-1 the two surrogates agree
 on the top pick in **0/210 generations**, yet trajectories stay
@@ -279,7 +279,7 @@ needs (basin jumps; valley-wall probes that train the covariance; bad
 offspring the active update learns from). CMA's update already does
 optimal selection-from-randomness; pre-filtering the randomness
 impoverishes it. Second lesson in a row: **the 5-seed core suite is a
-screen, the 12-seed is the verdict** (same reversal as ghost v4).
+screen, the 12-seed is the verdict** (same reversal as reverie v4).
 Exp-2 closed as negative.
 
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `results/bbob/bbob_dim10.txt`, `results/bbob/bbob_dim20.txt`)
@@ -295,52 +295,52 @@ COCO targets 1e2–1e-8). Raw records: `results/bbob/bbob_dim10.jsonl`,
 
 Dim 10 — fixed-budget rank / fixed-target solved:
 
-| method | mean rank | #best/24 | targets solved | Wilcoxon vs SMO |
+| method | mean rank | #best/24 | targets solved | Wilcoxon vs Bicameral |
 |--------|-----------|----------|----------------|-----------------|
-| BIPOP | 2.08 | 5 | 59.8% | SMO wins 6/24, n.s. |
-| CMA-ES | 2.54 | 9 | 55.6% | SMO wins 12/24, n.s. |
-| **SMO-Pop** | **2.71** | 2 | **50.4%** | — |
-| DualAnneal | 3.08 | 8 | 40.8% | SMO wins 14/24, n.s. |
-| DiffEvol | 4.58 | 0 | 15.2% | ✅ SMO, p<0.0001 |
-| RandSearch | 6.00 | 0 | 4.9% | ✅ SMO, p<0.0001 |
+| BIPOP | 2.08 | 5 | 59.8% | Bicameral wins 6/24, n.s. |
+| CMA-ES | 2.54 | 9 | 55.6% | Bicameral wins 12/24, n.s. |
+| **Bicameral** | **2.71** | 2 | **50.4%** | — |
+| DualAnneal | 3.08 | 8 | 40.8% | Bicameral wins 14/24, n.s. |
+| DiffEvol | 4.58 | 0 | 15.2% | ✅ Bicameral, p<0.0001 |
+| RandSearch | 6.00 | 0 | 4.9% | ✅ Bicameral, p<0.0001 |
 
 Dim 20 — same format:
 
-| method | mean rank | #best/24 | targets solved | Wilcoxon vs SMO |
+| method | mean rank | #best/24 | targets solved | Wilcoxon vs Bicameral |
 |--------|-----------|----------|----------------|-----------------|
-| BIPOP | 2.33 | 4 | 45.8% | SMO wins 10/24, n.s. |
-| CMA-ES | 2.38 | 8 | 44.5% | SMO wins 13/24, n.s. |
-| **SMO-Pop** | **2.54** | 5 | **40.2%** | — |
-| DualAnneal | 3.08 | 7 | 32.2% | SMO wins 12/24, n.s. |
-| DiffEvol | 4.79 | 0 | 7.5% | ✅ SMO, p<0.0001 |
-| RandSearch | 5.88 | 0 | 2.8% | ✅ SMO, p<0.0001 |
+| BIPOP | 2.33 | 4 | 45.8% | Bicameral wins 10/24, n.s. |
+| CMA-ES | 2.38 | 8 | 44.5% | Bicameral wins 13/24, n.s. |
+| **Bicameral** | **2.54** | 5 | **40.2%** | — |
+| DualAnneal | 3.08 | 7 | 32.2% | Bicameral wins 12/24, n.s. |
+| DiffEvol | 4.79 | 0 | 7.5% | ✅ Bicameral, p<0.0001 |
+| RandSearch | 5.88 | 0 | 2.8% | ✅ Bicameral, p<0.0001 |
 
 Honest read: on BBOB's structured landscapes BIPOP is the best method
 (rank ~2.1–2.3, most targets solved) — restarts pay off here, the
-mirror image of CEC2017 where they burned budget. SMO ranks 3rd both
+mirror image of CEC2017 where they burned budget. Bicameral ranks 3rd both
 dims but **inside a 4-way statistical tie** (no significant difference
 vs BIPOP/CMA/DA in either direction; reverse p≥0.13), significantly
-ahead of DE/RS. Group detail: SMO is 2nd on structured multimodal
+ahead of DE/RS. Group detail: Bicameral is 2nd on structured multimodal
 f15–19 (rank 1.80 dim-10; wins f16+f19 outright) and **1st on
 separable f1–5 at dim 20 (rank 1.80)** — but pays a precision-depth tax
-on smooth/conditioned functions (f10: CMA 1.6e-13 vs SMO 5.6e-05 at
+on smooth/conditioned functions (f10: CMA 1.6e-13 vs Bicameral 5.6e-05 at
 dim 10; f10/f11 similar at dim 20): evals spent on the subconscious
 stream and hopping are evals plain CMA spends converging to 1e-14.
 Dual Annealing sprints early (best ECDF@10% budget both dims) then
 stalls on conditioning. New roadmap item from this suite: precision
 refinement (cheaper convergence to 1e-12 once the right basin is found).
 
-Cross-suite net (custom + CEC2017 + BBOB): SMO is top-3 by rank on all
+Cross-suite net (custom + CEC2017 + BBOB): Bicameral is top-3 by rank on all
 6 tables, #1 twice, and **never significantly beaten by any method on
 any suite** — the consistency story holds at venue-standard level. A
 performance-superiority claim over BIPOP/CMA is NOT supported (and not
 claimed); the novelty claim rests on the mechanisms (M1–M3,
-`PRIOR_ART.md`), for which SMO is now shown competitive with the
+`PRIOR_ART.md`), for which Bicameral is now shown competitive with the
 restart state of the art.
 
 ### Zoo panel: v3 vs classic nature-inspired optimizers (BBOB dim-10)
 
-Pre-registered prediction: SMO's CMA core beats the 90s–00s zoo on
+Pre-registered prediction: Bicameral's CMA core beats the 90s–00s zoo on
 conditioned landscapes; would NOT extend to modern L-SHADE-class DE.
 Tested via `mealpy` (`zoo_methods.py`): PSO, GA, GWO, WOA, ABC, plus
 SHADE as a modern-DE reference, plus FOX/HBA/TSO (the three optimizers
@@ -351,10 +351,10 @@ fairness: nominal epoch×pop≈10k plus a hard cap wrapper asserting
 **exactly** 10000 true evals per run (post-budget calls return
 worst-seen, no new signal). Same IOH dim-10 protocol, instances 1–5.
 
-| method | mean rank | #best/24 | targets | Wilcoxon vs SMO (SMO wins) |
+| method | mean rank | #best/24 | targets | Wilcoxon vs Bicameral (Bicameral wins) |
 |--------|-----------|----------|---------|----------------------------|
 | BIPOP | 2.88 | 5 | 59.8% | 6/24, n.s. |
-| **SMO-Pop** | **3.67** | 1 | **50.4%** | — |
+| **Bicameral** | **3.67** | 1 | **50.4%** | — |
 | CMA-ES | 3.75 | 9 | 55.6% | 12/24, n.s. |
 | DualAnneal | 4.88 | 6 | 40.8% | 14/24, n.s. |
 | SHADE | 5.71 | 1 | 23.1% | ✅ 20/24, p=0.0005 |
@@ -369,7 +369,7 @@ worst-seen, no new signal). Same IOH dim-10 protocol, instances 1–5.
 | RandSearch | 13.96 | 0 | 4.9% | ✅ 24/24, p<0.0001 |
 | FOX | 14.29 | 0 | 4.6% | ✅ 23/24, p<0.0001 |
 
-Prediction confirmed — and then some: SMO significantly beats all nine
+Prediction confirmed — and then some: Bicameral significantly beats all nine
 zoo methods, **including the modern SHADE reference** (20/24,
 p=0.0005), and solves 2× the fixed-target pairs of the best zoo member
 (50.4% vs 23.7% PSO). Group detail: the zoo collapses hardest on
@@ -399,7 +399,7 @@ optimizers for RF feature-selection + hyperparameter tuning on the
 ESDRP diabetes dataset (UCI-529, 520×16). We replicate their problem
 exactly — same 20-D space (4 RF hparams + 16-bit mask), same
 train-F1 fitness, same sliding-window 70/30×10 folds, same
-majority-vote pipeline — and swap in SMO-Pop v3 as the optimizer, plus
+majority-vote pipeline — and swap in Bicameral v3 as the optimizer, plus
 the random-search baseline the paper lacks (`esdrp_wrapper.py`,
 `results/esdrp/esdrp_arm1_*.jsonl`, `results/esdrp/esdrp_results.txt`; data in `data/esdrp.csv`,
 verified against their Table 2). Every run consumes exactly 1000
@@ -410,7 +410,7 @@ Optimizer capability (best train-F1 found, 1000 evals/fold):
 
 | method | mean train-F1 | perfect 1.0 folds | median evals-to-perfect | clean test-F1 |
 |--------|---------------|-------------------|-------------------------|---------------|
-| **SMO-Pop** | **1.0000** | **10/10** | **104** | 0.9695 |
+| **Bicameral** | **1.0000** | **10/10** | **104** | 0.9695 |
 | TSO | 0.9989 | 9/10 | 163 | 0.9683 |
 | HBA | 0.9989 | 7/10 | 101 | 0.9722 |
 | RandSearch | 0.9921 | 0/10 | — | 0.9609 |
@@ -420,7 +420,7 @@ Voted-model replication (their leaky pipeline) vs paper-reported:
 
 | method | ours (acc / feats) | paper (acc / feats) |
 |--------|--------------------|---------------------|
-| SMO-Pop | 97.18 / 12 | — |
+| Bicameral | 97.18 / 12 | — |
 | HBA | 97.69 / 16 | 97.24 / 10 |
 | TSO | 97.69 / 15 | 98.14 / 14 |
 | RandSearch | 96.73 / 9 | — |
@@ -428,7 +428,7 @@ Voted-model replication (their leaky pipeline) vs paper-reported:
 
 Findings: (1) **v3 is the most reliable wrapper** — only method
 perfect on all 10 folds; (2) **FOX loses to random search** on both
-train-F1 (0.9677 vs 0.9921) and clean test (Wilcoxon SMO>FOX p=0.008;
+train-F1 (0.9677 vs 0.9921) and clean test (Wilcoxon Bicameral>FOX p=0.008;
 v3's BBOB result replicates on real data); (3) our voted hparams
 converge to (300,10,2,1) — the paper's (10,2,1) corner — independently
 reproducing their "memorize with deep unpruned trees" finding, with
@@ -445,7 +445,7 @@ reproduces Arm 1. Disclosed deviations: fixed shuffle/RF seeds
 (paper: none), deterministic fitness (paper: stochastic default),
 1000-eval budget (their plots show saturation by ~350; Arm 2 confirms
 at 5000). Footnote: the first two Arm-1 runs allowed depth-11 at
-exact-bound hits; affected folds (SMO f8, HBA f7) were rerun
+exact-bound hits; affected folds (Bicameral f8, HBA f7) were rerun
 in-spec and still perfected — final numbers fully in-spec.
 
 ### Task 2: clean protocol — inner-validation fitness + nested evaluation
@@ -462,15 +462,15 @@ fold and tested on the untouched outer test = proper nested CV
 pipeline leaks by construction. Pre-registered prediction: the
 plateau breaks and search quality separates the methods.
 
-| method | fit-F1 | perfect/10 | clean outer-F1 | feats | Wilcoxon vs SMO (outer / fit) |
+| method | fit-F1 | perfect/10 | clean outer-F1 | feats | Wilcoxon vs Bicameral (outer / fit) |
 |--------|--------|------------|----------------|-------|-------------------------------|
-| **SMO-Pop** | **0.9902** | **3** | **0.9596** | 9.8 | — |
+| **Bicameral** | **0.9902** | **3** | **0.9596** | 9.8 | — |
 | TSO | 0.9805 | 1 | 0.9401 | 9.0 | ✅ p=0.037 / p=0.016 |
 | HBA | 0.9757 | 1 | 0.9346 | 9.2 | ✅ p=0.010 / p=0.008 |
 | RandSearch | 0.9734 | 0 | 0.9426 | 9.4 | ✅ p=0.027 / p=0.002 |
 | FOX | 0.9570 | 0 | 0.9282 | 9.0 | ✅ p=0.002 / p=0.002 |
 
-Prediction confirmed decisively: with honest fitness SMO is
+Prediction confirmed decisively: with honest fitness Bicameral is
 significantly better than **all four** on both inner-val fit and
 nested outer test (8–10/10 fold-wins), where Arm 1's clean numbers
 were all ties. When the fitness actually discriminates, v3's
@@ -479,7 +479,7 @@ honest notes: (1) absolute outer numbers drop vs Arm 1 for everyone
 (inner-val selection on 91 samples is noisier than train selection on
 364 — the paired *ordering* is the finding, not the levels; neither
 is comparable to the paper's leaky 98.14); (2) voted hparams still
-show (depth,split,leaf)=(10,2,1) for SMO/TSO — deep trees generalize
+show (depth,split,leaf)=(10,2,1) for Bicameral/TSO — deep trees generalize
 fine here given the strong signal, so the separation comes from
 better *masks*, and honest fitness selects leaner models across the
 board (~9 feats vs Arm 1's 10–13).
@@ -509,17 +509,17 @@ every configuration equally (see frontier note above) — deltas are
 noise. Net: full v3 beats pure active-CMA by +14.5pp mean
 (69.37 vs 54.85).
 
-## SMO-Ghost v4: ideas #8–#14 (`smo_ghost.py`) — a documented negative result
+## Bicameral-Reverie v4: ideas #8–#14 (`reverie.py`) — a documented negative result
 
-Ideas #8 Ghost Landscape, #9 Conflict Search, #10 Latent Vector Memory,
+Ideas #8 Reverie Landscape, #9 Conflict Search, #10 Latent Vector Memory,
 #11 Salience/Surprise, #12 Adaptive Memory Decay, #13 Dreaming, and
 #14 Uncertainty-driven exploration, implemented in a **separate file**
-(`smo_ghost.py`) behind 4 no-op hooks in `smo_pop.py`. Ghost-OFF matches
+(`reverie.py`) behind 4 no-op hooks in `bicameral.py`. Reverie-OFF matches
 v3 **bit-for-bit** (sphere s1 7.147898581204078e-28, rastrigin s1
 1.989918114186608 — exact), so the harness is verified and all deltas
 below are real.
 
-Ghost-ON hardware: a sliding 512-ghost memory with salience + surprise
+Reverie-ON hardware: a sliding 512-reverie memory with salience + surprise
 scoring and adaptive half-life decay, scoring-bonus/uncertainty/noise
 gating on the v3 streams, plus up to 96 extra evals/gen of mask-crossover
 dreams and extrapolated conflict probes (blend-dreams were tried first
@@ -527,9 +527,9 @@ and failed worse — latent midpoints decode to barrier ridges the
 smoothing surrogate over-scores).
 
 Result: the extras are **net negative**, verifiably, on the core suite
-(dim=10, 5k evals; full log `results/core/comparison_ghost_dim10.txt`):
+(dim=10, 5k evals; full log `results/core/comparison_reverie_dim10.txt`):
 
-| function   | SMO-Pop (v3) | SMO-Ghost | Δ ghost−v3 |
+| function   | Bicameral (v3) | Bicameral-Reverie | Δ reverie−v3 |
 |------------|--------------|-----------|------------|
 | sphere     | 100.00%      | 100.00%   | 0.00pp     |
 | rastrigin  | 50.09%       | 55.72%    | +5.63pp ⚠  |
@@ -539,14 +539,14 @@ Result: the extras are **net negative**, verifiably, on the core suite
 | **MEAN RANK** | **1.40**  | **2.40**  | worse      |
 
 ⚠ The 5-seed rastrigin "+5.63pp" is noise: a decisive 12-seed rerun
-(seeds 1–12) reverses it — v3 60.48±34.67 (mean loss 1.49) vs ghost
-40.20±28.00 (mean loss 2.42), ghost worse on 8 of 12 seeds. Same story
-on rosenbrock (12-seed: v3 97.75±3.69 vs ghost 79.56±34.38, mean loss
-0.0245 vs 1.0). A ghost-ON mini-ablation confirms the mechanism: with
+(seeds 1–12) reverses it — v3 60.48±34.67 (mean loss 1.49) vs reverie
+40.20±28.00 (mean loss 2.42), reverie worse on 8 of 12 seeds. Same story
+on rosenbrock (12-seed: v3 97.75±3.69 vs reverie 79.56±34.38, mean loss
+0.0245 vs 1.0). A reverie-ON mini-ablation confirms the mechanism: with
 dream/conflict evals disabled the scoring bonus + adaptive noise are
 byte-inert (config matches v3 exactly), so **all** of the damage rides
 on the speculative evals — the smoothing SurrogateGP can't rank
-boundary-crossing candidates on multimodal landscapes and early ghost
+boundary-crossing candidates on multimodal landscapes and early reverie
 evaluations poison basin selection before v3's escape system engages.
 Schwefel spot check: 0.21% vs 0.16%, both total failures as before.
 
@@ -555,7 +555,7 @@ evidence) for a future v5 that would need a non-smoothing ranker
 (e.g. landscape-aware surrogate) before speculative evals can help.
 **v3 stays the recommended optimizer.**
 
-## SMO on real data: BRFSS 2015 diabetes (`ml_benchmark.py`)
+## Bicameral on real data: BRFSS 2015 diabetes (`ml_benchmark.py`)
 
 Binary 50/50 split (70,692 rows, 21 features; data mirrors UCI id 891 —
 place CSVs in `data/`, gitignored). Stratified 70/15/15 split, seed 42.
@@ -565,17 +565,17 @@ Full log: `results/ml/ml_results.txt`.
 |---|---|---|---|
 | dummy (majority) | 50.00% | 0.0000 | — |
 | logreg (sklearn LBFGS) | 74.76% | 0.7522 | 0.8250 |
-| **SMO-direct** (22-D weights) | **74.55%** | 0.7489 | 0.8239 |
+| **Bicameral-direct** (22-D weights) | **74.55%** | 0.7489 | 0.8239 |
 | randomforest (300) | 73.64% | 0.7471 | 0.8119 |
 | hgb (defaults) | 75.26% | 0.7630 | 0.8301 |
 | mlp (64x32) | 73.21% | 0.7298 | 0.8082 |
 | randsearch-HPO (108 evals) | 75.29% | 0.7625 | 0.8301 |
-| **SMO-HPO** (108 evals) | **75.11%** | 0.7618 | 0.8299 |
+| **Bicameral-HPO** (108 evals) | **75.11%** | 0.7618 | 0.8299 |
 
-Takeaways: SMO trained logistic weights from scratch to within 0.2pp of
+Takeaways: Bicameral trained logistic weights from scratch to within 0.2pp of
 LBFGS (74.55 vs 74.76%, 2000 evals, 0.8 s). For HPO all three (defaults /
-random / SMO) tie at ~75.1–75.3%: this dataset plateaus there and tuning
-barely matters (SMO actually found the best *validation* loss, 0.50110
+random / Bicameral) tie at ~75.1–75.3%: this dataset plateaus there and tuning
+barely matters (Bicameral actually found the best *validation* loss, 0.50110
 vs 0.50129; test noise flips the ranking). Note: the 3-class `012` file
 is 84/14/2 imbalanced, so raw accuracy is misleading there
 (dummy = 84.24%; HGB = 84.91%, macro-F1 0.40).
@@ -585,7 +585,7 @@ is 84/14/2 imbalanced, so raw accuracy is misleading there
 The table above was point estimates only — the weakest section
 statistically. `ml_benchmark.py` now adds, stolen honestly from the two
 diabetes papers: **[4]** paired tests for the headline comparisons
-(SMO-direct vs logreg; SMO-HPO vs HGB-defaults vs same-budget RS-HPO) —
+(Bicameral-direct vs logreg; Bicameral-HPO vs HGB-defaults vs same-budget RS-HPO) —
 DeLong test on AUC (Paper-2 method), exact McNemar on accuracy, and
 bootstrap 95% CIs; **[5]** SHAP explainability (Paper-1 method) —
 global mean|SHAP| ranking plus per-instance top features for one

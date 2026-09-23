@@ -1,4 +1,4 @@
-SMO-Pop v2 — Full-Covariance Conscious + Population + IPOP restarts
+Bicameral v2 — Full-Covariance Conscious + Population + IPOP restarts
 
 === sphere (dim=10, evals=5000, runs=5) ===
   run 1: loss=1.13605e-27 acc=100.00% improv=100.00% time=1.65s (gens=483 restarts=0 sub=0.03)

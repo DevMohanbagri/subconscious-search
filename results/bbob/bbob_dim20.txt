@@ -1,7 +1,7 @@
 
 ===== bbob_dim20.jsonl (24 funcs x 3 inst, budget=20000) =====
 --- FIXED-BUDGET mean precision per func (lower better) ---
-func       SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+func       Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
 f1       3.013e-12   3.316e-14   3.316e-14      0.2385   1.433e-11       66.25
 f2       1.421e-14   2.842e-14   2.842e-14       299.2      0.1687   6.737e+05
 f3           12.27       39.93       25.28         145       1.327       380.4
@@ -27,42 +27,42 @@ f22          18.71       1.534       1.534       8.571       3.797       67.83
 f23          1.439        2.55       2.464       2.644       1.013       2.453
 f24          54.93       74.98       71.59       156.9       190.3       348.5
 --- FIXED-BUDGET mean rank + #best ---
-SMO-Pop    rank=2.54  best-on=5/24
+Bicameral    rank=2.54  best-on=5/24
 CMA-ES     rank=2.38  best-on=8/24
 BIPOP      rank=2.33  best-on=4/24
 DiffEvol   rank=4.79  best-on=0/24
 DualAnneal rank=3.08  best-on=7/24
 RandSearch rank=5.88  best-on=0/24
 --- FIXED-BUDGET mean rank by group ---
-group            SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
 separable           1.80        2.80        3.00        5.00        2.40        6.00
 low-cond            2.75        2.00        2.25        4.75        3.25        6.00
 high-cond           3.60        1.40        2.00        5.00        3.00        6.00
 multi-strong        2.00        2.20        1.80        4.40        4.60        6.00
 multi-weak          2.60        3.40        2.60        4.80        2.20        5.40
---- WILCOXON vs SMO-Pop on mean precision (paired by func) ---
-SMO-Pop vs CMA-ES: W=134 p=0.3317 wins=13/24 -> not significant
-SMO-Pop vs BIPOP: W=179 p=0.7969 wins=10/24 -> not significant
-SMO-Pop vs DiffEvol: W=9 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
-SMO-Pop vs DualAnneal: W=109 p=0.1889 wins=12/24 -> not significant
-SMO-Pop vs RandSearch: W=0 p=0.0000 wins=24/24 -> SIGNIFICANTLY BETTER
+--- WILCOXON vs Bicameral on mean precision (paired by func) ---
+Bicameral vs CMA-ES: W=134 p=0.3317 wins=13/24 -> not significant
+Bicameral vs BIPOP: W=179 p=0.7969 wins=10/24 -> not significant
+Bicameral vs DiffEvol: W=9 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs DualAnneal: W=109 p=0.1889 wins=12/24 -> not significant
+Bicameral vs RandSearch: W=0 p=0.0000 wins=24/24 -> SIGNIFICANTLY BETTER
 --- FIXED-TARGET fraction of (run,target) pairs solved ---
 method     solved/total    frac ECDF@0.1  ECDF@0.3  ECDF@1.0
-SMO-Pop      1476/3672    40.2%     15.4%     23.0%     40.2%
+Bicameral      1476/3672    40.2%     15.4%     23.0%     40.2%
 CMA-ES       1635/3672    44.5%     14.1%     23.7%     44.5%
 BIPOP        1683/3672    45.8%     14.1%     23.7%     45.8%
 DiffEvol      277/3672     7.5%      2.9%      4.0%      7.5%
 DualAnneal   1183/3672    32.2%     21.6%     27.6%     32.2%
 RandSearch    104/3672     2.8%      2.4%      2.7%      2.8%
 --- FIXED-TARGET solved fraction by group ---
-group            SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
 separable          70.2%       61.7%       62.6%        6.1%       56.3%        0.5%
 low-cond           49.5%       64.5%       65.0%        3.3%       49.2%        0.0%
 high-cond          47.2%       66.5%       66.7%        5.5%       33.7%        1.8%
 multi-strong       22.6%       19.3%       23.9%       10.7%        9.7%        6.9%
 multi-weak         13.3%       14.5%       14.8%       11.2%       15.6%        4.3%
 --- WALL TIME per method ---
-SMO-Pop    278.6s total
+Bicameral    278.6s total
 CMA-ES     108.7s total
 BIPOP      166.4s total
 DiffEvol   20.3s total

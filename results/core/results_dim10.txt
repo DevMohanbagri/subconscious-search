@@ -1,4 +1,4 @@
-SMO Upgraded — Natural Metric Latent + Sep-CMA Conscious + Sigmoid Gate
+Bicameral Upgraded — Natural Metric Latent + Sep-CMA Conscious + Sigmoid Gate
 
 === sphere (dim=10, evals=2000, runs=5) ===
   run 1: loss=0.0287216 acc=97.21% improv=99.94% time=2.99s

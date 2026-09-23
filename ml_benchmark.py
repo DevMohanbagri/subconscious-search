@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""SMO on real data: BRFSS 2015 Diabetes Health Indicators (binary 50/50).
+"""Bicameral on real data: BRFSS 2015 Diabetes Health Indicators (binary 50/50).
 
 Compares test accuracy of:
   Baselines  - Dummy, LogisticRegression, RandomForest,
                  HistGradientBoosting, MLP (all sklearn, fixed seeds)
-  SMO-direct - SMO-Pop directly optimizes regularized logistic-regression
-               weights (22-D) on validation log-loss  [can SMO *train*?]
-  SMO-HPO    - SMO-Pop tunes HistGradientBoosting hyperparams (4-D),
-               vs same-budget RandomSearch and defaults  [can SMO *tune*?]
+  Bicameral-direct - Bicameral directly optimizes regularized logistic-regression
+               weights (22-D) on validation log-loss  [can Bicameral *train*?]
+  Bicameral-HPO    - Bicameral tunes HistGradientBoosting hyperparams (4-D),
+               vs same-budget RandomSearch and defaults  [can Bicameral *tune*?]
 
 Test set is touched exactly once per method, at the end.
 
@@ -31,7 +31,7 @@ from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassif
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
-from smo_pop import SMOPop
+from bicameral import Bicameral
 
 SEED = 42
 DATA = "data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv"
@@ -53,7 +53,7 @@ def load_data(path=DATA):
     X_va, X_te, y_va, y_te = train_test_split(
         X_tmp, y_tmp, test_size=0.50, stratify=y_tmp, random_state=SEED)
     print(f"train/val/test: {len(X_tr)}/{len(X_va)}/{len(X_te)} "
-          f"({X.shape[1]} features, standardized for linear/MLP/SMO-direct)")
+          f"({X.shape[1]} features, standardized for linear/MLP/Bicameral-direct)")
     return (X_tr, y_tr), (X_va, y_va), (X_te, y_te), names
 
 
@@ -109,7 +109,7 @@ def run_baselines(splits):
     return out, (Xtr_s, Xva_s, Xte_s, Xtr_full, ytr_full)
 
 
-def run_smo_direct(splits_scaled, y_tr, y_va, y_te, max_evals=2000):
+def run_bicameral_direct(splits_scaled, y_tr, y_va, y_te, max_evals=2000):
     Xtr_s, Xva_s, Xte_s = splits_scaled
     d = Xtr_s.shape[1]
     Xva1 = np.hstack([Xva_s, np.ones((len(Xva_s), 1))])
@@ -122,17 +122,17 @@ def run_smo_direct(splits_scaled, y_tr, y_va, y_te, max_evals=2000):
                          + (1 - y_va) * np.log(1 - p + eps)).mean()
                      + 1e-4 * float(w @ w))
 
-    print(f"\n[2] SMO-direct: {d+1}-D logistic weights on val log-loss "
+    print(f"\n[2] Bicameral-direct: {d+1}-D logistic weights on val log-loss "
           f"({max_evals} evals)")
     t0 = time.time()
-    opt = SMOPop(d + 1, -5.0, 5.0, seed=SEED)
+    opt = Bicameral(d + 1, -5.0, 5.0, seed=SEED)
     w_best, best_val, info = opt.optimize(val_logloss, max_evals)
     dt = time.time() - t0
     p_te = sigmoid(Xte1 @ w_best)
     print(f"    val logloss={best_val:.5f} gens={info['gens']} "
           f"restarts={info['restarts']} bh={info['bh_phase']} time={dt:.1f}s")
-    out = report("SMO-direct (logreg w)", y_te, (p_te >= 0.5).astype(int), p_te,
-                 extra=f"{dt:.1f}s", key="smo_direct")
+    out = report("Bicameral-direct (logreg w)", y_te, (p_te >= 0.5).astype(int), p_te,
+                 extra=f"{dt:.1f}s", key="bicameral_direct")
     return out
 
 
@@ -147,8 +147,8 @@ def hgb_from_x(x):
         {"lr": lr, "depth": depth, "leaf": leaf, "l2": l2})
 
 
-def run_smo_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=108):
-    print(f"\n[3] HPO on HistGradientBoosting: SMO vs RandomSearch "
+def run_bicameral_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=108):
+    print(f"\n[3] HPO on HistGradientBoosting: Bicameral vs RandomSearch "
           f"({budget} evals each, val log-loss objective)")
 
     def val_loss(x):
@@ -162,18 +162,18 @@ def run_smo_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=108):
     lo = np.array([-3.0, 2.0, 0.0, 0.0])
     hi = np.array([-0.3, 12.0, 2.5, 20.0])
 
-    # SMO (local search OFF: int-rounded HPO landscape is stepwise,
+    # Bicameral (local search OFF: int-rounded HPO landscape is stepwise,
     #  gradient polish would waste evals)
     t0 = time.time()
-    opt = SMOPop(4, lo, hi, seed=SEED)
-    x_smo, v_smo, info = opt.optimize(val_loss, budget, local_search=False)
-    t_smo = time.time() - t0
-    m_smo, p_smo = hgb_from_x(x_smo)
-    m_smo.fit(np.vstack([X_tr, X_va]), np.concatenate([y_tr, y_va]))
-    print(f"    SMO best val={v_smo:.5f} params={p_smo} time={t_smo:.1f}s")
-    out_smo = report("SMO-HPO (hgb)", y_te, m_smo.predict(X_te),
-                     m_smo.predict_proba(X_te)[:, 1], extra=f"{t_smo:.1f}s",
-                     key="smo_hpo")
+    opt = Bicameral(4, lo, hi, seed=SEED)
+    x_bic, v_bic, info = opt.optimize(val_loss, budget, local_search=False)
+    t_bic = time.time() - t0
+    m_bic, p_bic = hgb_from_x(x_bic)
+    m_bic.fit(np.vstack([X_tr, X_va]), np.concatenate([y_tr, y_va]))
+    print(f"    Bicameral best val={v_bic:.5f} params={p_bic} time={t_bic:.1f}s")
+    out_bic = report("Bicameral-HPO (hgb)", y_te, m_bic.predict(X_te),
+                     m_bic.predict_proba(X_te)[:, 1], extra=f"{t_bic:.1f}s",
+                     key="bicameral_hpo")
 
     # Random search, identical budget
     t0 = time.time()
@@ -191,7 +191,7 @@ def run_smo_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=108):
     out_rs = report("randsearch-HPO (hgb)", y_te, m_rs.predict(X_te),
                     m_rs.predict_proba(X_te)[:, 1], extra=f"{t_rs:.1f}s",
                     key="rs_hpo")
-    return {"smo_hpo": out_smo, "rs_hpo": out_rs}
+    return {"bicameral_hpo": out_bic, "rs_hpo": out_rs}
 
 
 # ---------------------------------------------------------------- paired stats
@@ -267,9 +267,9 @@ def bootstrap_ci(y_true, y_pred, y_score, n_boot=1000, seed=SEED):
 def run_stats(y_te):
     print("\n[4] paired stats on TEST (DeLong for AUC, exact McNemar for acc, "
           "bootstrap 95% CI)")
-    pairs = [("smo_direct", "logreg", "SMO-direct vs logreg (can SMO train?)"),
-             ("smo_hpo", "hgb_default", "SMO-HPO vs hgb-defaults (can SMO tune?)"),
-             ("smo_hpo", "rs_hpo", "SMO-HPO vs randsearch-HPO (same budget)"),
+    pairs = [("bicameral_direct", "logreg", "Bicameral-direct vs logreg (can Bicameral train?)"),
+             ("bicameral_hpo", "hgb_default", "Bicameral-HPO vs hgb-defaults (can Bicameral tune?)"),
+             ("bicameral_hpo", "rs_hpo", "Bicameral-HPO vs randsearch-HPO (same budget)"),
              ("rs_hpo", "hgb_default", "RS-HPO vs hgb-defaults (tuning value?)")]
     for k1, k2, title in pairs:
         p1, s1 = TEST[k1]
@@ -331,24 +331,24 @@ def run_shap(X_full, y_full, X_te, y_te, names, n_sample=2000):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default=DATA)
-    ap.add_argument("--smo-evals", type=int, default=2000)
+    ap.add_argument("--bicameral-evals", type=int, default=2000)
     ap.add_argument("--hpo-budget", type=int, default=108)
     ap.add_argument("--shap-n", type=int, default=2000)
     ap.add_argument("--no-shap", action="store_true")
     a = ap.parse_args()
-    print(f"BRFSS2015 diabetes_binary 50/50 - SMO vs sklearn (seed {SEED})")
+    print(f"BRFSS2015 diabetes_binary 50/50 - Bicameral vs sklearn (seed {SEED})")
     (X_tr, y_tr), (X_va, y_va), (X_te, y_te), names = load_data(a.data)
     base, scaled = run_baselines(((X_tr, y_tr), (X_va, y_va), (X_te, y_te)))
     Xtr_s, Xva_s, Xte_s, Xtr_full, ytr_full = scaled
-    smo_direct = run_smo_direct((Xtr_s, Xva_s, Xte_s), y_tr, y_va, y_te,
-                                max_evals=a.smo_evals)
-    hpo = run_smo_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=a.hpo_budget)
+    bicameral_direct = run_bicameral_direct((Xtr_s, Xva_s, Xte_s), y_tr, y_va, y_te,
+                                max_evals=a.bicameral_evals)
+    hpo = run_bicameral_hpo(X_tr, y_tr, X_va, y_va, X_te, y_te, budget=a.hpo_budget)
 
     print("\n================ TEST ACCURACY % (higher better) ================")
     rows = [("dummy", base["dummy"]), ("logreg", base["logreg"]),
-            ("SMO-direct", smo_direct), ("randforest", base["randforest"]),
+            ("Bicameral-direct", bicameral_direct), ("randforest", base["randforest"]),
             ("hgb default", base["hgb_default"]), ("mlp", base["mlp"]),
-            ("randsearch-HPO", hpo["rs_hpo"]), ("SMO-HPO", hpo["smo_hpo"])]
+            ("randsearch-HPO", hpo["rs_hpo"]), ("Bicameral-HPO", hpo["bicameral_hpo"])]
     for name, m in rows:
         print(f"  {name:14s} acc={m['acc']*100:6.2f}%  f1={m['f1']:.4f}  auc={m['auc']:.4f}")
     print("=================================================================")

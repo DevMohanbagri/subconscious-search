@@ -1,4 +1,4 @@
-SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=matern, sub_boost=2)
+Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=matern, sub_boost=2)
 
 === sphere (dim=10, evals=5000, runs=5) ===
   run 1: loss=6.06196e-27 acc=100.00% improv=100.00% time=1.20s (gens=405 restarts=0 bh_phase=False sub=0.19 ls=0.00)
@@ -49,7 +49,7 @@ rosenbrock acc= 75.88%±18.83 (best run 99.82%) loss=0.4009 success=100%
 ackley     acc=100.00%±0.00 (best run 100.00%) loss=1.738e-12 success=100%
 griewank   acc= 99.27%±0.72 (best run 100.00%) loss=0.007386 success=80%
 ===========================================================
-SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=matern, sub_boost=5)
+Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=matern, sub_boost=5)
 
 === sphere (dim=10, evals=5000, runs=5) ===
   run 1: loss=1.96748e-21 acc=100.00% improv=100.00% time=1.04s (gens=326 restarts=0 bh_phase=False sub=0.34 ls=0.00)

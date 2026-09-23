@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-SMO-Pop (v2/v3): Full-Covariance Conscious + Population loop.
+Bicameral (v2/v3): Full-Covariance Conscious + Population loop.
 
-Upgrades over smo_upgraded.py (v1):
+Upgrades over bicameral_v1.py (v1):
   #1 Conscious: FastFullCMA — textbook full-covariance CMA-ES core
      (weighted recombination, evolution-path cumulation, rank-one + rank-mu
      covariance update, CSA step-size control). Diagonal-only v1 could not
@@ -31,7 +31,7 @@ import time
 import numpy as np
 from scipy.optimize import minimize
 
-from smo_upgraded import (
+from bicameral_v1 import (
     FastSupervisedLatentSpace,
     FastMaternSurrogate,
     FastRankSurrogate,
@@ -226,10 +226,10 @@ class FastFullCMA:
 
 
 # -------------------------------------------------------------
-# 2. SMO-POP ORCHESTRATOR: population loop + gated subconscious
+# 2. Bicameral-POP ORCHESTRATOR: population loop + gated subconscious
 # -------------------------------------------------------------
-class SMOPop:
-    """Generational SMO: lambda CMA evals + k gated subconscious evals/gen,
+class Bicameral:
+    """Generational Bicameral: lambda CMA evals + k gated subconscious evals/gen,
     memetic L-BFGS-B basin drainage on stagnation, IPOP restarts, terminal
     hopping phase on repeated stalls."""
 
@@ -410,7 +410,7 @@ class SMOPop:
                         sess_x, sess_y = seg[j][0].copy(), float(seg[j][1])
         return sess_x, sess_y, drains, counter.n - n0
 
-    # --- extension hooks (no-op in v3; SMOGhost overrides them) ---
+    # --- extension hooks (no-op in v3; Reverie overrides them) ---
     def _hook_latent_updated(self):
         """Called right after self.latent.update(archive)."""
 
@@ -655,7 +655,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
         if verbose:
             print(f"\n=== {name} (dim={dim}, evals={max_evals}, runs={n_runs}) ===")
         for r in range(n_runs):
-            opt = SMOPop(dim, lo, hi, seed=seed0 + r,
+            opt = Bicameral(dim, lo, hi, seed=seed0 + r,
                          rank_surrogate=rank_surrogate, sub_boost=sub_boost,
                          prescreen_mult=prescreen_mult)
             t0 = time.time()
@@ -663,7 +663,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
                 func, max_evals, local_search=local_search,
                 patience_gens=patience_gens)
             dt = time.time() - t0
-            from smo_upgraded import accuracy_score as acc_fn
+            from bicameral_v1 import accuracy_score as acc_fn
             acc = acc_fn(best_y)
             imp = 100.0 * (1.0 - best_y / max(info["init_best"], 1e-12))
             losses.append(best_y)
@@ -698,7 +698,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(description="SMO-Pop (v2/v3) benchmark")
+    ap = argparse.ArgumentParser(description="Bicameral (v2/v3) benchmark")
     ap.add_argument("--dim", type=int, default=10)
     ap.add_argument("--max-evals", type=int, default=5000)
     ap.add_argument("--n-runs", type=int, default=5)
@@ -713,7 +713,7 @@ def main():
     ap.add_argument("--prescreen-mult", type=int, default=1,
                     help="exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)")
     args = ap.parse_args()
-    print(f"SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping "
+    print(f"Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping "
           f"(local={'off' if args.no_local else 'on'}, "
           f"surrogate={'rank' if args.rank_surrogate else 'matern'}, "
           f"sub_boost={args.sub_boost}, prescreen={args.prescreen_mult})")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SMO Upgraded: Natural Metric Latent Space & Separable CMA Conscious Phase.
+Bicameral Upgraded: Natural Metric Latent Space & Separable CMA Conscious Phase.
 High-impact optimizations integrated:
   1. Conscious: Coordinate-wise Natural Gradient Adaptation (Sep-CMA-ES style).
   2. Latent Engine: Supervised Ridge-weighted Latent Reconstruction + Matérn 5/2.
@@ -135,7 +135,7 @@ class FastRankSurrogate:
     bonus (min-distance to memory), mirroring the Matérn UCB's beta knob.
 
     Why ranks: value-regression smooths barrier ridges into fake valleys
-    and over-scores them (the v4-ghost autopsy); comparison-based
+    and over-scores them (the v4-reverie autopsy); comparison-based
     optimizers need comparison-based surrogates (Loshchilov et al. 2010).
     Rank utilities are invariant to monotone transforms of Y and robust
     to barrier-scale outliers. Same interface as FastMaternSurrogate
@@ -256,9 +256,9 @@ class SigmoidGate:
 
 
 # -------------------------------------------------------------
-# 5. SMO ORCHESTRATOR: Conscious + Subconscious loop
+# 5. Bicameral ORCHESTRATOR: Conscious + Subconscious loop
 # -------------------------------------------------------------
-class SMOUpgraded:
+class BicameralV1:
     """Subconscious-search optimizer tying all upgraded phases together."""
 
     def __init__(self, dim, lb, ub, latent_dim=None, seed=0,
@@ -492,7 +492,7 @@ def run_benchmark(dim=10, max_evals=2000, n_runs=5, seed0=0, verbose=True):
         if verbose:
             print(f"\n=== {name} (dim={dim}, evals={max_evals}, runs={n_runs}) ===")
         for r in range(n_runs):
-            opt = SMOUpgraded(dim, lo, hi, seed=seed0 + r)
+            opt = BicameralV1(dim, lo, hi, seed=seed0 + r)
             t0 = time.time()
             _, best_y, info = opt.optimize(func, max_evals)
             dt = time.time() - t0
@@ -527,13 +527,13 @@ def run_benchmark(dim=10, max_evals=2000, n_runs=5, seed0=0, verbose=True):
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(description="SMO Upgraded benchmark")
+    ap = argparse.ArgumentParser(description="Bicameral Upgraded benchmark")
     ap.add_argument("--dim", type=int, default=10)
     ap.add_argument("--max-evals", type=int, default=2000)
     ap.add_argument("--n-runs", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
     args = ap.parse_args()
-    print("SMO Upgraded — Natural Metric Latent + Sep-CMA Conscious + Sigmoid Gate")
+    print("Bicameral Upgraded — Natural Metric Latent + Sep-CMA Conscious + Sigmoid Gate")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0)

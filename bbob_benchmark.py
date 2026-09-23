@@ -8,7 +8,7 @@ recorded per target during the run (no full histories stored).
 
 Usage:
   python bbob_benchmark.py --dim 10 --max-evals 10000 --instances 1-5 \\
-      --methods SMO-Pop,CMA-ES,BIPOP,DiffEvol,DualAnneal,RandSearch \\
+      --methods Bicameral,CMA-ES,BIPOP,DiffEvol,DualAnneal,RandSearch \\
       --out bbob_dim10.jsonl
   python bbob_benchmark.py --summarize bbob_dim10.jsonl
 
@@ -25,7 +25,7 @@ import time
 import numpy as np
 
 from compare_baselines import (
-    run_smo_pop, run_cma_es, run_bipop, run_differential_evolution,
+    run_bicameral, run_cma_es, run_bipop, run_differential_evolution,
     run_dual_annealing, run_random_search,
 )
 from zoo_methods import (
@@ -34,7 +34,7 @@ from zoo_methods import (
 )
 
 METHODS = {
-    "SMO-Pop": run_smo_pop,
+    "Bicameral": run_bicameral,
     "CMA-ES": run_cma_es,
     "BIPOP": run_bipop,
     "DiffEvol": run_differential_evolution,
@@ -157,7 +157,7 @@ def run(dim=10, max_evals=10000, instances=None, seed0=0, methods=None,
     print(f"Done in {time.time() - t_all:.1f}s -> {out}", flush=True)
 
 
-def summarize(path, baseline="SMO-Pop"):
+def summarize(path, baseline="Bicameral"):
     recs = []
     with open(path) as fh:
         for line in fh:
@@ -290,7 +290,7 @@ def main():
     ap.add_argument("--fids", type=str, default="all")
     ap.add_argument("--out", type=str, default="results/bbob/bbob_results.jsonl")
     ap.add_argument("--summarize", type=str, default=None)
-    ap.add_argument("--baseline", type=str, default="SMO-Pop")
+    ap.add_argument("--baseline", type=str, default="Bicameral")
     args = ap.parse_args()
     if args.summarize:
         summarize(args.summarize, baseline=args.baseline)

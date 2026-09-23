@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ablation study: what does each SMO-Pop v3 component contribute?
+"""Ablation study: what does each Bicameral v3 component contribute?
 
 Configs (all else = full v3 defaults):
   full       - everything on (reference)
@@ -19,8 +19,8 @@ Budget-identical: dim=10, 5000 evals, seeds 1-5.
 import time
 import numpy as np
 
-from smo_pop import SMOPop
-from smo_upgraded import sphere, rastrigin, rosenbrock, accuracy_score
+from bicameral import Bicameral
+from bicameral_v1 import sphere, rastrigin, rosenbrock, accuracy_score
 from extra_benchmarks import get_func
 
 FUNCS = {
@@ -64,7 +64,7 @@ def run(dim=10, max_evals=5000, seeds=(1, 2, 3, 4, 5)):
             accs, losses = [], []
             t0 = time.time()
             for s in seeds:
-                opt = SMOPop(dim, lo, hi, seed=s, **init_kw)
+                opt = Bicameral(dim, lo, hi, seed=s, **init_kw)
                 _, by, _ = opt.optimize(f, max_evals, **opt_kw)
                 accs.append(accuracy_score(by))
                 losses.append(by)

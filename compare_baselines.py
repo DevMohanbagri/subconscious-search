@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fair comparison: SMO vs established black-box optimizers.
+"""Fair comparison: Bicameral vs established black-box optimizers.
 
 Baselines (all given the SAME function-evaluation budget):
   - random_search : uniform sampling (sanity floor)
@@ -18,9 +18,9 @@ import numpy as np
 from scipy.optimize import differential_evolution, dual_annealing
 import cma
 
-from smo_upgraded import SMOUpgraded, BENCHMARKS, TOLS, accuracy_score
-from smo_pop import SMOPop
-from smo_ghost import SMOGhost
+from bicameral_v1 import BicameralV1, BENCHMARKS, TOLS, accuracy_score
+from bicameral import Bicameral
+from reverie import Reverie
 from extra_benchmarks import NEWBENCHMARKS, get_func
 
 
@@ -71,34 +71,34 @@ def run_bipop(func, dim, lo, hi, max_evals, seed):
     return float(res[1])
 
 
-def run_smo(func, dim, lo, hi, max_evals, seed):
-    opt = SMOUpgraded(dim, lo, hi, seed=seed)
+def run_bicameral_v1(func, dim, lo, hi, max_evals, seed):
+    opt = BicameralV1(dim, lo, hi, seed=seed)
     _, best_y, _ = opt.optimize(func, max_evals)
     return best_y
 
 
-def run_smo_pop(func, dim, lo, hi, max_evals, seed):
-    opt = SMOPop(dim, lo, hi, seed=seed)
+def run_bicameral(func, dim, lo, hi, max_evals, seed):
+    opt = Bicameral(dim, lo, hi, seed=seed)
     _, best_y, _ = opt.optimize(func, max_evals)
     return best_y
 
 
-def run_smo_ghost(func, dim, lo, hi, max_evals, seed):
-    opt = SMOGhost(dim, lo, hi, seed=seed)
+def run_reverie(func, dim, lo, hi, max_evals, seed):
+    opt = Reverie(dim, lo, hi, seed=seed)
     _, best_y, _ = opt.optimize(func, max_evals)
     return best_y
 
 
-def run_smo_rank(func, dim, lo, hi, max_evals, seed):
-    opt = SMOPop(dim, lo, hi, seed=seed, rank_surrogate=True)
+def run_bicameral_rank(func, dim, lo, hi, max_evals, seed):
+    opt = Bicameral(dim, lo, hi, seed=seed, rank_surrogate=True)
     _, best_y, _ = opt.optimize(func, max_evals)
     return best_y
 
 
 ALL_METHODS = [
-    ("SMO-v1", run_smo),
-    ("SMO-Pop", run_smo_pop),
-    ("SMO-Ghost", run_smo_ghost),
+    ("Bicameral-v1", run_bicameral_v1),
+    ("Bicameral", run_bicameral),
+    ("Bicameral-Reverie", run_reverie),
     ("CMA-ES", run_cma_es),
     ("DiffEvol", run_differential_evolution),
     ("DualAnneal", run_dual_annealing),
@@ -207,7 +207,7 @@ def main():
     ap.add_argument("--suite", choices=["core", "extra", "all"], default="core")
     ap.add_argument("--methods", default="",
                     help="comma-separated subset of: "
-                         "SMO-v1,SMO-Pop,CMA-ES,DiffEvol,DualAnneal,RandSearch")
+                         "Bicameral-v1,Bicameral,CMA-ES,DiffEvol,DualAnneal,RandSearch")
     args = ap.parse_args()
     methods = ALL_METHODS
     if args.methods:

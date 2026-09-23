@@ -1,7 +1,7 @@
 
 ===== cec_dim10.jsonl (28 funcs, 5 seeds) =====
 --- MEAN ERROR per function (lower better) ---
-func       SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+func       Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
 F1       3.631e-06   2.274e-14        2187   2.487e+06   3.746e-06   4.473e+09
 F3           1.666       2.392       3.457       6.848       3.987       437.5
 F4           17.11       17.71       8.756       54.81       49.95        5264
@@ -31,26 +31,26 @@ F27      1.445e-06    2.72e-10   6.495e-06       17.56       27.38       496.1
 F28           1873        1640        1646        4160        7064   6.894e+06
 F29       1.49e+04        4746        4746   6.958e+05   3.198e+04   1.773e+08
 --- MEAN RANK (lower better) + #best ---
-SMO-Pop    rank=2.00  best-on=10/28
+Bicameral    rank=2.00  best-on=10/28
 CMA-ES     rank=2.39  best-on=10/28
 BIPOP      rank=3.50  best-on=2/28
 DiffEvol   rank=3.79  best-on=2/28
 DualAnneal rank=3.36  best-on=4/28
 RandSearch rank=5.96  best-on=0/28
 --- MEAN RANK by class ---
-class            SMO-Pop      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+class            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
 unimodal            1.50        1.50        3.50        5.00        3.50        6.00
 multimodal          2.14        2.43        3.43        4.14        3.00        5.86
 hybrid              2.30        2.10        3.90        3.60        3.10        6.00
 composition         1.67        2.89        3.11        3.44        3.89        6.00
---- WILCOXON vs SMO-Pop (paired by func, lower error better) ---
-SMO-Pop vs CMA-ES: W=178 p=0.2912 wins=16/28 -> not significant
-SMO-Pop vs BIPOP: W=113 p=0.0201 wins=20/28 -> SIGNIFICANTLY BETTER
-SMO-Pop vs DiffEvol: W=31 p=0.0000 wins=25/28 -> SIGNIFICANTLY BETTER
-SMO-Pop vs DualAnneal: W=59 p=0.0003 wins=23/28 -> SIGNIFICANTLY BETTER
-SMO-Pop vs RandSearch: W=0 p=0.0000 wins=28/28 -> SIGNIFICANTLY BETTER
+--- WILCOXON vs Bicameral (paired by func, lower error better) ---
+Bicameral vs CMA-ES: W=178 p=0.2912 wins=16/28 -> not significant
+Bicameral vs BIPOP: W=113 p=0.0201 wins=20/28 -> SIGNIFICANTLY BETTER
+Bicameral vs DiffEvol: W=31 p=0.0000 wins=25/28 -> SIGNIFICANTLY BETTER
+Bicameral vs DualAnneal: W=59 p=0.0003 wins=23/28 -> SIGNIFICANTLY BETTER
+Bicameral vs RandSearch: W=0 p=0.0000 wins=28/28 -> SIGNIFICANTLY BETTER
 --- WALL TIME per method ---
-SMO-Pop    270.9s total
+Bicameral    270.9s total
 CMA-ES     202.6s total
 BIPOP      278.0s total
 DiffEvol   149.1s total

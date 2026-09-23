@@ -1,1 +1,0 @@
-{"method": "smo", "seed": 12346, "evals": 5000, "evals_used": 4989, "best_train_f1": 1.0, "evals_to_perfect": 89, "n_est": 268, "depth": 9, "split": 2, "leaf": 1, "mask": "1111001101000011", "n_feats": 9, "clean_acc": 0.9807692307692307, "clean_f1": 0.9850746268656716, "clean_prec": 1.0, "clean_rec": 0.9705882352941176, "wall_s": 1286.0, "fold": 1}

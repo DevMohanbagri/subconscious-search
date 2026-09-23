@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""SMO-Ghost (v4): subconscious-inspired memory architecture.
+"""Bicameral-Reverie (v4): subconscious-inspired memory architecture.
 
-Implements ideas #8-#14 on top of SMO-Pop v3 (subclass; v3 loop untouched
+Implements ideas #8-#14 on top of Bicameral v3 (subclass; v3 loop untouched
 except no-op hooks):
 
-  #8  Ghost Landscape   - memory of explored regions; good traces attract,
+  #8  Reverie Landscape   - memory of explored regions; good traces attract,
                                 trapped regions repel (kernel-weighted bonus).
   #9  Conflict Search   - impressions that disagree (close in latent space,
                                 far in value) spawn boundary probes.
@@ -22,7 +22,7 @@ except no-op hooks):
 Design notes:
 - Raw-space X is stored; latent codes are a cache refreshed on every
   frame update (frames rotate, so caching codes alone would go stale).
-- With n_dream=n_conflict=ghost_w=0 the run is BIT-IDENTICAL to v3
+- With n_dream=n_conflict=reverie_w=0 the run is BIT-IDENTICAL to v3
   (no RNG consumed by disabled paths) - verified in testing.
 """
 
@@ -30,11 +30,11 @@ import time
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from smo_pop import SMOPop
-from smo_upgraded import BENCHMARKS, TOLS, accuracy_score
+from bicameral import Bicameral
+from bicameral_v1 import BENCHMARKS, TOLS, accuracy_score
 
 
-class GhostMemory:
+class ReverieMemory:
     """Latent-space impression archive (#8-#14)."""
 
     def __init__(self, latent_dim, cap=512, decay=0.99, l_scale=1.0,
@@ -121,8 +121,8 @@ class GhostMemory:
         g[order] = 1.0 - np.arange(self.n) / (self.n - 1)
         return g
 
-    # -- #8 ghost value: attract good traces, repel trapped ones --
-    def ghost_value(self, Cq):
+    # -- #8 reverie value: attract good traces, repel trapped ones --
+    def reverie_value(self, Cq):
         """Kernel-weighted goodness in [0,1]; 0.5 when memory is empty."""
         if self.n == 0:
             return np.full(len(np.asarray(Cq)), 0.5)
@@ -219,38 +219,38 @@ class GhostMemory:
         return np.array(out), used
 
 
-class SMOGhost(SMOPop):
-    """SMO-Pop v3 + GhostMemory subconscious (ideas #8-#14)."""
+class Reverie(Bicameral):
+    """Bicameral v3 + ReverieMemory subconscious (ideas #8-#14)."""
 
-    def __init__(self, *args, ghost_w=0.5, n_dream=64, n_conflict=32,
-                 ghost_cap=512, **kwargs):
+    def __init__(self, *args, reverie_w=0.5, n_dream=64, n_conflict=32,
+                 reverie_cap=512, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ghost = GhostMemory(self.latent_dim, cap=ghost_cap)
-        self.ghost_w = ghost_w
+        self.reverie = ReverieMemory(self.latent_dim, cap=reverie_cap)
+        self.reverie_w = reverie_w
         self.n_dream = n_dream
         self.n_conflict = n_conflict
 
     # -- hooks --
     def _hook_latent_updated(self):
-        self.ghost.refresh_codes(self.latent)
+        self.reverie.refresh_codes(self.latent)
 
     def _hook_new_evals(self, X_all, Y_all):
-        self.ghost.add_batch(X_all, Y_all)
+        self.reverie.add_batch(X_all, Y_all)
         if self.latent.ready():
-            self.ghost.refresh_codes(self.latent)
+            self.reverie.refresh_codes(self.latent)
 
     def _hook_end_of_generation(self, gen):
-        self.ghost.end_of_generation()
+        self.reverie.end_of_generation()
 
-    # -- subconscious pool with dream + conflict + ghost scoring --
+    # -- subconscious pool with dream + conflict + reverie scoring --
     def _subconscious_pool(self, best_x, C_mem, Y_mem, global_frac=0.25):
         rng = self.rng
-        ghost_on = (self.n_dream > 0 or self.n_conflict > 0
-                    or self.ghost_w > 0)
+        reverie_on = (self.n_dream > 0 or self.n_conflict > 0
+                    or self.reverie_w > 0)
         c_best = self.latent.phi(best_x)
-        if ghost_on and self.ghost.n >= 2:
+        if reverie_on and self.reverie.n >= 2:
             # #14: unfamiliar regions get a wider sampling spread
-            unfam = self.ghost.unfamiliarity(c_best)
+            unfam = self.reverie.unfamiliarity(c_best)
             eff_noise = self.sub_noise * (0.5 + 1.5 * unfam)
         else:
             eff_noise = self.sub_noise
@@ -263,28 +263,28 @@ class SMOGhost(SMOPop):
         C_global = rng.uniform(lo - pad, hi + pad,
                                size=(n_global, self.latent_dim))
         parts = [C_local, C_global]
-        if self.n_dream > 0 and self.ghost.n >= 2:
-            Cd, parents = self.ghost.dream(rng, self.n_dream)
-            self.ghost.refresh(parents)  # #12: dreaming is using
+        if self.n_dream > 0 and self.reverie.n >= 2:
+            Cd, parents = self.reverie.dream(rng, self.n_dream)
+            self.reverie.refresh(parents)  # #12: dreaming is using
             parts.append(Cd)
-        if self.n_conflict > 0 and self.ghost.n >= 2:
-            Cc, used = self.ghost.conflict_probes(rng, self.n_conflict)
+        if self.n_conflict > 0 and self.reverie.n >= 2:
+            Cc, used = self.reverie.conflict_probes(rng, self.n_conflict)
             if len(Cc):
-                self.ghost.refresh(used)
+                self.reverie.refresh(used)
                 parts.append(Cc)
         C_cand = np.vstack(parts)
         scores = self.surrogate.evaluate_acquisition(
             C_cand, C_mem, Y_mem, beta=self.beta)
-        if self.ghost_w > 0 and self.ghost.n >= 2:
+        if self.reverie_w > 0 and self.reverie.n >= 2:
             # #8: attract good traces, repel trapped ones
-            v = self.ghost.ghost_value(C_cand)
-            scores = scores + self.ghost_w * (v - 0.5) * 2.0
+            v = self.reverie.reverie_value(C_cand)
+            scores = scores + self.reverie_w * (v - 0.5) * 2.0
         return C_cand, scores
 
 
 def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
-                  patience_gens=30, **ghost_kwargs):
-    from smo_upgraded import accuracy_score as acc_fn
+                  patience_gens=30, **reverie_kwargs):
+    from bicameral_v1 import accuracy_score as acc_fn
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -293,7 +293,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
             print(f"\n=== {name} (dim={dim}, evals={max_evals}, runs={n_runs}) ===",
                   flush=True)
         for r in range(n_runs):
-            opt = SMOGhost(dim, lo, hi, seed=seed0 + r, **ghost_kwargs)
+            opt = Reverie(dim, lo, hi, seed=seed0 + r, **reverie_kwargs)
             t0 = time.time()
             _, best_y, info = opt.optimize(func, max_evals,
                                            patience_gens=patience_gens)
@@ -309,7 +309,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
             if verbose:
                 print(f"  run {r+1}: loss={best_y:.6g} acc={acc:.2f}% "
                       f"improv={imp:.2f}% time={dt:.2f}s "
-                      f"(ghosts={opt.ghost.n})", flush=True)
+                      f"(reveries={opt.reverie.n})", flush=True)
         results[name] = {
             "loss_mean": float(np.mean(losses)),
             "loss_std": float(np.std(losses)),
@@ -330,21 +330,21 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(description="SMO-Ghost (v4) benchmark")
+    ap = argparse.ArgumentParser(description="Bicameral-Reverie (v4) benchmark")
     ap.add_argument("--dim", type=int, default=10)
     ap.add_argument("--max-evals", type=int, default=5000)
     ap.add_argument("--n-runs", type=int, default=5)
     ap.add_argument("--seed0", type=int, default=0)
-    ap.add_argument("--ghost-w", type=float, default=0.5)
+    ap.add_argument("--reverie-w", type=float, default=0.5)
     ap.add_argument("--n-dream", type=int, default=64)
     ap.add_argument("--n-conflict", type=int, default=32)
-    ap.add_argument("--no-ghost", action="store_true",
-                    help="disable all ghost machinery (must match v3 bit-for-bit)")
+    ap.add_argument("--no-reverie", action="store_true",
+                    help="disable all reverie machinery (must match v3 bit-for-bit)")
     args = ap.parse_args()
-    kw = {"ghost_w": 0.0, "n_dream": 0, "n_conflict": 0} if args.no_ghost else {
-        "ghost_w": args.ghost_w, "n_dream": args.n_dream,
+    kw = {"reverie_w": 0.0, "n_dream": 0, "n_conflict": 0} if args.no_reverie else {
+        "reverie_w": args.reverie_w, "n_dream": args.n_dream,
         "n_conflict": args.n_conflict}
-    print(f"SMO-Ghost v4 — ideas #8-#14 ({'DISABLED (v3 check)' if args.no_ghost else kw})")
+    print(f"Bicameral-Reverie v4 — ideas #8-#14 ({'DISABLED (v3 check)' if args.no_reverie else kw})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0, **kw)

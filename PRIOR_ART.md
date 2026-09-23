@@ -1,4 +1,4 @@
-# Prior-art search: is SMO-Pop v3 a new optimization technique?
+# Prior-art search: is Bicameral v3 a new optimization technique?
 
 **Date: 2026-09-22. Method: systematic web search over the five
 claim-bearing parts of v3 (details below); ~25 queries, ~60 sources
@@ -27,7 +27,7 @@ BIPOP/saACM baselines are added.**
 
 ## M1. Credit-assignment gate — principle known, instantiation novel
 
-**What v3 does** (`smo_pop.py`, gate ~L487–556): two streams (λ CMA
+**What v3 does** (`bicameral.py`, gate ~L487–556): two streams (λ CMA
 offspring + k surrogate-selected latent candidates). Each generation
 that improves the global best adds relative improvement to the winning
 stream's credit; both credits decay ×0.97/generation; allocation is
@@ -67,7 +67,7 @@ Fialho et al. [13–14], FRRMAB [15] and mVIE [23]."
 
 ## M2. Double-stall terminal phase + memetic drainage — narrow policy novelty
 
-**What v3 does** (`smo_pop.py`, trigger ~L444–473, stall block ~L559–596,
+**What v3 does** (`bicameral.py`, trigger ~L444–473, stall block ~L559–596,
 `_basin_hopping` ~L335–401, `_local_polish` ~L307–333): generation-based
 patience windows (30 gens); a stalled window (<1e-3 rel. improvement)
 triggers L-BFGS-B basin drainage then IPOP doubling + recenter on the
@@ -138,7 +138,7 @@ recipes [5]); ideally discuss/limit-compare with saACM.
   comparison-based surrogates" (Loshchilov, Schoenauer & Sebag, 2010)
   [8] argues value-regression surrogates break CMA-ES's rank invariance;
   rank-based SVM surrogates fix it. This paper is the theoretical
-  backing for BOTH the v4-ghost autopsy (smoothing surrogate mis-ranks
+  backing for BOTH the v4-reverie autopsy (smoothing surrogate mis-ranks
   speculative candidates) AND the roadmap's #1 item (rank-based/ordinal
   surrogate for v5). Cite it there, not as an afterthought.
 - v1's diagonal core is sep-CMA-ES (Ros & Hansen, 2008) [4] — cite;
@@ -162,14 +162,19 @@ recipes [5]); ideally discuss/limit-compare with saACM.
   paper's contribution claim must be M1–M3 (mechanisms + evidence);
   the dual-process story belongs in the introduction/motivation and in
   IDEAS.md — exactly where it is now.
-- **NAME COLLISIONS (both blocking for publication):**
+- **NAME COLLISIONS (both were blocking for publication — RESOLVED
+  2026-09-23):** the project was originally named SMO and its v4 line
+  GHOST. Both collided:
   - **SMO** = Sequential Minimal Optimization, Platt (1998),
     MSR-TR-98-14 [30] — one of the most famous acronyms in ML.
   - **GHOST** = General meta-Heuristic Optimization Solving Tool,
     Richoux et al. (2015), a combinatorial CSP/COP solver [31].
-    Different domain, same literature pool — rename if v4/ghost is
-    ever published. Recommended: rename project (e.g. CGES /
-    DUET-CMA / credit-gated dual-stream CMA-ES) before any preprint.
+  - (Also checked and rejected during renaming: JANUS — taken by an
+    Aug-2026 BBOB/CMA-ES infill paper, same pool; DUET-CMA and CGES
+    were candidates the author passed on.)
+  Renamed to **BICAMERAL** (v4 line: **REVERIE**) — verified
+  collision-free in optimization/ML. Git history before 2026-09-23 and
+  the Platt/Richoux references below still say SMO/GHOST.
 
 ---
 
@@ -275,7 +280,8 @@ recipes [5]); ideally discuss/limit-compare with saACM.
 
 ## What remains for a paper-level claim
 
-1. Rename (SMO and GHOST both taken) — before any preprint.
+1. ~~Rename (SMO and GHOST both taken) — before any preprint.~~ DONE
+   2026-09-23: BICAMERAL / REVERIE.
 2. Add BIPOP-aCMA-ES baseline; discuss saACM family [9] explicitly.
 3. BBOB/COCO run (the venue-standard evidence; CEC2017 done here is
    strong supporting evidence, not a substitute).

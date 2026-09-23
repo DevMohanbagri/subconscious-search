@@ -1,4 +1,4 @@
-SMO-Pop v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=rank)
+Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping (local=on, surrogate=rank)
 
 === sphere (dim=10, evals=5000, runs=5) ===
   run 1: loss=7.1479e-28 acc=100.00% improv=100.00% time=6.01s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)

@@ -7,7 +7,7 @@ F30 not implemented in opfunu) -> 28 functions, bounds [-100, 100]^D.
 
 Usage:
   python cec_benchmark.py --dim 10 --max-evals 10000 --n-runs 5 --seed0 1 \\
-      --methods SMO-Pop,CMA-ES,DiffEvol,DualAnneal,RandSearch --out cec_dim10.jsonl
+      --methods Bicameral,CMA-ES,DiffEvol,DualAnneal,RandSearch --out cec_dim10.jsonl
   python cec_benchmark.py --summarize cec_dim10.jsonl   # tables only
 
 Results append as JSON lines; completed (func, method, seed) combos are
@@ -23,14 +23,14 @@ import time
 import numpy as np
 
 from compare_baselines import (
-    run_smo_pop, run_smo_rank, run_cma_es, run_bipop,
+    run_bicameral, run_bicameral_rank, run_cma_es, run_bipop,
     run_differential_evolution, run_dual_annealing, run_random_search,
 )
 from opfunu.cec_based import cec2017
 
 METHODS = {
-    "SMO-Pop": run_smo_pop,
-    "SMO-Rank": run_smo_rank,
+    "Bicameral": run_bicameral,
+    "Bicameral-Rank": run_bicameral_rank,
     "CMA-ES": run_cma_es,
     "BIPOP": run_bipop,
     "DiffEvol": run_differential_evolution,
@@ -117,7 +117,7 @@ def run(dim=10, max_evals=10000, n_runs=5, seed0=1, methods=None,
     print(f"Done in {time.time() - t_all:.1f}s -> {out}", flush=True)
 
 
-def summarize(path, baseline="SMO-Pop"):
+def summarize(path, baseline="Bicameral"):
     recs = []
     with open(path) as fh:
         for line in fh:
@@ -220,7 +220,7 @@ def main():
     ap.add_argument("--funcs", type=str, default="all")
     ap.add_argument("--out", type=str, default="results/cec/cec_results.jsonl")
     ap.add_argument("--summarize", type=str, default=None)
-    ap.add_argument("--baseline", type=str, default="SMO-Pop")
+    ap.add_argument("--baseline", type=str, default="Bicameral")
     args = ap.parse_args()
     if args.summarize:
         summarize(args.summarize, baseline=args.baseline)
