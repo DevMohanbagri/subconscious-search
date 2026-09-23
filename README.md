@@ -448,6 +448,42 @@ at 5000). Footnote: the first two Arm-1 runs allowed depth-11 at
 exact-bound hits; affected folds (SMO f8, HBA f7) were rerun
 in-spec and still perfected — final numbers fully in-spec.
 
+### Task 2: clean protocol — inner-validation fitness + nested evaluation
+
+Arm 1 replicated the paper's train-F1 fitness, warts included: it
+plateaus at 1.0 (26/50 runs), so most runs tie and first-hit
+tie-breaking decides — memorization scores, search quality barely
+matters. Task 2 re-runs all 5 methods with ONE change: fitness = F1 on
+a stratified 75/25 inner split of the train fold (fixed seeds), so
+memorization can't score; fold-bests are retrained on the full train
+fold and tested on the untouched outer test = proper nested CV
+(`--fitness innerval`, `results/esdrp/esdrp_clean_*.jsonl`,
+`results/esdrp/esdrp_clean_results.txt`). No voted model — that
+pipeline leaks by construction. Pre-registered prediction: the
+plateau breaks and search quality separates the methods.
+
+| method | fit-F1 | perfect/10 | clean outer-F1 | feats | Wilcoxon vs SMO (outer / fit) |
+|--------|--------|------------|----------------|-------|-------------------------------|
+| **SMO-Pop** | **0.9902** | **3** | **0.9596** | 9.8 | — |
+| TSO | 0.9805 | 1 | 0.9401 | 9.0 | ✅ p=0.037 / p=0.016 |
+| HBA | 0.9757 | 1 | 0.9346 | 9.2 | ✅ p=0.010 / p=0.008 |
+| RandSearch | 0.9734 | 0 | 0.9426 | 9.4 | ✅ p=0.027 / p=0.002 |
+| FOX | 0.9570 | 0 | 0.9282 | 9.0 | ✅ p=0.002 / p=0.002 |
+
+Prediction confirmed decisively: with honest fitness SMO is
+significantly better than **all four** on both inner-val fit and
+nested outer test (8–10/10 fold-wins), where Arm 1's clean numbers
+were all ties. When the fitness actually discriminates, v3's
+surrogate-guided search converts to real generalization wins. Two
+honest notes: (1) absolute outer numbers drop vs Arm 1 for everyone
+(inner-val selection on 91 samples is noisier than train selection on
+364 — the paired *ordering* is the finding, not the levels; neither
+is comparable to the paper's leaky 98.14); (2) voted hparams still
+show (depth,split,leaf)=(10,2,1) for SMO/TSO — deep trees generalize
+fine here given the strong signal, so the separation comes from
+better *masks*, and honest fitness selects leaner models across the
+board (~9 feats vs Arm 1's 10–13).
+
 ## Ablation study (`ablation.py`, `results/core/ablation_results.txt`)
 
 Each v3 component removed in isolation; dim=10, 5k evals, seeds 1–5.
@@ -543,3 +579,21 @@ barely matters (SMO actually found the best *validation* loss, 0.50110
 vs 0.50129; test noise flips the ranking). Note: the 3-class `012` file
 is 84/14/2 imbalanced, so raw accuracy is misleading there
 (dummy = 84.24%; HGB = 84.91%, macro-F1 0.40).
+
+### Task 4: paired stats + SHAP for the ML benchmark
+
+The table above was point estimates only — the weakest section
+statistically. `ml_benchmark.py` now adds, stolen honestly from the two
+diabetes papers: **[4]** paired tests for the headline comparisons
+(SMO-direct vs logreg; SMO-HPO vs HGB-defaults vs same-budget RS-HPO) —
+DeLong test on AUC (Paper-2 method), exact McNemar on accuracy, and
+bootstrap 95% CIs; **[5]** SHAP explainability (Paper-1 method) —
+global mean|SHAP| ranking plus per-instance top features for one
+TP/TN/FP/FN. Validated end-to-end on an ESDRP smoke run (small
+budgets): all stats compute, and SHAP's top-3 —
+Polydipsia/Polyuria/Gender — independently reproduces the paper's SHAP
+finding on the same dataset. Full BRFSS rerun is pending the `data/`
+CSVs (gitignored; not in this sandbox — UCI and mirrors are
+network-blocked here): `python3 ml_benchmark.py >
+results/ml/ml_results.txt` when they're back. Committed
+`results/ml/ml_results.txt` stays the pre-stats snapshot until then.

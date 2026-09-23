@@ -93,12 +93,28 @@ def decode(x):
 
 
 class Fitness:
-    """Train-F1 fitness with exact-budget cap + best-config tracking."""
+    """Train-F1 or inner-val-F1 fitness with exact-budget cap + tracking.
 
-    def __init__(self, Xtr, ytr, rf_seed, max_evals):
-        self.Xtr, self.ytr = Xtr, ytr
+    fitness='train' (Arm 1 replication): F1 on the full 70% train fold.
+      Memorizable -> the (deep, unpruned) corner scores 1.0.
+    fitness='innerval' (Task 2 clean protocol): the train fold is split
+      75/25 (stratified, fixed seed) once; fitness = F1 on the inner-val
+      split. Memorization no longer scores -> the landscape rewards
+      configs that generalize. Outer evaluation (fold-best retrained on
+      full Ftrain, tested on untouched Ftest) is proper nested CV.
+    """
+
+    def __init__(self, Xtr, ytr, rf_seed, max_evals, fitness="train"):
+        from sklearn.model_selection import train_test_split
         self.rf_seed = rf_seed
         self.max = max_evals
+        if fitness == "innerval":
+            Xi, Xv, yi, yv = train_test_split(
+                Xtr, ytr, test_size=0.25, random_state=rf_seed,
+                stratify=ytr)
+            self.Xfit, self.yfit, self.Xval, self.yval = Xi, yi, Xv, yv
+        else:
+            self.Xfit, self.yfit, self.Xval, self.yval = Xtr, ytr, Xtr, ytr
         self.n = 0
         self.best_f1 = -1.0
         self.best_x = None
@@ -118,9 +134,9 @@ class Fitness:
                 n_estimators=n_est, max_depth=depth,
                 min_samples_split=split, min_samples_leaf=leaf,
                 random_state=self.rf_seed, n_jobs=1)
-            f1 = float(f1_score(self.ytr,
-                                clf.fit(self.Xtr[:, cols], self.ytr)
-                                   .predict(self.Xtr[:, cols])))
+            f1 = float(f1_score(self.yval,
+                                clf.fit(self.Xfit[:, cols], self.yfit)
+                                   .predict(self.Xval[:, cols])))
         self.n += 1
         if f1 > self.best_f1 + 1e-12:
             self.best_f1 = f1
@@ -130,11 +146,11 @@ class Fitness:
         return 1.0 - f1  # optimizers minimize
 
 
-def run_one(method, Xtr, ytr, Xte, yte, seed, evals):
+def run_one(method, Xtr, ytr, Xte, yte, seed, evals, fitness="train"):
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.metrics import accuracy_score, f1_score, precision_score, \
         recall_score
-    fit = Fitness(Xtr, ytr, rf_seed=seed, max_evals=evals)
+    fit = Fitness(Xtr, ytr, rf_seed=seed, max_evals=evals, fitness=fitness)
     t0 = time.time()
     if method == "smo":
         from compare_baselines import run_smo_pop
@@ -185,13 +201,15 @@ def run_one(method, Xtr, ytr, Xte, yte, seed, evals):
 
 
 def run_fold(args):
-    method, fold, seed, evals = args
+    method, fold, seed, evals, fitness = args
     X, y, _ = load_esdrp()
     folds = make_folds()
     tri, tei = folds[fold - 1]
-    rec = run_one(method, X[tri], y[tri], X[tei], y[tei], seed, evals)
+    rec = run_one(method, X[tri], y[tri], X[tei], y[tei], seed, evals,
+                  fitness=fitness)
     rec["fold"] = fold
-    print(f"fold={fold} {method}: trainF1={rec['best_train_f1']:.4f} "
+    rec["fitness"] = fitness
+    print(f"fold={fold} {method}[{fitness}]: fitF1={rec['best_train_f1']:.4f} "
           f"perfect@{rec['evals_to_perfect']} cleanAcc={rec['clean_acc']:.4f} "
           f"feats={rec['n_feats']} ({rec['wall_s']}s)", flush=True)
     return rec
@@ -205,11 +223,12 @@ def main():
     ap.add_argument("--evals", type=int, default=1000)
     ap.add_argument("--seed0", type=int, default=12345)
     ap.add_argument("--jobs", type=int, default=2)
+    ap.add_argument("--fitness", default="train", choices=["train", "innerval"])
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     lo, hi = a.folds.split("-")
     folds = list(range(int(lo), int(hi) + 1))
-    tasks = [(a.method, f, a.seed0 + f, a.evals) for f in folds]
+    tasks = [(a.method, f, a.seed0 + f, a.evals, a.fitness) for f in folds]
     from concurrent.futures import ProcessPoolExecutor
     t0 = time.time()
     with ProcessPoolExecutor(max_workers=a.jobs) as ex:
