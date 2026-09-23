@@ -28,6 +28,9 @@ from compare_baselines import (
     run_smo_pop, run_cma_es, run_bipop, run_differential_evolution,
     run_dual_annealing, run_random_search,
 )
+from zoo_methods import (
+    run_pso, run_ga, run_gwo, run_woa, run_abc, run_shade,
+)
 
 METHODS = {
     "SMO-Pop": run_smo_pop,
@@ -36,6 +39,12 @@ METHODS = {
     "DiffEvol": run_differential_evolution,
     "DualAnneal": run_dual_annealing,
     "RandSearch": run_random_search,
+    "PSO": run_pso,
+    "GA": run_ga,
+    "GWO": run_gwo,
+    "WOA": run_woa,
+    "ABC": run_abc,
+    "SHADE": run_shade,
 }
 
 FIDS = list(range(1, 25))

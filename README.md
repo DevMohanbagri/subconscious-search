@@ -333,6 +333,51 @@ claimed); the novelty claim rests on the mechanisms (M1–M3,
 `PRIOR_ART.md`), for which SMO is now shown competitive with the
 restart state of the art.
 
+### Zoo panel: v3 vs classic nature-inspired optimizers (BBOB dim-10)
+
+Pre-registered prediction: SMO's CMA core beats the 90s–00s zoo on
+conditioned landscapes; would NOT extend to modern L-SHADE-class DE.
+Tested via `mealpy` (`zoo_methods.py`): PSO, GA, GWO, WOA, ABC, plus
+SHADE as a modern-DE reference — 720 runs appended to
+`bbob_dim10.jsonl` (now 1440 rows; `bbob_dim10.txt` stays the 6-method
+snapshot, full 12-method log in `bbob_zoo_dim10.txt`). Budget fairness:
+nominal epoch×pop≈10k plus a hard cap wrapper asserting **exactly**
+10000 true evals per run (post-budget calls return worst-seen, no new
+signal). Same IOH dim-10 protocol, instances 1–5.
+
+| method | mean rank | #best/24 | targets | Wilcoxon vs SMO (SMO wins) |
+|--------|-----------|----------|---------|----------------------------|
+| BIPOP | 2.58 | 5 | 59.8% | 6/24, n.s. |
+| **SMO-Pop** | **3.33** | 2 | **50.4%** | — |
+| CMA-ES | 3.42 | 9 | 55.6% | 12/24, n.s. |
+| DualAnneal | 4.29 | 6 | 40.8% | 14/24, n.s. |
+| SHADE | 5.29 | 1 | 23.1% | ✅ 20/24, p=0.0005 |
+| PSO | 6.12 | 0 | 23.7% | ✅ 20/24, p<0.0001 |
+| GWO | 6.54 | 0 | 17.6% | ✅ 21/24, p<0.0001 |
+| DiffEvol | 7.17 | 0 | 15.2% | ✅ 23/24, p<0.0001 |
+| GA | 8.00 | 1 | 12.8% | ✅ 22/24, p<0.0001 |
+| WOA | 9.58 | 0 | 13.0% | ✅ 23/24, p<0.0001 |
+| ABC | 9.75 | 0 | 12.0% | ✅ 23/24, p<0.0001 |
+| RandSearch | 11.92 | 0 | 4.9% | ✅ 24/24, p<0.0001 |
+
+Prediction confirmed — and then some: SMO significantly beats all six
+zoo methods, **including the modern SHADE reference** (20/24,
+p=0.0005), and solves 2× the fixed-target pairs of the best zoo member
+(50.4% vs 23.7% PSO). Group detail: the zoo collapses hardest on
+conditioned functions (high-cond ranks: SHADE 5.6, PSO 5.8, GWO 7.4,
+GA/WOA/ABC 10+), exactly where covariance learning pays. Disclosed
+caveats: (1) `mealpy` implementations (incl. a stub `OriginalGA` — used
+functional `BaseGA` instead), not authors' code; (2) default pop=100
+for all zoo methods — different tunings could shift zoo-vs-zoo order,
+but every run consumed exactly 10000 evals; (3) ABC evaluates ~2×/epoch
+so the cap truncates it mid-schedule (budget fairness by design);
+(4) SHADE is designed for 10000×D-scale budgets and is underpowered at
+fixed 10k — this is a fixed-budget comparison, not a SHADE obituary;
+(5) dim-10 BBOB only. Earned claim, scoped: *v3 significantly
+outperforms 6 representative nature-inspired optimizers (PSO, GA, GWO,
+WOA, ABC, SHADE) on BBOB dim-10 at a fixed 10k budget* — the first
+positive superiority result in the repo beyond vanilla DE/RS.
+
 ## Ablation study (`ablation.py`, `ablation_results.txt`)
 
 Each v3 component removed in isolation; dim=10, 5k evals, seeds 1–5.
