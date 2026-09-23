@@ -1,30 +1,62 @@
-BRFSS2015 diabetes_binary 50/50 — Bicameral vs sklearn (seed 42)
+BRFSS2015 diabetes_binary 50/50 - Bicameral vs sklearn (seed 42)
 train/val/test: 49484/10604/10604 (21 features, standardized for linear/MLP/Bicameral-direct)
 
 [1] sklearn baselines (train+val fit, test eval)
   dummy (majority)             acc= 50.00%  f1=0.0000  auc=nan  0.0s
-  logreg (LBFGS)               acc= 74.76%  f1=0.7522  auc=0.8250  0.2s
-  randomforest (300)           acc= 73.64%  f1=0.7471  auc=0.8119  7.6s
-  hgb (defaults)               acc= 75.26%  f1=0.7630  auc=0.8301  0.8s
-  mlp (64x32, adam)            acc= 73.21%  f1=0.7298  auc=0.8082  33.6s
+  logreg (LBFGS)               acc= 74.76%  f1=0.7522  auc=0.8250  0.1s
+  randomforest (300)           acc= 73.64%  f1=0.7471  auc=0.8119  7.1s
+  hgb (defaults)               acc= 75.26%  f1=0.7630  auc=0.8301  0.9s
+  mlp (64x32, adam)            acc= 73.21%  f1=0.7298  auc=0.8082  30.2s
 
 [2] Bicameral-direct: 22-D logistic weights on val log-loss (2000 evals)
-    val logloss=0.51317 gens=146 restarts=0 bh=False time=0.8s
-  Bicameral-direct (logreg w)        acc= 74.55%  f1=0.7489  auc=0.8239  0.8s
+    val logloss=0.51317 gens=146 restarts=0 bh=False time=0.6s
+  Bicameral-direct (logreg w)  acc= 74.55%  f1=0.7489  auc=0.8239  0.6s
 
 [3] HPO on HistGradientBoosting: Bicameral vs RandomSearch (108 evals each, val log-loss objective)
-    Bicameral best val=0.50110 params={'lr': 0.07971607958907231, 'depth': 4, 'leaf': 1, 'l2': 20.0} time=81.2s
-  Bicameral-HPO (hgb)                acc= 75.11%  f1=0.7618  auc=0.8299  81.2s
-    RS  best val=0.50129 params={'lr': 0.11138761324961163, 'depth': 6, 'leaf': 267, 'l2': 17.862422426443953} time=139.6s
-  randsearch-HPO (hgb)         acc= 75.29%  f1=0.7625  auc=0.8301  139.6s
+    Bicameral best val=0.50110 params={'lr': 0.07971607958907231, 'depth': 4, 'leaf': 1, 'l2': 20.0} time=74.6s
+  Bicameral-HPO (hgb)          acc= 75.11%  f1=0.7618  auc=0.8299  74.6s
+    RS  best val=0.50129 params={'lr': 0.11138761324961163, 'depth': 6, 'leaf': 267, 'l2': 17.862422426443953} time=140.6s
+  randsearch-HPO (hgb)         acc= 75.29%  f1=0.7625  auc=0.8301  140.6s
 
 ================ TEST ACCURACY % (higher better) ================
   dummy          acc= 50.00%  f1=0.0000  auc=nan
   logreg         acc= 74.76%  f1=0.7522  auc=0.8250
-  Bicameral-direct     acc= 74.55%  f1=0.7489  auc=0.8239
+  Bicameral-direct acc= 74.55%  f1=0.7489  auc=0.8239
   randforest     acc= 73.64%  f1=0.7471  auc=0.8119
   hgb default    acc= 75.26%  f1=0.7630  auc=0.8301
   mlp            acc= 73.21%  f1=0.7298  auc=0.8082
   randsearch-HPO acc= 75.29%  f1=0.7625  auc=0.8301
-  Bicameral-HPO        acc= 75.11%  f1=0.7618  auc=0.8299
+  Bicameral-HPO  acc= 75.11%  f1=0.7618  auc=0.8299
 =================================================================
+
+[4] paired stats on TEST (DeLong for AUC, exact McNemar for acc, bootstrap 95% CI)
+  Bicameral-direct vs logreg (can Bicameral train?)
+    DeLong AUC: z=-3.19 p=0.0014 SIG | McNemar acc: b=90 c=113 p=0.1224 n.s.
+    95% CI bicameral_direct: acc [73.79,75.38] auc [0.8166,0.8312] | logreg: acc [73.99,75.58] auc [0.8178,0.8323]
+  Bicameral-HPO vs hgb-defaults (can Bicameral tune?)
+    DeLong AUC: z=-0.41 p=0.6839 n.s. | McNemar acc: b=129 c=145 p=0.3649 n.s.
+    95% CI bicameral_hpo: acc [74.32,75.91] auc [0.8228,0.8374] | hgb_default: acc [74.51,76.07] auc [0.8229,0.8377]
+  Bicameral-HPO vs randsearch-HPO (same budget)
+    DeLong AUC: z=-0.51 p=0.6096 n.s. | McNemar acc: b=117 c=136 p=0.2577 n.s.
+    95% CI bicameral_hpo: acc [74.32,75.91] auc [0.8228,0.8374] | rs_hpo: acc [74.52,76.08] auc [0.8228,0.8378]
+  RS-HPO vs hgb-defaults (tuning value?)
+    DeLong AUC: z=+0.08 p=0.9402 n.s. | McNemar acc: b=125 c=122 p=0.8988 n.s.
+    95% CI rs_hpo: acc [74.52,76.08] auc [0.8228,0.8378] | hgb_default: acc [74.51,76.07] auc [0.8229,0.8377]
+
+[5] SHAP explainability (HGB defaults, TreeExplainer)
+  top-10 global mean|SHAP|:
+    GenHlth                      0.6640
+    HighBP                       0.4681
+    BMI                          0.4119
+    Age                          0.3329
+    HighChol                     0.3081
+    Income                       0.1129
+    Sex                          0.0952
+    HeartDiseaseorAttack         0.0792
+    CholCheck                    0.0588
+    DiffWalk                     0.0575
+  individual cases (top-3 |SHAP| features each):
+    TP sample#7502 pred=1 true=1: GenHlth=4.00(shap=+0.716), BMI=36.00(shap=+0.545), HighBP=0.00(shap=-0.469)
+    TN sample#1113 pred=0 true=0: GenHlth=2.00(shap=-0.665), HighBP=0.00(shap=-0.553), BMI=25.00(shap=-0.418)
+    FP sample#304 pred=1 true=0: BMI=35.00(shap=+0.661), GenHlth=2.00(shap=-0.587), HighBP=1.00(shap=+0.541)
+    FN sample#8272 pred=0 true=1: HvyAlcoholConsump=1.00(shap=-0.606), GenHlth=2.00(shap=-0.495), HighBP=1.00(shap=+0.418)

@@ -557,8 +557,9 @@ evidence) for a future v5 that would need a non-smoothing ranker
 
 ## Bicameral on real data: BRFSS 2015 diabetes (`ml_benchmark.py`)
 
-Binary 50/50 split (70,692 rows, 21 features; data mirrors UCI id 891 —
-place CSVs in `data/`, gitignored). Stratified 70/15/15 split, seed 42.
+Binary 50/50 split (70,692 rows, 21 features, `data/` — both BRFSS
+CSVs plus ESDRP are versioned in the repo for reproducibility).
+Stratified 70/15/15 split, seed 42.
 Full log: `results/ml/ml_results.txt`.
 
 | method | test acc | test F1 | test AUC |
@@ -573,27 +574,30 @@ Full log: `results/ml/ml_results.txt`.
 | **Bicameral-HPO** (108 evals) | **75.11%** | 0.7618 | 0.8299 |
 
 Takeaways: Bicameral trained logistic weights from scratch to within 0.2pp of
-LBFGS (74.55 vs 74.76%, 2000 evals, 0.8 s). For HPO all three (defaults /
-random / Bicameral) tie at ~75.1–75.3%: this dataset plateaus there and tuning
-barely matters (Bicameral actually found the best *validation* loss, 0.50110
-vs 0.50129; test noise flips the ranking). Note: the 3-class `012` file
+LBFGS (74.55 vs 74.76%, 2000 evals, 0.6 s) — statistically a tie on
+accuracy (McNemar p=0.12) with a hairsbreadth but real AUC concession
+(0.8239 vs 0.8250, DeLong p=0.001, n=10.6k). For HPO all three
+(defaults / random / Bicameral) tie at ~75.1–75.3% with ALL paired
+tests n.s. (p=0.26–0.94): this dataset plateaus there and tuning is
+certified pointless (Bicameral found the best *validation* loss,
+0.50110 vs 0.50129, in half the wall time, 75s vs 141s — test noise
+flips the ranking). Note: the 3-class `012` file
 is 84/14/2 imbalanced, so raw accuracy is misleading there
 (dummy = 84.24%; HGB = 84.91%, macro-F1 0.40).
 
 ### Task 4: paired stats + SHAP for the ML benchmark
 
-The table above was point estimates only — the weakest section
+The table was point estimates only — the weakest section
 statistically. `ml_benchmark.py` now adds, stolen honestly from the two
-diabetes papers: **[4]** paired tests for the headline comparisons
-(Bicameral-direct vs logreg; Bicameral-HPO vs HGB-defaults vs same-budget RS-HPO) —
+diabetes papers: **[4]** paired tests for the headline comparisons —
 DeLong test on AUC (Paper-2 method), exact McNemar on accuracy, and
-bootstrap 95% CIs; **[5]** SHAP explainability (Paper-1 method) —
-global mean|SHAP| ranking plus per-instance top features for one
-TP/TN/FP/FN. Validated end-to-end on an ESDRP smoke run (small
-budgets): all stats compute, and SHAP's top-3 —
-Polydipsia/Polyuria/Gender — independently reproduces the paper's SHAP
-finding on the same dataset. Full BRFSS rerun is pending the `data/`
-CSVs (gitignored; not in this sandbox — UCI and mirrors are
-network-blocked here): `python3 ml_benchmark.py >
-results/ml/ml_results.txt` when they're back. Committed
-`results/ml/ml_results.txt` stays the pre-stats snapshot until then.
+bootstrap 95% CIs, with verdicts above; **[5]** SHAP explainability
+(Paper-1 method): global mean|SHAP| ranking is clinically coherent —
+GenHlth (0.664), HighBP (0.468), BMI (0.412), Age (0.333), HighChol
+(0.308) — plus per-instance top features for a TP/TN/FP/FN. One
+honest flag from the instances: the FN case shows HvyAlcoholConsump=1
+pushing *against* a diabetes prediction (shap −0.61) — a correlation
+artifact worth follow-up, not a medical claim. Pipeline was first
+validated on an ESDRP smoke run, where SHAP's top-3
+(Polydipsia/Polyuria/Gender) independently reproduced the paper's SHAP
+finding on the same dataset.

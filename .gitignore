@@ -1,3 +1,6 @@
-data/
+# data inputs: CSVs are versioned (reproducibility + sandbox survival);
+# everything else under data/ stays ignored.
+data/*
+!data/*.csv
 __pycache__/
 *.pyc
