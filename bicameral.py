@@ -30,6 +30,7 @@ so comparisons against other optimizers stay budget-fair.
 import time
 import numpy as np
 from scipy.optimize import minimize
+from scipy.stats import norm
 
 from bicameral_v1 import (
     FastSupervisedLatentSpace,
@@ -239,7 +240,7 @@ class Bicameral:
                  lambda_=None, lambda_max=64,
                  active_cma=True, subconscious=True, credit_gate=True,
                  use_bh_phase=True, rank_surrogate=False, sub_boost=0,
-                 prescreen_mult=1, brave_mult=1):
+                 prescreen_mult=1, brave_mult=1, copula_pool=False):
         self.dim = dim
         self.lb = np.broadcast_to(np.asarray(lb, dtype=float), (dim,)).copy()
         self.ub = np.broadcast_to(np.asarray(ub, dtype=float), (dim,)).copy()
@@ -273,6 +274,7 @@ class Bicameral:
         self.sub_boost = sub_boost  # exp-1: guaranteed extra sub evals/gen (0 = v3)
         self.prescreen_mult = prescreen_mult  # exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)
         self.brave_mult = brave_mult  # exp-3: pool size xN + local width xN (1 = v3)
+        self.copula_pool = copula_pool  # Paper-2: Gaussian-copula proposer (False = v3)
         self.bh_kick = float(np.mean(self.ub - self.lb)) * 0.1
         self.bh_ls_cap = 120      # evals per drain
         self.bh_drain_every = 150  # walk steps between periodic drains
@@ -320,6 +322,61 @@ class Bicameral:
         scores = self.surrogate.evaluate_acquisition(
             C_cand, C_mem, Y_mem, beta=self.beta)
         return C_cand, scores
+
+    def _copula_pool(self, archive, C_mem, Y_mem, global_frac=0.25):
+        """Gaussian-copula candidate pool fit on archive elites (x-space).
+
+        Paper-2 track: replaces the latent-space local component with
+        dependence-preserving samples — empirical marginals of the
+        elites + normal-scores correlation (Sklar's split). The global
+        uniform mixture mirrors v3 (uniform over elite range + 20%
+        pad, clipped to bounds), so the comparison is proposer-vs-
+        proposer with exploration held constant. Candidates are scored
+        by the SAME surrogate in latent space; the caller evaluates
+        the returned x-space rows directly (no psi round-trip, which
+        would project them through the PCA lens). Falls back to the
+        v3 pool (decoded) when the archive is too small to fit.
+        """
+        E = np.array([x for x, _ in
+                      sorted(archive, key=lambda t: t[1])[:self.latent.n_elite]])
+        n_e, dim = E.shape
+        if n_e < dim + 2:  # too small to fit dependence: v3 fallback
+            C_cand, scores = self._subconscious_pool(
+                E[0], C_mem, Y_mem, global_frac=global_frac)
+            X_cand = np.array([self.latent.psi(c, self.lb, self.ub)
+                               for c in C_cand])
+            return X_cand, scores
+        n_cand = int(self.n_latent_cand * self.brave_mult)
+        n_global = int(n_cand * global_frac)
+        n_local = n_cand - n_global
+        # --- fit: ranks (random tie-break) -> normal scores -> correlation
+        jitter = self.rng.standard_normal(E.shape) * 1e-12
+        ranks = np.argsort(np.argsort(E + jitter, axis=0), axis=0)
+        U = (ranks + 1.0) / (n_e + 1.0)
+        Z = norm.ppf(U)
+        R = np.corrcoef(Z, rowvar=False)
+        R = (R + R.T) / 2.0
+        w, V = np.linalg.eigh(R)
+        w = np.clip(w, 1e-6, None)
+        R = (V * w) @ V.T
+        d = np.sqrt(np.diag(R))
+        R = R / np.outer(d, d)
+        # --- sample: correlated normals -> uniforms -> inverse ECDF
+        Z_new = self.rng.multivariate_normal(np.zeros(dim), R, size=n_local)
+        U_new = norm.cdf(np.clip(Z_new, -8.0, 8.0))
+        grid = (np.arange(n_e) + 1.0) / (n_e + 1.0)
+        Es = np.sort(E, axis=0)
+        X_local = np.column_stack(
+            [np.interp(U_new[:, j], grid, Es[:, j]) for j in range(dim)])
+        lo, hi = E.min(0), E.max(0)
+        pad = (hi - lo) * 0.2 + 1e-6
+        X_global = self.rng.uniform(
+            np.maximum(lo - pad, self.lb), np.minimum(hi + pad, self.ub),
+            size=(n_global, dim))
+        X_cand = np.vstack([X_local, X_global])
+        scores = self.surrogate.evaluate_acquisition(
+            self.latent.phi(X_cand), C_mem, Y_mem, beta=self.beta)
+        return X_cand, scores
 
     def _local_polish(self, counter, archive, best_x, best_y, budget,
                       maxfun=300):
@@ -513,7 +570,13 @@ class Bicameral:
             #  decides HOW MANY via stream credits, not raw scores)
             if self.subconscious:
                 C_mem, Y_mem = self._memory_matrices(archive)
-                C_cand, s_sub = self._subconscious_pool(best_x, C_mem, Y_mem)
+                if self.copula_pool:
+                    # Paper-2 track: copula proposer, x-space rows
+                    X_cand, s_sub = self._copula_pool(archive, C_mem, Y_mem)
+                    C_cand = None
+                else:
+                    C_cand, s_sub = self._subconscious_pool(best_x, C_mem, Y_mem)
+                    X_cand = None
 
                 # --- credit-assignment gate: allocation follows production
                 # Raw acquisition scores cannot see the information value of
@@ -538,8 +601,11 @@ class Bicameral:
                 k = min(k, max_evals - counter.n - cma.lambda_)
                 if k > 0:
                     topk = np.argsort(s_sub)[-k:][::-1]
-                    X_sub = np.array([self.latent.psi(C_cand[j], self.lb, self.ub)
-                                      for j in topk])
+                    if X_cand is not None:
+                        X_sub = np.array([X_cand[j] for j in topk])
+                    else:
+                        X_sub = np.array([self.latent.psi(C_cand[j], self.lb, self.ub)
+                                          for j in topk])
                 else:
                     X_sub = np.zeros((0, self.dim))
             else:
@@ -653,7 +719,8 @@ class Bicameral:
 # -------------------------------------------------------------
 def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
                   local_search=True, patience_gens=30, rank_surrogate=False,
-                  sub_boost=0, prescreen_mult=1, brave_mult=1):
+                  sub_boost=0, prescreen_mult=1, brave_mult=1,
+                  copula_pool=False):
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -663,7 +730,8 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
         for r in range(n_runs):
             opt = Bicameral(dim, lo, hi, seed=seed0 + r,
                          rank_surrogate=rank_surrogate, sub_boost=sub_boost,
-                         prescreen_mult=prescreen_mult, brave_mult=brave_mult)
+                         prescreen_mult=prescreen_mult, brave_mult=brave_mult,
+                         copula_pool=copula_pool)
             t0 = time.time()
             _, best_y, info = opt.optimize(
                 func, max_evals, local_search=local_search,
@@ -720,12 +788,14 @@ def main():
                     help="exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)")
     ap.add_argument("--brave-mult", type=int, default=1,
                     help="exp-3: subconscious pool size xN + local width xN (1 = v3)")
+    ap.add_argument("--copula-pool", action="store_true",
+                    help="Paper-2: Gaussian-copula subconscious proposer (default: latent v3)")
     args = ap.parse_args()
     print(f"Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping "
           f"(local={'off' if args.no_local else 'on'}, "
           f"surrogate={'rank' if args.rank_surrogate else 'matern'}, "
           f"sub_boost={args.sub_boost}, prescreen={args.prescreen_mult}, "
-          f"brave={args.brave_mult})")
+          f"brave={args.brave_mult}, copula={int(args.copula_pool)})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0,
@@ -734,7 +804,8 @@ def main():
                             rank_surrogate=args.rank_surrogate,
                             sub_boost=args.sub_boost,
                             prescreen_mult=args.prescreen_mult,
-                            brave_mult=args.brave_mult)
+                            brave_mult=args.brave_mult,
+                            copula_pool=args.copula_pool)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
     print("\n================ SUMMARY (mean accuracy %) ================")
     for name, m in results.items():

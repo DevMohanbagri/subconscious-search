@@ -340,6 +340,59 @@ bravery. Third lesson in a row: **the 5-seed suite
 is a screen, the 12-seed is the verdict**. Bravery rejected;
 v3 unchanged. Exp-3 closed as negative.
 
+## Paper-2 track: Gaussian-copula subconscious proposer — negative
+
+Design: replace the latent-space pool with dependence-preserving
+samples — a Gaussian copula fit on archive elites each generation
+(empirical marginals + normal-scores correlation, Sklar's split),
+same 25% global mixture, SAME surrogate scoring and credit gate, so
+the comparison is purely proposer-vs-proposer (`--copula-pool`,
+default off = bit-identical v3, anchors verified; dependence
+check: elite off-diag corr 0.485 → sample corr 0.521).
+Pre-registered hypothesis: copula ≥ latent on dependence-heavy
+rosenbrock (valley-following samples), neutral-or-worse on separable
+rastrigin; honest prior stated as LOW (~20%: the stream is
+gate-starved, so the proposer rarely binds). Verdict rule: any
+copula arm >5pp over v3 with no >5pp collapse → 12-seed verdict.
+(`results/core/results_copula_dim10_5k.txt`)
+
+5-seed screen: rastrigin 50.09 → 22.18 (−28pp, success 0/5, variance
+*collapsed* ±27.9 → ±10.9 — the reliable-mediocrity signature),
+rosenbrock +2.0 (96.64 → 98.65, tighter variance). The collapse
+broke the verdict rule on paper, but the screen→verdict reversals of
+reverie/exp-2/exp-3 demanded the 12-seed check anyway (v3 vs copula,
+full suite): `results/core/results_verdict_copula_dim10_5k.txt`.
+
+| function (12 seeds) | v3 | copula |
+|---|---|---|
+| rastrigin acc | 60.48±34.67 | 23.65±12.76 |
+| rosenbrock acc | 97.75±3.69 | 91.60±21.86 |
+| griewank / sphere / ackley | 99.03 / 100 / 100 | 98.87 / 100 / 100 |
+
+Rastrigin harm **confirmed**: −36.8pp, p=0.0052, fresh-seeds-6–12
+alone p=0.029, ZERO global hits in 12 runs vs v3's five (Fisher
+p=0.037). Rosenbrock blip reversed again (−6.2pp n.s., one f=4-basin
+failure) — fourth screen↔verdict rosenbrock reversal in a row.
+Griewank/sphere/ackley flat.
+
+Mechanism (same elimination as exp-3): RNG re-rolls are bias-free,
+so systematic harm must ride adopted copula points → IPOP restart
+recentering (restarts 2/2 every run) → early commitment to the
+first good basin. Dependence-preserving sampling IS
+basin-preserving sampling: elites concentrate in the current-best
+basin and the copula faithfully reproduces it, while v3's diffuse
+latent pool adopts more diverse points. The gate starved the stream
+anyway (sub_frac at the 0.03 floor) — harm via redirection, not
+budget theft; BH exonerated (12/12 everywhere, elitist-safe).
+Rank+copula combo near-inert (rosenbrock/sphere bit-identical,
+≤1.8pp noise wiggles elsewhere) — rank stays dead.
+
+Scope note for Paper 2: this kills the *drop-in replacement*
+(Gaussian copula, elites-only, same gate) — decisively. It does not
+test heavy-tailed (t) copulas, vines, all-archive fits, or a copula
+*third* stream alongside the latent pool. Any of those is a live
+follow-up; the replacement premise is closed as negative.
+
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `results/bbob/bbob_dim10.txt`, `results/bbob/bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),
