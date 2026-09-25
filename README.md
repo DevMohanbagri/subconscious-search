@@ -282,6 +282,64 @@ impoverishes it. Second lesson in a row: **the 5-seed core suite is a
 screen, the 12-seed is the verdict** (same reversal as reverie v4).
 Exp-2 closed as negative.
 
+## Experiment 3: braver subconscious search (`--brave-mult`) — negative
+
+Design: ONE knob — pool size ×N *and* local width ×N (`--brave-mult N`,
+free: same top-k true evals/gen), crossed with rank {off, on} in a 2×2
+screen on the core suite (dim10/5k/seeds1–5). brave=1 is bit-identical
+v3 (verified: sphere/rastrigin seed-1 anchors exact); activation
+verified (pool 256 → 1024, spread 1.108 → 2.602). Pre-registered
+hypothesis: a bolder pool raises stream quality → the gate funds it
+(sub_frac up organically) → rastrigin/rosenbrock improve, others
+unharmed. Verdict rule: any arm >5pp mean-acc over v3 with no function
+collapsing >5pp → 12-seed verdict on rastrigin+rosenbrock.
+(`results/core/results_brave_dim10_5k.txt`)
+
+5-seed screen looked mixed: rastrigin collapsed (50.09 → 34.27),
+rosenbrock blipped +2.3 (96.64 → 98.96), rank changed nothing. A
+post-hoc brave=2 dose curve then broke the story: rastrigin went
+50.09 → **24.26** → 34.27 — *non-monotone* in dose, i.e. basin-lottery
+noise, not real harm — while rosenbrock stayed +2–3pp in all four
+brave arms with collapsing variance (±0.32 at brave=2). Neither
+signal could be trusted at n=5, so the verdict ran anyway (full
+suite, 12 seeds, pure-bravery arms since rank proved inert):
+`results/core/results_verdict_brave_dim10_5k.txt`.
+
+| function (12 seeds) | v3 | brave×2 | brave×4 |
+|---|---|---|---|
+| rastrigin acc | 60.48±34.67 | 28.23±11.52 | 39.54±21.36 |
+| rosenbrock acc | 97.75±3.69 | 79.90±34.57 | 92.26±21.88 |
+| griewank / sphere / ackley | 99.03 / 100 / 100 | 98.95 / 100 / 100 | 99.37 / 100 / 100 |
+
+The screen's rosenbrock "win" was noise — completely reversed across
+seed blocks (seeds 1–5 favored brave, 6–12 crushed it: three
+catastrophic acc≈20% runs stuck in rosenbrock's famous f=4 local-min
+basin at (−1,1,…,1)). Pooled bravery harms rastrigin −26.6pp
+(p=0.031; global hits 5/12 vs 0/12 at brave×2, Fisher p=0.037) and
+replicates in fresh seeds 6–12 alone. Rosenbrock pooled −11.7pp is
+marginal (p=0.075, failure-mode driven).
+
+Mechanism, pinned by elimination: bravery perturbs trajectories two
+ways — shared-RNG consumption (re-rolls all downstream CMA samples)
+and adopted far-flung sub-wins. A re-roll is provably bias-free
+(fresh i.i.d. draws either way), so *systematic* harm must ride the
+second channel: brave early wins teleport best_x, and IPOP restarts
+recenter the CMA mean there — random relocation instead of
+systematic basin work. This predicts exactly what the verdict shows:
+real harm where restarts fire (rastrigin, restarts 2/2 every run),
+luck-only where they don't (rosenbrock failures all had
+restarts=0 — no channel exists, matching the n.s. tests). The
+stall/BH machinery is exonerated (bh_phase 12/12 in every arm; BH
+and all polish steps are elitist-safe by construction). The gate, to
+its credit, never funded the stream (sub_frac sat at the ~0.03 floor
+in all arms — rastrigin brave runs were starved *harder*, 0.020).
+Rank filter: inert even at 4× pool (≤0.9pp on rastrigin, 0.05pp on
+rosenbrock at brave=1 only, bit-exact 0.00 on all other
+function/arm cells) — the v5-track neutral replicates under
+bravery. Third lesson in a row: **the 5-seed suite
+is a screen, the 12-seed is the verdict**. Bravery rejected;
+v3 unchanged. Exp-3 closed as negative.
+
 ## BBOB via IOHexperimenter (`bbob_benchmark.py`, `results/bbob/bbob_dim10.txt`, `results/bbob/bbob_dim20.txt`)
 
 The venue-standard suite: 24 noiseless BBOB functions (f1–f24),

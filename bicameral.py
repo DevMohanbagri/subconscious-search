@@ -239,7 +239,7 @@ class Bicameral:
                  lambda_=None, lambda_max=64,
                  active_cma=True, subconscious=True, credit_gate=True,
                  use_bh_phase=True, rank_surrogate=False, sub_boost=0,
-                 prescreen_mult=1):
+                 prescreen_mult=1, brave_mult=1):
         self.dim = dim
         self.lb = np.broadcast_to(np.asarray(lb, dtype=float), (dim,)).copy()
         self.ub = np.broadcast_to(np.asarray(ub, dtype=float), (dim,)).copy()
@@ -272,6 +272,7 @@ class Bicameral:
         self.bounds_list = list(zip(self.lb.tolist(), self.ub.tolist()))
         self.sub_boost = sub_boost  # exp-1: guaranteed extra sub evals/gen (0 = v3)
         self.prescreen_mult = prescreen_mult  # exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)
+        self.brave_mult = brave_mult  # exp-3: pool size xN + local width xN (1 = v3)
         self.bh_kick = float(np.mean(self.ub - self.lb)) * 0.1
         self.bh_ls_cap = 120      # evals per drain
         self.bh_drain_every = 150  # walk steps between periodic drains
@@ -300,12 +301,17 @@ class Bicameral:
         return C, Y_norm
 
     def _subconscious_pool(self, best_x, C_mem, Y_mem, global_frac=0.25):
-        """Latent candidate pool: local Gaussian + uniform global mixture."""
+        """Latent candidate pool: local Gaussian + uniform global mixture.
+
+        Exp-3: brave_mult scales pool size and local width (1 = exact v3:
+        same counts, same RNG calls, bit-identical)."""
+        n_cand = int(self.n_latent_cand * self.brave_mult)
+        noise = self.sub_noise * self.brave_mult
         c_best = self.latent.phi(best_x)
-        n_global = int(self.n_latent_cand * global_frac)
-        n_local = self.n_latent_cand - n_global
+        n_global = int(n_cand * global_frac)
+        n_local = n_cand - n_global
         C_local = c_best[None, :] + self.rng.standard_normal(
-            (n_local, self.latent_dim)) * self.sub_noise
+            (n_local, self.latent_dim)) * noise
         lo, hi = C_mem.min(0), C_mem.max(0)
         pad = (hi - lo) * 0.2 + 1e-6
         C_global = self.rng.uniform(lo - pad, hi + pad,
@@ -647,7 +653,7 @@ class Bicameral:
 # -------------------------------------------------------------
 def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
                   local_search=True, patience_gens=30, rank_surrogate=False,
-                  sub_boost=0, prescreen_mult=1):
+                  sub_boost=0, prescreen_mult=1, brave_mult=1):
     results = {}
     for name, (func, lo, hi) in BENCHMARKS.items():
         losses, accs, imps, times = [], [], [], []
@@ -657,7 +663,7 @@ def run_benchmark(dim=10, max_evals=5000, n_runs=5, seed0=0, verbose=True,
         for r in range(n_runs):
             opt = Bicameral(dim, lo, hi, seed=seed0 + r,
                          rank_surrogate=rank_surrogate, sub_boost=sub_boost,
-                         prescreen_mult=prescreen_mult)
+                         prescreen_mult=prescreen_mult, brave_mult=brave_mult)
             t0 = time.time()
             _, best_y, info = opt.optimize(
                 func, max_evals, local_search=local_search,
@@ -712,11 +718,14 @@ def main():
                     help="exp-1: guaranteed extra subconscious evals/gen (0 = v3)")
     ap.add_argument("--prescreen-mult", type=int, default=1,
                     help="exp-2: CMA oversample xN, surrogate keeps best λ (1 = v3)")
+    ap.add_argument("--brave-mult", type=int, default=1,
+                    help="exp-3: subconscious pool size xN + local width xN (1 = v3)")
     args = ap.parse_args()
     print(f"Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping "
           f"(local={'off' if args.no_local else 'on'}, "
           f"surrogate={'rank' if args.rank_surrogate else 'matern'}, "
-          f"sub_boost={args.sub_boost}, prescreen={args.prescreen_mult})")
+          f"sub_boost={args.sub_boost}, prescreen={args.prescreen_mult}, "
+          f"brave={args.brave_mult})")
     t0 = time.time()
     results = run_benchmark(dim=args.dim, max_evals=args.max_evals,
                             n_runs=args.n_runs, seed0=args.seed0,
@@ -724,7 +733,8 @@ def main():
                             patience_gens=args.patience_gens,
                             rank_surrogate=args.rank_surrogate,
                             sub_boost=args.sub_boost,
-                            prescreen_mult=args.prescreen_mult)
+                            prescreen_mult=args.prescreen_mult,
+                            brave_mult=args.brave_mult)
     print(f"\nTotal wall time: {time.time()-t0:.1f}s")
     print("\n================ SUMMARY (mean accuracy %) ================")
     for name, m in results.items():
