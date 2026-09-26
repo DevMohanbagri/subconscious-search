@@ -693,8 +693,9 @@ tests n.s. (p=0.26–0.94): this dataset plateaus there and tuning is
 certified pointless (Bicameral found the best *validation* loss,
 0.50110 vs 0.50129, in half the wall time, 75s vs 141s — test noise
 flips the ranking). Note: the 3-class `012` file
-is 84/14/2 imbalanced, so raw accuracy is misleading there
-(dummy = 84.24%; HGB = 84.91%, macro-F1 0.40).
+is 84/14/2 imbalanced, so raw accuracy is misleading there —
+full 3-class protocol in the next subsection (dummy 84.24%,
+HGB 85.03%, macro-F1 0.40).
 
 ### Task 4: paired stats + SHAP for the ML benchmark
 
@@ -712,3 +713,46 @@ artifact worth follow-up, not a medical claim. Pipeline was first
 validated on an ESDRP smoke run, where SHAP's top-3
 (Polydipsia/Polyuria/Gender) independently reproduced the paper's SHAP
 finding on the same dataset.
+
+### 012 multiclass: same protocol on Diabetes_012 (`ml_benchmark_012.py`)
+
+Full log: `results/ml/ml_results_012.txt`. Same splits/protocol as
+binary (70/15/15, seed 42), 3-class target (0 = none 84.2%, 1 =
+prediabetes 1.8%, 2 = diabetes 13.9%; n = 253,680). Multiclass
+ports: macro-F1 + macro-AUC(OvR), 66-D Bicameral-direct (softmax),
+multiclass HPO loss, per-class OvR DeLong + Stuart-Maxwell
+(the k-class McNemar; validated: 2-class reduces to McNemar
+chi2 = 3.3333 exactly) + bootstrap CIs, per-class SHAP,
+confusion matrices.
+
+| method | test acc | macro-F1 | macro-AUC | F1 per class |
+|---|---|---|---|---|
+| dummy (majority) | 84.24% | 0.305 | — | .914/.000/.000 |
+| logreg (LBFGS) | 84.63% | 0.394 | 0.780 | .915/.000/.268 |
+| Bicameral-direct, 2k evals | 81.78% | **0.424** | 0.715 | .900/.036/.336 |
+| Bicameral-direct, 6k evals (probe) | 84.51% | 0.401 | 0.770 | .914/.000/.287 |
+| randomforest (300) | 84.36% | 0.401 | 0.747 | .914/.003/.287 |
+| hgb (defaults) | 85.03% | 0.400 | 0.787 | .918/.000/.282 |
+| mlp (64x32) | 84.51% | 0.399 | 0.773 | .914/.000/.283 |
+| randsearch-HPO | 84.97% | 0.402 | 0.789 | .917/.000/.288 |
+| Bicameral-HPO | 84.97% | 0.400 | 0.789 | .917/.000/.282 |
+
+Findings. (1) Prediabetes (class 1) is unpredictable from these
+features: every sklearn method scores F1 = 0.000 (RF manages a
+single hit: 1/695). (2) Can Bicameral train multiclass? YES at
+proportional budget — the 6k post-hoc probe (91 evals/dim, parity
+with binary's 22-D/2k) matches LBFGS (84.51 vs 84.63%, macro-F1
+0.401 vs 0.394). At the flat 2k budget it underfits accuracy
+(81.78%, below dummy) while topping macro-F1 (0.424, only nonzero
+class-1 F1) — an under-optimization signature, honestly not a win.
+(3) HPO trio ties again (84.97/84.97/85.03; Bicameral found
+val 0.39152 vs RS 0.39146, test-identical): tuning certified
+pointless on a second dataset. Large-n cautionary pair:
+Stuart-Maxwell calls Bic-HPO vs RS-HPO SIG (p = 0.0001) at
+*identical* 84.97% accuracy (error-pattern, not error-rate,
+difference), and one DeLong in twelve hits p = 0.024 with no
+pattern — both reported as noise, not findings. (4) SHAP global
+top-5 (GenHlth/Age/HighBP/BMI/HighChol) matches the binary run's
+set; class-1 drivers (Age/BMI/HighChol/Income) look sensible
+despite zero recall. (5) Best accuracy beats dummy by 0.8pp —
+the 012 task is a near-plateau for everyone.

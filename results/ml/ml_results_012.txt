@@ -1,0 +1,87 @@
+BRFSS2015 diabetes_012 3-class (84/14/2) - Bicameral vs sklearn (seed 42)
+train/val/test: 177576/38052/38052 (21 features, test class counts {0: 32055, 1: 695, 2: 5302})
+
+[1] sklearn baselines (train+val fit, test eval)
+  dummy (majority)             acc= 84.24%  macroF1=0.3048  auc=nan  F1=[0.914/0.   /0.   ]  0.0s
+  logreg (LBFGS)               acc= 84.63%  macroF1=0.3944  auc=0.7801  F1=[0.915/0.   /0.268]  1.1s
+  randomforest (300)           acc= 84.36%  macroF1=0.4012  auc=0.7469  F1=[0.914/0.003/0.287]  30.5s
+  hgb (defaults)               acc= 85.03%  macroF1=0.3998  auc=0.7869  F1=[0.918/0.   /0.282]  4.4s
+  mlp (64x32, adam)            acc= 84.51%  macroF1=0.3993  auc=0.7726  F1=[0.914/0.   /0.283]  114.2s
+
+[2] Bicameral-direct: 66-D softmax weights on val xent (2000 evals)
+    val xent=0.61210 gens=114 restarts=0 bh=False time=8.5s
+  Bicameral-direct (softmax w) acc= 81.78%  macroF1=0.4238  auc=0.7151  F1=[0.9  /0.036/0.336]  8.5s
+
+[3] HPO on HistGradientBoosting: Bicameral vs RandomSearch (108 evals each, multiclass val log-loss)
+    Bicameral best val=0.39152 params={'lr': 0.05176382012214133, 'depth': 3, 'leaf': 163, 'l2': 0.8922364155185869} time=788.9s
+  Bicameral-HPO (hgb)          acc= 84.97%  macroF1=0.3997  auc=0.7889  F1=[0.917/0.   /0.282]  788.9s
+    RS  best val=0.39146 params={'lr': 0.12684990822851444, 'depth': 3, 'leaf': 22, 'l2': 10.28445740380829} time=1369.3s
+  randsearch-HPO (hgb)         acc= 84.97%  macroF1=0.4016  auc=0.7885  F1=[0.917/0.   /0.288]  1369.3s
+
+================ TEST (acc / macro-F1 / macro-AUC) ================
+  dummy          acc= 84.24%  macroF1=0.3048  auc=nan  F1=[0.914/0.   /0.   ]
+  logreg         acc= 84.63%  macroF1=0.3944  auc=0.7801  F1=[0.915/0.   /0.268]
+  Bicameral-direct acc= 81.78%  macroF1=0.4238  auc=0.7151  F1=[0.9  /0.036/0.336]
+  randforest     acc= 84.36%  macroF1=0.4012  auc=0.7469  F1=[0.914/0.003/0.287]
+  hgb default    acc= 85.03%  macroF1=0.3998  auc=0.7869  F1=[0.918/0.   /0.282]
+  mlp            acc= 84.51%  macroF1=0.3993  auc=0.7726  F1=[0.914/0.   /0.283]
+  randsearch-HPO acc= 84.97%  macroF1=0.4016  auc=0.7885  F1=[0.917/0.   /0.288]
+  Bicameral-HPO  acc= 84.97%  macroF1=0.3997  auc=0.7889  F1=[0.917/0.   /0.282]
+=================================================================
+
+[4] paired stats on TEST (per-class OvR DeLong for AUC, Stuart-Maxwell for acc, bootstrap 95% CIs)
+  Bicameral-direct vs logreg (can Bicameral train?)
+    DeLong OvR AUC: c0: z=-20.51 p=0.0000 SIG | c1: z=-9.47 p=0.0000 SIG | c2: z=-18.48 p=0.0000 SIG
+    Stuart-Maxwell acc: chi2=2223.43 p=0.0000 SIG
+    95% CI bicameral_direct: acc [81.43,82.17] macroF1 [0.4178,0.4303] auc [0.7063,0.7244]
+    95% CI logreg: acc [84.31,84.99] macroF1 [0.3897,0.3994] auc [0.7730,0.7872]
+  Bicameral-HPO vs hgb-defaults (can Bicameral tune?)
+    DeLong OvR AUC: c0: z=+0.47 p=0.6360 | c1: z=+2.26 p=0.0239 SIG | c2: z=+0.36 p=0.7166
+    Stuart-Maxwell acc: chi2=3.46 p=0.1772 n.s.
+    95% CI bicameral_hpo: acc [84.63,85.34] macroF1 [0.3951,0.4045] auc [0.7817,0.7957]
+    95% CI hgb_default: acc [84.69,85.39] macroF1 [0.3950,0.4045] auc [0.7797,0.7936]
+  Bicameral-HPO vs randsearch-HPO (same budget)
+    DeLong OvR AUC: c0: z=-0.34 p=0.7311 | c1: z=+1.18 p=0.2370 | c2: z=-0.81 p=0.4180
+    Stuart-Maxwell acc: chi2=18.29 p=0.0001 SIG
+    95% CI bicameral_hpo: acc [84.63,85.34] macroF1 [0.3951,0.4045] auc [0.7817,0.7957]
+    95% CI rs_hpo: acc [84.64,85.34] macroF1 [0.3969,0.4063] auc [0.7814,0.7954]
+  RS-HPO vs hgb-defaults (tuning value?)
+    DeLong OvR AUC: c0: z=+0.63 p=0.5305 | c1: z=+1.45 p=0.1458 | c2: z=+0.83 p=0.4088
+    Stuart-Maxwell acc: chi2=25.33 p=0.0000 SIG
+    95% CI rs_hpo: acc [84.64,85.34] macroF1 [0.3969,0.4063] auc [0.7814,0.7954]
+    95% CI hgb_default: acc [84.69,85.39] macroF1 [0.3950,0.4045] auc [0.7797,0.7936]
+
+[6] confusion matrices (test; rows=true, cols=pred)
+  logreg           [ 31248      0    807] / [   639      0     56] / [  4348      0    954]
+  bicameral_direct [ 29605    504   1946] / [   543     26    126] / [  3598    217   1487]
+  randforest       [ 31031     27    997] / [   614      1     80] / [  4227      5   1070]
+  hgb_default      [ 31362      0    693] / [   635      0     60] / [  4309      0    993]
+  mlp              [ 31114      1    940] / [   626      0     69] / [  4260      0   1042]
+  rs_hpo           [ 31304      0    751] / [   629      0     66] / [  4274      0   1028]
+  bicameral_hpo    [ 31336      0    719] / [   632      0     63] / [  4304      0    998]
+
+[5] SHAP explainability (HGB defaults, TreeExplainer, per-class)
+  top-10 global mean|SHAP| (mean over classes):
+    GenHlth                      0.2366
+    Age                          0.1818
+    HighBP                       0.1781
+    BMI                          0.1748
+    HighChol                     0.1449
+    Income                       0.0800
+    Sex                          0.0401
+    CholCheck                    0.0338
+    MentHlth                     0.0287
+    HeartDiseaseorAttack         0.0237
+  class-0 top-5: GenHlth=0.306, HighBP=0.229, Age=0.203, BMI=0.199, HighChol=0.194
+  class-1 top-5: Age=0.146, BMI=0.137, HighChol=0.126, Income=0.111, GenHlth=0.078
+  class-2 top-5: GenHlth=0.325, HighBP=0.295, Age=0.196, BMI=0.188, HighChol=0.115
+  individual cases (top-3 |SHAP| wrt PREDICTED class):
+    OK-0 sample#34309 pred=0 true=0: GenHlth=4.00(shap=-0.480), HighChol=1.00(shap=-0.213), HighBP=0.00(shap=+0.204)
+    OK-minority sample#4903 pred=2 true=2: GenHlth=4.00(shap=+0.412), HighBP=1.00(shap=+0.372), HeartDiseaseorAttack=1.00(shap=+0.178)
+    ERR sample#27000 pred=0 true=2: BMI=23.00(shap=+0.380), GenHlth=5.00(shap=-0.330), HighBP=1.00(shap=-0.268)
+    ERR sample#29543 pred=0 true=2: GenHlth=1.00(shap=+0.453), Age=10.00(shap=-0.352), BMI=23.00(shap=+0.215)
+DONE-EXIT=0
+
+[PROBE post-hoc] Bicameral-direct with proportional budget (6000 evals = 91/dim, parity with binary 22-D/2000):
+  Bicameral-direct-6k acc=84.51% macroF1=0.4005 auc=0.7695 F1=[0.914/0.000/0.287] (val xent 0.43327, 26.2s)
+  vs logreg 84.63%/0.3944/0.7801 -> gap was budget, not method. 2000-eval underfit (81.78%/0.4238) is an under-optimization signature.
