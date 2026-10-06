@@ -1,0 +1,21 @@
+P_SOURCE=pilot:HGB-raw seed=42 budget=80
+HGB fit+predict: 5s  val PR-AUC(P)=0.4458
+folds A/B: 17210/17211 (== 18's future rows: StratifiedKFold depends on y only)
+rules: 18 (v1, FIXED -- refinement is M3's)
+default fold A: catch fuzzy 0.534 vs P 0.541 | tiers [0.0544, 0.1499, 0.3205, 0.4812] viol=0 empty=0 | PR-AUC fuzzy 0.4259 vs P 0.4363
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)

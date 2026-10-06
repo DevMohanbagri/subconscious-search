@@ -1,2 +1,29 @@
 pools=all_21,leakage_free seed=42 budget=80 train/val=160631/34421 prevalence=0.1529
 [bicameral|all_21] per-k runs, budget=80/target
+  target k= 1: got k= 9 pr_cheap=0.4229
+  target k= 2: got k= 6 pr_cheap=0.4148
+  target k= 3: got k= 9 pr_cheap=0.4343
+  target k= 4: got k= 9 pr_cheap=0.4335
+  target k= 5: got k= 5 pr_cheap=0.3987
+  target k= 6: got k= 6 pr_cheap=0.4169
+  target k= 8: got k= 9 pr_cheap=0.4186
+  target k=10: got k=11 pr_cheap=0.4317
+  target k=13: got k=14 pr_cheap=0.4394
+  target k=16: got k=15 pr_cheap=0.4409
+  target k=21: got k=17 pr_cheap=0.4266
+  true fits: 791  time: 757s
+[nsga2|all_21] one run, total evals=880
+  true fits: 528  time: 408s
+[random|all_21] 400 uniform subsets
+  true fits: 359  time: 274s
+[all_21|bicameral] front size=12 hv_cheap=5.2445 true_fits=791
+[all_21|nsga2] front size=12 hv_cheap=5.6064 true_fits=528
+[all_21|random] front size=12 hv_cheap=5.4269 true_fits=359
+[all_21] proper re-eval of 35 unique front subsets
+Traceback (most recent call last):
+  File "/home/user/diabetes-project/23_pareto_bicameral.py", line 373, in <module>
+    main()
+  File "/home/user/diabetes-project/23_pareto_bicameral.py", line 290, in main
+    p_lgbm, p_lr = proper_eval(Xtr[:, list(sub)], ytr, Xva[:, list(sub)],
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: proper_eval() missing 1 required positional argument: 'seed'

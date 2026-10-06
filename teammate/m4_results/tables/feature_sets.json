@@ -51,5 +51,150 @@
     "k": 18,
     "source": "data_io.features(drop_leakage=True)",
     "saved": "2026-10-06"
+  },
+  "bicreduct_k7": {
+    "features": [
+      "Age",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "PhysActivity",
+      "PhysHlth"
+    ],
+    "k": 7,
+    "source": "24_reduct_bicameral.py gamma_H=0.1494",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k8": {
+    "features": [
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "Fruits",
+      "GenHlth",
+      "HighBP",
+      "NoDocbcCost",
+      "Stroke"
+    ],
+    "k": 8,
+    "source": "24_reduct_bicameral.py gamma_H=0.1567",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k6": {
+    "features": [
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 6,
+    "source": "24_reduct_bicameral.py gamma_H=0.1371",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k4": {
+    "features": [
+      "GenHlth",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 4,
+    "source": "24_reduct_bicameral.py gamma_H=0.1498",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k5": {
+    "features": [
+      "BMI",
+      "GenHlth",
+      "Sex",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 5,
+    "source": "24_reduct_bicameral.py gamma_H=0.125",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k9": {
+    "features": [
+      "AnyHealthcare",
+      "CholCheck",
+      "Education",
+      "GenHlth",
+      "HighBP",
+      "HvyAlcoholConsump",
+      "NoDocbcCost",
+      "PhysHlth",
+      "Smoker"
+    ],
+    "k": 9,
+    "source": "24_reduct_bicameral.py gamma_H=0.1342",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreduct_k6_noleak": {
+    "features": [
+      "BMI",
+      "Fruits",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "NoDocbcCost"
+    ],
+    "k": 6,
+    "source": "24_reduct_bicameral.py gamma_H=0.1317",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreduct_k7_noleak": {
+    "features": [
+      "AnyHealthcare",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income",
+      "Smoker"
+    ],
+    "k": 7,
+    "source": "24_reduct_bicameral.py gamma_H=0.1423",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreduct_k5_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "HighChol",
+      "PhysActivity"
+    ],
+    "k": 5,
+    "source": "24_reduct_bicameral.py gamma_H=0.1309",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreduct_k8_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Fruits",
+      "HighBP",
+      "HvyAlcoholConsump",
+      "PhysActivity",
+      "Smoker",
+      "Stroke"
+    ],
+    "k": 8,
+    "source": "24_reduct_bicameral.py gamma_H=0.131",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
   }
 }
