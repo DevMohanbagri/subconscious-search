@@ -12,14 +12,23 @@ Design (matches pre-registered rules in results/00_questions.md):
   - all_21 for all 5 seeds + leakage_free at 42 (LF = seed-42 only,
     pre-registered as secondary).
 
+RESUME: a pair counts as done only if BOTH legs are in the registry (same
+script name, same feature_set, same seed). Re-running skips finished pairs
+and reads their PR-AUCs back from the registry, so an interrupted run
+resumes EXACTLY (deterministic seeds: identical numbers). Rows are keyed
+off the registry itself -- no separate state file to lose.
+
 Decision rule (pre-registered): mean dPR-AUC over 5 seeds with Welch
 t-test: |t| with p<0.05 and |mean_d|>0.002 -> win/loss, else tie.
 Discrimination rule: measured only via val->test generalization AFTER
 99_final_test.py opens test; until then marked UNKNOWN.
 """
 
+import csv
 import sys
 import time
+from pathlib import Path
+
 import numpy as np
 from sklearn.metrics import average_precision_score
 
@@ -33,6 +42,35 @@ import data_io
 
 BUDGET = 108
 SEEDS = [42, 101, 202, 303, 404]
+SCRIPT = "22_bicameral_hpo_seeds.py"
+
+
+def completed_pairs():
+    """{(feature_set, seed): {'bic': pr_auc, 'rs': pr_auc}} for finished pairs."""
+    done = {}
+    reg = Path("results/registry.csv")
+    if not reg.exists():
+        return done
+    with reg.open(newline="") as f:
+        for row in csv.DictReader(f):
+            if row.get("script") != SCRIPT:
+                continue
+            m = row.get("model", "")
+            if "(hgb, 108 evals)" not in m:
+                continue
+            if m.startswith("bicameral-HPO"):
+                leg = "bic"
+            elif m.startswith("randsearch-HPO"):
+                leg = "rs"
+            else:
+                continue
+            try:
+                key = (row["feature_set"], int(row["seed"]))
+                pr = float(row["pr_auc"])
+            except (KeyError, ValueError):
+                continue
+            done.setdefault(key, {})[leg] = pr
+    return {k: v for k, v in done.items() if set(v) == {"bic", "rs"}}
 
 
 def run_pair(Xtr, ytr, Xva, yva, seed, tag, n_feat):
@@ -74,12 +112,12 @@ def run_pair(Xtr, ytr, Xva, yva, seed, tag, n_feat):
           f"RS {pr_r:.4f} ({t_rs:5.0f}s, {p_rs}) | d={pr_b - pr_r:+.4f}",
           flush=True)
     mb, mr = summarize(yva, pb), summarize(yva, pr)
-    log_result(data_hash=data_io.DATA_HASH, script="22_bicameral_hpo_seeds.py",
+    log_result(data_hash=data_io.DATA_HASH, script=SCRIPT,
                feature_set=tag, n_features=n_feat,
                model="bicameral-HPO (hgb, 108 evals)", params=str(p_bic), seed=seed,
                split="val", **mb,
                notes=f"M4 multi-seed HPO; fit-train-only; time={t_bic:.0f}s; test sealed")
-    log_result(data_hash=data_io.DATA_HASH, script="22_bicameral_hpo_seeds.py",
+    log_result(data_hash=data_io.DATA_HASH, script=SCRIPT,
                feature_set=tag, n_features=n_feat,
                model="randsearch-HPO (hgb, 108 evals)", params=str(p_rs), seed=seed,
                split="val", **mr,
@@ -91,6 +129,11 @@ def main():
     df, tr, va, te = load()
     print(f"frozen data: hash {data_io.DATA_HASH[:12]}... "
           f"(test structurally withheld: {te is None})", flush=True)
+    done = completed_pairs()
+    if done:
+        print(f"resuming: {len(done)} finished pair(s) found in registry, skipping",
+              flush=True)
+    n_run = 0
 
     print("\n=== all_21 x 5 seeds ===", flush=True)
     cols = features(df, drop_leakage=False)
@@ -100,7 +143,14 @@ def main():
     yva = df.loc[va, TARGET].to_numpy(int)
     bics, rss, tbs, trs = [], [], [], []
     for s in SEEDS:
-        b, r, tb, tr_ = run_pair(Xtr, ytr, Xva, yva, s, "all_21", len(cols))
+        if ("all_21", s) in done:
+            b, r = done[("all_21", s)]["bic"], done[("all_21", s)]["rs"]
+            print(f"  seed {s}: RESUMED Bicameral {b:.4f} | RS {r:.4f} | "
+                  f"d={b - r:+.4f}", flush=True)
+            tb, tr_ = float("nan"), float("nan")
+        else:
+            b, r, tb, tr_ = run_pair(Xtr, ytr, Xva, yva, s, "all_21", len(cols))
+            n_run += 1
         bics.append(b)
         rss.append(r)
         tbs.append(tb)
@@ -115,7 +165,7 @@ def main():
     verdict = ("bicameral" if (p < 0.05 and d.mean() > 0.002)
                else ("randsearch" if (p < 0.05 and d.mean() < -0.002) else "TIE"))
     print(f"VERDICT (pre-registered rule): {verdict}")
-    print(f"time: Bicameral {np.mean(tbs):.0f}s/seed, RS {np.mean(trs):.0f}s/seed")
+    print(f"time: Bicameral {np.nanmean(tbs):.0f}s/seed, RS {np.nanmean(trs):.0f}s/seed")
 
     print("\n=== leakage_free x seed 42 (secondary) ===", flush=True)
     cols = features(df, drop_leakage=True)
@@ -123,8 +173,15 @@ def main():
     ytr = df.loc[tr, TARGET].to_numpy(int)
     Xva = df.loc[va, cols].to_numpy(float)
     yva = df.loc[va, TARGET].to_numpy(int)
-    run_pair(Xtr, ytr, Xva, yva, 42, "leakage_free", len(cols))
-    print("\nDone. Test split was never touched. Registry appended with 12 new rows.")
+    if ("leakage_free", 42) in done:
+        b, r = done[("leakage_free", 42)]["bic"], done[("leakage_free", 42)]["rs"]
+        print(f"  seed 42: RESUMED Bicameral {b:.4f} | RS {r:.4f} | d={b - r:+.4f}",
+              flush=True)
+    else:
+        run_pair(Xtr, ytr, Xva, yva, 42, "leakage_free", len(cols))
+        n_run += 1
+    print(f"\nDone. Test split was never touched. Registry: {2 * n_run} new rows "
+          f"({len(done)} pair(s) resumed).")
 
 
 if __name__ == "__main__":
