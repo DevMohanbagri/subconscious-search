@@ -55,7 +55,8 @@ ap.add_argument("--pools", default="all_21,leakage_free")
 A = ap.parse_args()
 
 TARGETS = {"all_21": [1, 2, 3, 4, 5, 6, 8, 10, 13, 16, 21],
-           "leakage_free": [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 19]}
+           # leakage_free has 18 features (LEAKAGE_SUSPECT = GenHlth/DiffWalk/PhysHlth)
+           "leakage_free": [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 18]}
 RHO = 0.01            # per-feature penalty in the scalarized objective
 SUB_N = 50_000        # stratified train subsample for the cheap fitness
 CACHE_FILE = Path("results/pareto_cache.json")
