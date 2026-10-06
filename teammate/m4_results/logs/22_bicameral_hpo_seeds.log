@@ -12,3 +12,6 @@ VERDICT (pre-registered rule): TIE
 time: Bicameral 619s/seed, RS 469s/seed
 
 === leakage_free x seed 42 (secondary) ===
+  seed 42: Bicameral 0.4153 (  315s, {'lr': 0.09023439171445746, 'depth': 7, 'leaf': 1, 'l2': 7.839190169506329}) | RS 0.4174 (  430s, {'lr': 0.1038321748211791, 'depth': 5, 'leaf': 220, 'l2': 4.819411500113695}) | d=-0.0020
+
+Done. Test split was never touched. Registry: 12 new rows (0 pair(s) resumed).
