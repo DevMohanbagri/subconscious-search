@@ -789,5 +789,609 @@
     "source": "23_pareto_bicameral.py random",
     "saved": "2026-10-06",
     "pool": "all_21"
+  },
+  "bicpareto_k1_noleak": {
+    "features": [
+      "HighBP"
+    ],
+    "k": 1,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k1_noleak": {
+    "features": [
+      "BMI"
+    ],
+    "k": 1,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k2_noleak": {
+    "features": [
+      "Age",
+      "BMI"
+    ],
+    "k": 2,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k2_noleak": {
+    "features": [
+      "BMI",
+      "HighBP"
+    ],
+    "k": 2,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k3_noleak": {
+    "features": [
+      "HeartDiseaseorAttack",
+      "HighChol",
+      "PhysActivity"
+    ],
+    "k": 3,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k3_noleak": {
+    "features": [
+      "BMI",
+      "HighBP",
+      "HighChol"
+    ],
+    "k": 3,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k4_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HighBP",
+      "Income"
+    ],
+    "k": 4,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k4_noleak": {
+    "features": [
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 4,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k4_noleak": {
+    "features": [
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP"
+    ],
+    "k": 4,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k5_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "Veggies"
+    ],
+    "k": 5,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k5_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 5,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k6_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 6,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k6_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 6,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k6_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HvyAlcoholConsump"
+    ],
+    "k": 6,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k7_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income",
+      "MentHlth"
+    ],
+    "k": 7,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k7_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income"
+    ],
+    "k": 7,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k8_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income",
+      "Veggies"
+    ],
+    "k": 8,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k8_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "Sex"
+    ],
+    "k": 8,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k8_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "Fruits",
+      "HighBP",
+      "HighChol",
+      "Smoker",
+      "Veggies"
+    ],
+    "k": 8,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k9_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "PhysActivity"
+    ],
+    "k": 9,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k9_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income"
+    ],
+    "k": 9,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k9_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "Smoker",
+      "Stroke"
+    ],
+    "k": 9,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k10_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 10,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k10_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "Sex"
+    ],
+    "k": 10,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k11_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 11,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k11_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "PhysActivity",
+      "Sex",
+      "Veggies"
+    ],
+    "k": 11,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k12_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "PhysActivity",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 12,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k12_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 12,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k12_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Fruits",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Income",
+      "MentHlth",
+      "PhysActivity",
+      "Sex",
+      "Veggies"
+    ],
+    "k": 12,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k13_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "NoDocbcCost",
+      "PhysActivity",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 13,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k13_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 13,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k13_noleak": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "Fruits",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "PhysActivity",
+      "Sex",
+      "Veggies"
+    ],
+    "k": 13,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k14_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "PhysActivity",
+      "Sex",
+      "Stroke"
+    ],
+    "k": 14,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "nsga2pareto_k14_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "Sex",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 14,
+    "source": "23_pareto_bicameral.py nsga2",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicpareto_k15_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "Fruits",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "PhysActivity",
+      "Sex",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 15,
+    "source": "23_pareto_bicameral.py bicameral",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k15_noleak": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "Fruits",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "PhysActivity",
+      "Smoker",
+      "Stroke"
+    ],
+    "k": 15,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "randpareto_k16_noleak": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "PhysActivity",
+      "Sex",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 16,
+    "source": "23_pareto_bicameral.py random",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
   }
 }
