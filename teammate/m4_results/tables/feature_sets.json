@@ -1393,5 +1393,152 @@
     "source": "23_pareto_bicameral.py random",
     "saved": "2026-10-06",
     "pool": "leakage_free"
+  },
+  "bicpareto2_k3": {
+    "features": [
+      "BMI",
+      "CholCheck",
+      "GenHlth"
+    ],
+    "k": 3,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k4": {
+    "features": [
+      "BMI",
+      "GenHlth",
+      "HighBP",
+      "HvyAlcoholConsump"
+    ],
+    "k": 4,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k5": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "GenHlth",
+      "HighBP"
+    ],
+    "k": 5,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k7": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Fruits",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighChol"
+    ],
+    "k": 7,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k8": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "Education",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighChol",
+      "Veggies"
+    ],
+    "k": 8,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k10": {
+    "features": [
+      "Age",
+      "BMI",
+      "Fruits",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "MentHlth",
+      "PhysHlth"
+    ],
+    "k": 10,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k11": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "DiffWalk",
+      "Education",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 11,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k12": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "DiffWalk",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Smoker",
+      "Stroke"
+    ],
+    "k": 12,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicpareto2_k15": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "NoDocbcCost",
+      "PhysActivity",
+      "PhysHlth",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 15,
+    "source": "26_pareto_bicameral_v2.py one-sided",
+    "saved": "2026-10-06",
+    "pool": "all_21"
   }
 }
