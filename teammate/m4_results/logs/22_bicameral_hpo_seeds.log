@@ -1,3 +1,4 @@
 frozen data: hash fc3774b0bdf6... (test structurally withheld: True)
 
 === all_21 x 5 seeds ===
+  seed 42: Bicameral 0.4479 (  568s, {'lr': 0.12636751408832886, 'depth': 4, 'leaf': 15, 'l2': 0.8760753157445755}) | RS 0.4473 (  494s, {'lr': 0.16022698522949785, 'depth': 3, 'leaf': 1, 'l2': 11.888673275129037}) | d=+0.0006
