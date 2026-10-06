@@ -161,7 +161,9 @@ def main():
     line("tuned   fold A", m_ba)
 
     # ---- random-MF reference: best-on-A of random_n draws ----
-    rng = np.random.default_rng(A.seed)
+    # NOTE: seed+1, NOT seed: Bicameral(42) and default_rng(42) share their first
+    # uniform draws, which once made both methods "find" the same point.
+    rng = np.random.default_rng(A.seed + 1)
     best = None
     for _ in range(A.random_n):
         c = decode_cuts(rng.uniform(0, 1, N_CUTS))
