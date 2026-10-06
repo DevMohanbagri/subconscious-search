@@ -1758,5 +1758,75 @@
     "source": "27_reduct_bicameral_x.py gamma_H=0.1759",
     "saved": "2026-10-06",
     "pool": "all_21"
+  },
+  "bicreductx_k4_noleak": {
+    "features": [
+      "BMI",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol"
+    ],
+    "k": 4,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1393",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreductx_k5_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "MentHlth"
+    ],
+    "k": 5,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1476",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreductx_k6_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Stroke"
+    ],
+    "k": 6,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1526",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreductx_k7_noleak": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Stroke"
+    ],
+    "k": 7,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1505",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
+  },
+  "bicreductx_k8_noleak": {
+    "features": [
+      "Age",
+      "BMI",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "PhysActivity",
+      "Smoker",
+      "Stroke"
+    ],
+    "k": 8,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1445",
+    "saved": "2026-10-06",
+    "pool": "leakage_free"
   }
 }
