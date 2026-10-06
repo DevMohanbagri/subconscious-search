@@ -1677,5 +1677,86 @@
     "source": "26_pareto_bicameral_v2.py one-sided",
     "saved": "2026-10-06",
     "pool": "leakage_free"
+  },
+  "bicreductx_k3": {
+    "features": [
+      "Age",
+      "BMI",
+      "GenHlth"
+    ],
+    "k": 3,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1629",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreductx_k4": {
+    "features": [
+      "Age",
+      "BMI",
+      "GenHlth",
+      "HighBP"
+    ],
+    "k": 4,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1776",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreductx_k5": {
+    "features": [
+      "BMI",
+      "GenHlth",
+      "HighBP",
+      "HighChol",
+      "Sex"
+    ],
+    "k": 5,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1702",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreductx_k6": {
+    "features": [
+      "Age",
+      "BMI",
+      "DiffWalk",
+      "GenHlth",
+      "HighBP",
+      "HighChol"
+    ],
+    "k": 6,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1777",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreductx_k7": {
+    "features": [
+      "Age",
+      "BMI",
+      "CholCheck",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol"
+    ],
+    "k": 7,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1765",
+    "saved": "2026-10-06",
+    "pool": "all_21"
+  },
+  "bicreductx_k8": {
+    "features": [
+      "BMI",
+      "CholCheck",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "NoDocbcCost"
+    ],
+    "k": 8,
+    "source": "27_reduct_bicameral_x.py gamma_H=0.1759",
+    "saved": "2026-10-06",
+    "pool": "all_21"
   }
 }
