@@ -1,4 +1,5 @@
 pools=all_21,leakage_free seed=42 budget=80 train/val=160631/34421 prevalence=0.1529
+[all_21] restored 1678 cached subset evals
 [bicameral|all_21] per-k runs, budget=80/target
   target k= 1: got k= 9 pr_cheap=0.4229
   target k= 2: got k= 6 pr_cheap=0.4148
@@ -11,19 +12,49 @@ pools=all_21,leakage_free seed=42 budget=80 train/val=160631/34421 prevalence=0.
   target k=13: got k=14 pr_cheap=0.4394
   target k=16: got k=15 pr_cheap=0.4409
   target k=21: got k=17 pr_cheap=0.4266
-  true fits: 791  time: 757s
+  true fits: 0  time: 0s
 [nsga2|all_21] one run, total evals=880
-  true fits: 528  time: 408s
+  true fits: 0  time: 0s
 [random|all_21] 400 uniform subsets
-  true fits: 359  time: 274s
-[all_21|bicameral] front size=12 hv_cheap=5.2445 true_fits=791
-[all_21|nsga2] front size=12 hv_cheap=5.6064 true_fits=528
-[all_21|random] front size=12 hv_cheap=5.4269 true_fits=359
+  true fits: 0  time: 0s
+[all_21|bicameral] front size=12 hv_cheap=5.2445 true_fits=0
+[all_21|nsga2] front size=12 hv_cheap=5.6064 true_fits=0
+[all_21|random] front size=12 hv_cheap=5.4269 true_fits=0
 [all_21] proper re-eval of 35 unique front subsets
-Traceback (most recent call last):
-  File "/home/user/diabetes-project/23_pareto_bicameral.py", line 373, in <module>
-    main()
-  File "/home/user/diabetes-project/23_pareto_bicameral.py", line 290, in main
-    p_lgbm, p_lr = proper_eval(Xtr[:, list(sub)], ytr, Xva[:, list(sub)],
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: proper_eval() missing 1 required positional argument: 'seed'
+  randpareto_k1                cheap=0.2748 lgbm=0.2748 lr=0.2748
+  bicpareto_k2                 cheap=0.2794 lgbm=0.2794 lr=0.2794
+  nsga2pareto_k2               cheap=0.3508 lgbm=0.3481 lr=0.3384
+  nsga2pareto_k3               cheap=0.3935 lgbm=0.3481 lr=0.3694
+  bicpareto_k4                 cheap=0.3607 lgbm=0.3602 lr=0.3453
+  nsga2pareto_k4               cheap=0.4147 lgbm=0.4098 lr=0.3910
+  randpareto_k4                cheap=0.3740 lgbm=0.3767 lr=0.3621
+  bicpareto_k5                 cheap=0.3987 lgbm=0.3966 lr=0.3843
+  nsga2pareto_k5               cheap=0.4283 lgbm=0.4187 lr=0.4086
+  bicpareto_k6                 cheap=0.4169 lgbm=0.4065 lr=0.3950
+  nsga2pareto_k6               cheap=0.4321 lgbm=0.4172 lr=0.4115
+  randpareto_k6                cheap=0.3891 lgbm=0.3805 lr=0.3658
+  bicpareto_k7                 cheap=0.4180 lgbm=0.4061 lr=0.4095
+  nsga2pareto_k7               cheap=0.4353 lgbm=0.4187 lr=0.4129
+  randpareto_k7                cheap=0.4160 lgbm=0.4060 lr=0.3958
+  bicpareto_k8                 cheap=0.4239 lgbm=0.4083 lr=0.3968
+  nsga2pareto_k8               cheap=0.4373 lgbm=0.4254 lr=0.4154
+  bicpareto_k9                 cheap=0.4343 lgbm=0.4178 lr=0.4140
+  nsga2pareto_k9               cheap=0.4391 lgbm=0.4220 lr=0.4171
+  nsga2pareto_k10              cheap=0.4417 lgbm=0.4222 lr=0.4183
+  randpareto_k10               cheap=0.4215 lgbm=0.4110 lr=0.3960
+  bicpareto_k11                cheap=0.4353 lgbm=0.4187 lr=0.4132
+  nsga2pareto_k11              cheap=0.4423 lgbm=0.4174 lr=0.4203
+  randpareto_k11               cheap=0.4255 lgbm=0.4074 lr=0.4148
+  bicpareto_k12                cheap=0.4388 lgbm=0.4201 lr=0.4168
+  nsga2pareto_k12              cheap=0.4432 lgbm=0.4198 lr=0.4207
+  randpareto_k12               cheap=0.4377 lgbm=0.4174 lr=0.4160
+  nsga2pareto_k13              cheap=0.4452 lgbm=0.4215 lr=0.4213
+  randpareto_k13               cheap=0.4409 lgbm=0.4193 lr=0.4187
+  bicpareto_k14                cheap=0.4394 lgbm=0.4211 lr=0.4149
+  randpareto_k14               cheap=0.4418 lgbm=0.4218 lr=0.4174
+  bicpareto_k15                cheap=0.4435 lgbm=0.4213 lr=0.4200
+  bicpareto_k17                cheap=0.4437 lgbm=0.4148 lr=0.4208
+  randpareto_k17               cheap=0.4443 lgbm=0.4142 lr=0.4209
+  randpareto_k18               cheap=0.4454 lgbm=0.4221 lr=0.4204
+[all_21] matched k=5 (LGBM-med P): bic=0.3966 nsga2=0.4187 DeLong z=-12.88 p=0.0000 dPR CI [-0.0288,-0.0144]
+[bicameral|leakage_free] per-k runs, budget=80/target
