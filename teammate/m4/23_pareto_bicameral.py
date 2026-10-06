@@ -126,11 +126,43 @@ CACHES = {}   # (method, pool) -> CheapFitness, for periodic dumps
 
 def dump_cache():
     try:
-        out = {f"{me}|{po}": {str(m): v for m, v in cf.cache.items()}
+        out = {f"{me}|{po}": {"cache": {str(m): v for m, v in cf.cache.items()},
+                               "evaled": sorted(cf.evaled)}
                for (me, po), cf in CACHES.items()}
         CACHE_FILE.write_text(json.dumps(out))
     except OSError:
         pass
+
+
+def restore_cache(pool):
+    """Reload this pool's search caches (mask->PR + evaled sets) so a rerun
+    replays the searches from cache instead of refitting LightGBM.
+    Handles the old format ({mask: pr}, every key was evaluated) too."""
+    if not CACHE_FILE.exists():
+        return 0
+    try:
+        out = json.loads(CACHE_FILE.read_text())
+    except (OSError, ValueError):
+        return 0
+    n = 0
+    for (me, po), cf in CACHES.items():
+        if po != pool:
+            continue
+        d = out.get(f"{me}|{po}", {})
+        if "cache" in d:
+            for m, v in d.get("cache", {}).items():
+                if int(m) not in cf.cache:
+                    cf.cache[int(m)] = float(v)
+                    n += 1
+            for m in d.get("evaled", []):
+                cf.evaled.add(int(m))
+        else:
+            for m, v in d.items():
+                if int(m) not in cf.cache:
+                    cf.cache[int(m)] = float(v)
+                    n += 1
+                cf.evaled.add(int(m))
+    return n
 
 
 def pareto_front(items):
@@ -210,7 +242,7 @@ def run_random(pool, cols, D, seed, n):
     print(f"  true fits: {cf.fits}  time: {time.time()-t0:.0f}s", flush=True)
 
 
-def proper_eval(cols, Xtr, ytr, Xva, yva, seed):
+def proper_eval(Xtr, ytr, Xva, yva, seed):
     """LGBM-medium on full train + plain LR (12's evaluator). Returns (p_lgbm, p_lr)."""
     import lightgbm as lgb
     fit, es = train_test_split(np.arange(len(ytr)), test_size=0.10,
@@ -263,6 +295,9 @@ def main():
 
         for method in ["bicameral", "nsga2", "random"]:
             CACHES[(method, pool)] = CheapFitness(cols, Xtr, ytr, Xva, yva, A.seed)
+        n_hit = restore_cache(pool)
+        if n_hit:
+            print(f"[{pool}] restored {n_hit} cached subset evals", flush=True)
         run_bicameral(pool, cols, D, A.seed, A.budget)
         run_nsga2(pool, cols, D, A.seed, len(TARGETS[pool]) * A.budget)
         run_random(pool, cols, D, A.seed, A.random_n)
