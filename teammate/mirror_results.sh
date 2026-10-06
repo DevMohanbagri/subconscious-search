@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Copy M4 run outputs from the (ephemeral) friend clone into this repo.
+# Idempotent -- run after each stage completes, or all at once at the end.
+# Usage: ./mirror_results.sh   (from anywhere; paths are absolute)
+set -u
+SRC=/home/user/diabetes-project
+DST=/home/user/subconscious-search/teammate/m4_results
+mkdir -p "$DST"/{logs,tables,figures}
+[ -d "$SRC/results" ] || { echo "NO FRIEND CLONE -- nothing to mirror"; exit 1; }
+for f in 21_bicameral_compare.log 22_bicameral_hpo_seeds.log 23_pareto_bicameral.log \
+         24_reduct_bicameral.log 25_mf_bicameral.log; do
+  [ -f "$SRC/results/$f" ] && cp "$SRC/results/$f" "$DST/logs/"
+done
+for f in registry.csv pareto_front.csv pareto_lr_overlay.csv pareto_cache.json \
+         bicameral_reduct.csv rst_heldout_reduct.csv mf_tuning_pilot.csv mf_tuned_p.json \
+         fs_k_curve.csv main_table_val.csv; do
+  [ -f "$SRC/results/$f" ] && cp "$SRC/results/$f" "$DST/tables/"
+done
+for f in fig_pareto.png fig_reduct.png fig_mf_p.png fig_fs_k_curve.png fig_fuzzy_tiers.png \
+         fig_rst_heldout_path.png; do
+  [ -f "$SRC/figures/$f" ] && cp "$SRC/figures/$f" "$DST/figures/"
+done
+[ -f "$SRC/feature_sets.json" ] && cp "$SRC/feature_sets.json" "$DST/tables/"
+echo "mirrored:"; find "$DST" -type f | sort
