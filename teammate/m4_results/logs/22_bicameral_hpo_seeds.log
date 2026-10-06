@@ -5,3 +5,10 @@ frozen data: hash fc3774b0bdf6... (test structurally withheld: True)
   seed 101: Bicameral 0.4477 ( 1621s, {'lr': 0.13897066275765352, 'depth': 5, 'leaf': 9, 'l2': 10.406439134683874}) | RS 0.4466 (  453s, {'lr': 0.1593822463350679, 'depth': 3, 'leaf': 12, 'l2': 1.6859843392958318}) | d=+0.0011
   seed 202: Bicameral 0.4483 (  309s, {'lr': 0.051022451352789794, 'depth': 4, 'leaf': 194, 'l2': 3.638343263579311}) | RS 0.4483 (  455s, {'lr': 0.051022451352789794, 'depth': 4, 'leaf': 194, 'l2': 3.638343263579311}) | d=+0.0000
   seed 303: Bicameral 0.4473 (  274s, {'lr': 0.1594427346878906, 'depth': 3, 'leaf': 12, 'l2': 16.77664433092452}) | RS 0.4473 (  454s, {'lr': 0.1594427346878906, 'depth': 3, 'leaf': 12, 'l2': 16.77664433092452}) | d=+0.0000
+  seed 404: Bicameral 0.4482 (  325s, {'lr': 0.06152328539795875, 'depth': 4, 'leaf': 300, 'l2': 2.710601613284446}) | RS 0.4484 (  487s, {'lr': 0.11903900172697195, 'depth': 5, 'leaf': 18, 'l2': 14.033823711194968}) | d=-0.0001
+
+Bicameral mean 0.4479+-0.0004 | RS mean 0.4476+-0.0008 | mean_d=+0.0003 Welch t=+0.78 p=0.4616
+VERDICT (pre-registered rule): TIE
+time: Bicameral 619s/seed, RS 469s/seed
+
+=== leakage_free x seed 42 (secondary) ===
