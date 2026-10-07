@@ -1,0 +1,3 @@
+dataset,seed,method,pr_auc,roc_auc,brier,acc,time_s,params,rs_stream
+5050,42,bicameral-HPO,0.8013,0.8305,0.1664,0.7557,96,"{'lr': 0.07971607958907231, 'depth': 4, 'leaf': 1, 'l2': 20.0}",independent+1000
+5050,42,randsearch-HPO,0.8015,0.8304,0.1663,0.755,167,"{'lr': 0.04280097330191731, 'depth': 5, 'leaf': 1, 'l2': 14.213098009682007}",independent+1000
