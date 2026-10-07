@@ -1,0 +1,20 @@
+
+[friend-full] n=229474 prev_tr=0.1529 prev_va=0.1529 acc-trap(majority)=0.8471
+  plain-LR anchor: acc=0.8517 pr=0.4212 roc=0.8120
+  seed 42 (BANKED): bic pr=0.4479 acc=0.8552 | rs pr=0.4473 acc=0.8556
+  seed 101 (BANKED): bic pr=0.4477 acc=0.8556 | rs pr=0.4466 acc=0.8551
+  seed 202 (BANKED): bic pr=0.4483 acc=0.8554 | rs pr=0.4483 acc=0.8554
+50/50: (70692, 22) dupes=1635 (friend dedup: 0 by construction -- noted secondary difference)
+
+[50/50] n=70692 train/val/test=49484/10604/10604 prev_tr=0.5000 prev_va=0.5000 (test sealed)
+  plain-LR anchor: acc=0.7492 pr=0.7877 roc=0.8227
+  seed 42: bic pr=0.8013 acc=0.7557 (95s) | rs pr=0.8002 acc=0.7555 (171s) | d_pr=+0.0011
+  seed 101: bic pr=0.8010 acc=0.7566 (80s) | rs pr=0.8016 acc=0.7549 (162s) | d_pr=-0.0006
+  seed 202: bic pr=0.8015 acc=0.7555 (106s) | rs pr=0.8015 acc=0.7555 (161s) | d_pr=+0.0000
+
+================ 50/50 vs friend-full (paired seeds 42/101/202) ================
+  seed 42: friend d_pr=+0.0006 d_acc=-0.0004 | 5050 d_pr=+0.0011 d_acc=+0.0002
+  seed 101: friend d_pr=+0.0011 d_acc=+0.0005 | 5050 d_pr=-0.0006 d_acc=+0.0017
+  seed 202: friend d_pr=+0.0000 d_acc=+0.0000 | 5050 d_pr=+0.0000 d_acc=+0.0000
+==============================================================================
+Done in 13.0 min. Friend test sealed; 50/50 test never indexed.
