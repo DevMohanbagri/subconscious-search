@@ -13,7 +13,7 @@ per seed); ONLY the RS leg moves to seed+1000 (independent stream).
   friend-full  frozen splits (test sealed), all_21 x {42,101,202,303,404} +
                leakage_free x 42; rows to results/registry.csv, script=29.
   50/50        28's identical split (asserted sizes); x {42,101,202}; rows to
-               teammate/m4_results/analysis/dataset_compare_ind.csv.
+               results/diabetes/analysis/dataset_compare_ind.csv.
 Same budgets (108), objective (val log-loss), fit-train-only as 22.
 Order: 50/50 first (~15 min: validates the script end-to-end), then friend.
 Resume: friend pairs from live registry (script=29, both legs); 50/50 pairs
@@ -31,7 +31,7 @@ from sklearn.metrics import (accuracy_score, average_precision_score,
                              brier_score_loss, roc_auc_score)
 from sklearn.model_selection import train_test_split
 
-sys.path.insert(0, "/home/user/subconscious-search")
+sys.path.insert(0, "/home/user/subconscious-search/src")
 from bicameral import Bicameral
 from ml_benchmark import hgb_from_x
 
@@ -44,9 +44,9 @@ SEEDS_FULL = [42, 101, 202, 303, 404]
 SEEDS_5050 = [42, 101, 202]
 RS_SHIFT = 1000
 SCRIPT = "29_hpo_independent.py"
-IND_CSV = Path("/home/user/subconscious-search/teammate/m4_results/analysis/"
+IND_CSV = Path("/home/user/subconscious-search/results/diabetes/analysis/"
                "dataset_compare_ind.csv")
-CSV28 = Path("/home/user/subconscious-search/teammate/m4_results/analysis/"
+CSV28 = Path("/home/user/subconscious-search/results/diabetes/analysis/"
              "dataset_compare.csv")
 
 

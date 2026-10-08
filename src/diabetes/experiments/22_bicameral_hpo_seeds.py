@@ -32,7 +32,7 @@ from pathlib import Path
 import numpy as np
 from sklearn.metrics import average_precision_score
 
-sys.path.insert(0, "/home/user/subconscious-search")
+sys.path.insert(0, "/home/user/subconscious-search/src")
 from bicameral import Bicameral
 from ml_benchmark import hgb_from_x
 

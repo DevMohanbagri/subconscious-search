@@ -22,17 +22,18 @@ Two versions:
 
 ```bash
 pip install numpy scipy
-python bicameral.py --dim 10 --max-evals 5000 --n-runs 5        # v3 (best)
-python bicameral_v1.py --dim 10 --max-evals 5000 --n-runs 5   # v1
+python src/bicameral.py --dim 10 --max-evals 5000 --n-runs 5        # v3 (best)
+python src/bicameral_v1.py --dim 10 --max-evals 5000 --n-runs 5   # v1
 # comparison vs baselines (needs scipy + cma):
 pip install cma
-python compare_baselines.py --dim 10 --max-evals 5000 --n-runs 5 --seed0 1
+python src/compare_baselines.py --dim 10 --max-evals 5000 --n-runs 5 --seed0 1
 ```
 
-Layout: optimizers + benchmark harnesses (`*.py`) live at root;
-`results/{core,cec,bbob,esdrp,ml}/` hold raw logs (`.jsonl`) and
-summary snapshots (`.txt`); `papers/` holds reference PDFs;
-`data/` (gitignored) holds datasets.
+Layout: all code lives under `src/` (optimizers + benchmark harnesses,
+plus `src/diabetes/` for the diabetes-project experiments 21-29);
+`results/{core,cec,bbob,esdrp,ml,diabetes}/` hold raw logs (`.jsonl`/`.log`)
+and summary snapshots (`.txt`/`.csv`); `docs/` holds notes and reference
+PDFs; `data/` (CSVs versioned, rest gitignored) holds datasets.
 
 ## Results (dim=10, 5 runs, 5000 evals)
 
@@ -505,7 +506,7 @@ in the repo beyond vanilla DE/RS.
 
 ## ESDRP wrapper: v3 beats the paper's swarm optimizers on their own problem
 
-Sarker et al. (Sci Rep 2026, PDF in `papers/`) use FOX/HBA/TSO as wrapper
+Sarker et al. (Sci Rep 2026, PDF in `docs/papers/`) use FOX/HBA/TSO as wrapper
 optimizers for RF feature-selection + hyperparameter tuning on the
 ESDRP diabetes dataset (UCI-529, 520×16). We replicate their problem
 exactly — same 20-D space (4 RF hparams + 16-bit mask), same

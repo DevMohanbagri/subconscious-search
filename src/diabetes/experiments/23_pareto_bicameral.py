@@ -38,7 +38,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 
-sys.path.insert(0, "/home/user/subconscious-search")
+sys.path.insert(0, "/home/user/subconscious-search/src")
 from bicameral import Bicameral
 from ml_benchmark import delong_test
 

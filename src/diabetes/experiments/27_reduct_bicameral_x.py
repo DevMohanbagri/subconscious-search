@@ -30,7 +30,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
-sys.path.insert(0, "/home/user/subconscious-search")
+sys.path.insert(0, "/home/user/subconscious-search/src")
 from bicameral import Bicameral
 
 from data_io import load, features, log_result, TARGET

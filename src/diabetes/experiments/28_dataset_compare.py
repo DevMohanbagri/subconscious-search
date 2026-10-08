@@ -25,7 +25,7 @@ Design (same duel, two datasets, paired seeds):
 Metrics reported on both: accuracy + PR-AUC + ROC-AUC + Brier (accuracy is
 meaningful at 50%, a trap at 15.3% -- shown, not just claimed).
 Resume: completed 50/50 pairs are read back from the output CSV and skipped.
-Outputs: teammate/m4_results/analysis/dataset_compare.csv (appended per pair).
+Outputs: results/diabetes/analysis/dataset_compare.csv (appended per pair).
 """
 
 import csv
@@ -43,12 +43,12 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, "/home/user/subconscious-search")          # bicameral, ml_benchmark
+sys.path.insert(0, "/home/user/subconscious-search/src")          # bicameral, ml_benchmark
 sys.path.insert(0, "/home/user/diabetes-project")             # friend data_io (frozen splits)
 from bicameral import Bicameral
 from ml_benchmark import hgb_from_x
 
-OUT = HERE.parent / "m4_results" / "analysis" / "dataset_compare.csv"
+OUT = HERE.parents[2] / "results" / "diabetes" / "analysis" / "dataset_compare.csv"
 SEEDS = [42, 101, 202]
 BUDGET = 108
 REGISTRY_MIRROR = HERE.parent / "m4_results" / "tables" / "registry.csv"

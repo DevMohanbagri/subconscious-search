@@ -38,7 +38,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import StratifiedKFold
 
-sys.path.insert(0, "/home/user/subconscious-search")
+sys.path.insert(0, "/home/user/subconscious-search/src")
 from bicameral import Bicameral
 
 from data_io import load, features, TARGET

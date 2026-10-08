@@ -2,7 +2,7 @@
 """Rebuild the friend's data/dedup.csv WITHOUT UCI access (UCI is unreachable here).
 
 Run from the friend's repo root AFTER `pip install numpy pandas scikit-learn`:
-    python3 /home/user/subconscious-search/teammate/m4/rebuild_dedup.py
+    python3 /home/user/subconscious-search/src/diabetes/experiments/rebuild_dedup.py
 
 Recipe (reverse-engineered to reproduce the committed splits.npz data_hash
 fc3774b0bdf6c0a16e80c7e518cd787d EXACTLY):
