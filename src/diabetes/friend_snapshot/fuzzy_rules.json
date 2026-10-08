@@ -1,0 +1,20 @@
+[
+ {"id": "R01", "if": [["P", "Low"]], "then": "Minimal", "source": "backbone"},
+ {"id": "R02", "if": [["P", "Moderate"]], "then": "Watch", "source": "backbone"},
+ {"id": "R03", "if": [["P", "High"]], "then": "Elevated", "source": "backbone"},
+ {"id": "R04", "if": [["P", "VeryHigh"]], "then": "Priority", "source": "backbone"},
+ {"id": "R05", "if": [["P", "High"], ["BMI", "Obese"], ["Age", "Senior"]], "then": "Priority", "source": "clinical: design-doc example"},
+ {"id": "R06", "if": [["P", "High"], ["BMI", "SeverelyObese"]], "then": "Priority", "source": "clinical escalation"},
+ {"id": "R07", "if": [["P", "High"], ["M", "High"]], "then": "Priority", "source": "clinical: FINDRISC modifiable items", "flag": "intervention-responsive"},
+ {"id": "R08", "if": [["P", "Low"], ["BMI", "SeverelyObese"], ["Age", "Middle"]], "then": "Watch", "source": "clinical escalation"},
+ {"id": "R09", "if": [["P", "Low"], ["Age", "Senior"], ["M", "High"]], "then": "Watch", "source": "clinical escalation"},
+ {"id": "R10", "if": [["P", "High"], ["BMI", "Normal"], ["Age", "Young"]], "then": "Watch", "source": "de-escalation: no clinical corroboration"},
+ {"id": "R11", "if": [["P", "VeryHigh"], ["BMI", "Normal"], ["Age", "Young"]], "then": "Elevated", "source": "de-escalation: no clinical corroboration"},
+ {"id": "R12", "if": [["P", "Moderate"], ["BMI", "SeverelyObese"], ["HighBP", "Yes"]], "then": "Elevated", "source": "rough set: lift 2.58"},
+ {"id": "R13", "if": [["P", "Moderate"], ["BMI", "Obese"], ["Age", "Senior"], ["HighBP", "Yes"]], "then": "Elevated", "source": "rough set: lift 2.28"},
+ {"id": "R14", "if": [["P", "Moderate"], ["HighBP", "Yes"], ["HighChol", "Yes"]], "then": "Elevated", "source": "rough set: lift 2.00"},
+ {"id": "R15", "if": [["P", "Moderate"], ["HighBP", "No"]], "then": "Minimal", "source": "rough set: lift 0.46"},
+ {"id": "R16", "if": [["P", "Moderate"], ["BMI", "Overweight"], ["HighChol", "No"], ["HeartDiseaseorAttack", "No"]], "then": "Minimal", "source": "rough set: lift 0.45"},
+ {"id": "R17", "if": [["P", "Moderate"], ["BMI", "Normal"]], "then": "Minimal", "source": "rough set: lift 0.44"},
+ {"id": "R18", "if": [["P", "Moderate"], ["Age", "Young"]], "then": "Minimal", "source": "rough set: lift 0.29"}
+]

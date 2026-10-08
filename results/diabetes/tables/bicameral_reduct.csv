@@ -1,0 +1,17 @@
+pool,K,k,gamma_h,greedy_prefix_gh,features,lr_prauc
+all_21,1,7,0.1494,,Age|BMI|HeartDiseaseorAttack|HighBP|HighChol|PhysActivity|PhysHlth,0.3794
+all_21,2,8,0.1665,,AnyHealthcare|BMI|DiffWalk|GenHlth|HighBP|HighChol|MentHlth|Veggies,0.4035
+all_21,3,6,0.1366,,BMI|HighBP|HighChol|Income|PhysActivity|Veggies,0.363
+all_21,4,4,0.1498,0.1776,GenHlth|HighBP|HighChol|Income,0.3716
+all_21,5,5,0.125,0.182,BMI|GenHlth|Sex|Stroke|Veggies,0.3458
+all_21,6,8,0.1567,,AnyHealthcare|BMI|CholCheck|Fruits|GenHlth|HighBP|NoDocbcCost|Stroke,0.3867
+all_21,7,6,0.1371,,BMI|HighBP|HighChol|HvyAlcoholConsump|Sex|Stroke,0.3517
+all_21,8,9,0.1342,,AnyHealthcare|CholCheck|Education|GenHlth|HighBP|HvyAlcoholConsump|NoDocbcCost|PhysHlth|Smoker,0.3588
+leakage_free,1,6,0.1218,0.1566,CholCheck|HeartDiseaseorAttack|HighBP|HighChol|Income|Stroke,0.336
+leakage_free,2,7,0.1267,,Age|BMI|Education|Fruits|HeartDiseaseorAttack|HighBP|PhysActivity,0.358
+leakage_free,3,7,0.1187,,AnyHealthcare|BMI|HighBP|Income|PhysActivity|Smoker|Veggies,0.3397
+leakage_free,4,7,0.1423,,AnyHealthcare|BMI|HeartDiseaseorAttack|HighBP|HighChol|Income|Smoker,0.3746
+leakage_free,5,5,0.1309,0.1548,Age|BMI|CholCheck|HighChol|PhysActivity,0.3345
+leakage_free,6,6,0.1317,0.1566,BMI|Fruits|HighBP|HighChol|HvyAlcoholConsump|NoDocbcCost,0.3481
+leakage_free,7,8,0.1343,,AnyHealthcare|BMI|CholCheck|Education|Fruits|HighBP|HighChol|Stroke,0.3592
+leakage_free,8,8,0.131,,Age|BMI|Fruits|HighBP|HvyAlcoholConsump|PhysActivity|Smoker|Stroke,0.3477

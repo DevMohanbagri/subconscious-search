@@ -1,0 +1,70 @@
+
+===== bbob_dim20.jsonl (24 funcs x 3 inst, budget=20000) =====
+--- FIXED-BUDGET mean precision per func (lower better) ---
+func       Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+f1       3.013e-12   3.316e-14   3.316e-14      0.2385   1.433e-11       66.25
+f2       1.421e-14   2.842e-14   2.842e-14       299.2      0.1687   6.737e+05
+f3           12.27       39.93       25.28         145       1.327       380.4
+f4           22.22       60.69       23.88       153.6        12.6       578.9
+f5               0   4.382e-14   4.382e-14       47.91           0       176.2
+f6        0.002717   1.138e-12   1.138e-12       57.99        0.29   9.106e+04
+f7           3.665       3.716       1.753       19.73       31.01       248.1
+f8        0.001182   5.684e-14   5.684e-14       143.1   9.238e-06   3.945e+04
+f9        0.003268       2.658       2.658       198.5   2.402e-05   2.642e+04
+f10          227.3       15.58       15.58   1.149e+05       288.4   4.925e+05
+f11          9.629    0.001253    0.001253       107.5       1.125       134.3
+f12          2.166     0.06201     0.06201   2.537e+05   0.0009113   7.721e+07
+f13         0.1619       0.101     0.06953       160.7       1.508        1469
+f14      0.0001809    3.45e-11    3.45e-11      0.3258   5.839e-05       16.73
+f15          24.27       20.56       16.91       153.9       205.6       431.4
+f16          1.192       1.008       1.008       17.08       16.35        21.5
+f17        0.07497      0.0852      0.0117       1.725       3.924       8.461
+f18         0.1949       1.496      0.2208       6.422       12.83       34.97
+f19          1.952       3.847       3.847       5.793       4.206       11.93
+f20          1.135       1.662       1.537       2.788      0.7238        9142
+f21          5.503       6.413       2.997       11.95       1.906       64.93
+f22          18.71       1.534       1.534       8.571       3.797       67.83
+f23          1.439        2.55       2.464       2.644       1.013       2.453
+f24          54.93       74.98       71.59       156.9       190.3       348.5
+--- FIXED-BUDGET mean rank + #best ---
+Bicameral    rank=2.54  best-on=5/24
+CMA-ES     rank=2.38  best-on=8/24
+BIPOP      rank=2.33  best-on=4/24
+DiffEvol   rank=4.79  best-on=0/24
+DualAnneal rank=3.08  best-on=7/24
+RandSearch rank=5.88  best-on=0/24
+--- FIXED-BUDGET mean rank by group ---
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+separable           1.80        2.80        3.00        5.00        2.40        6.00
+low-cond            2.75        2.00        2.25        4.75        3.25        6.00
+high-cond           3.60        1.40        2.00        5.00        3.00        6.00
+multi-strong        2.00        2.20        1.80        4.40        4.60        6.00
+multi-weak          2.60        3.40        2.60        4.80        2.20        5.40
+--- WILCOXON vs Bicameral on mean precision (paired by func) ---
+Bicameral vs CMA-ES: W=134 p=0.3317 wins=13/24 -> not significant
+Bicameral vs BIPOP: W=179 p=0.7969 wins=10/24 -> not significant
+Bicameral vs DiffEvol: W=9 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs DualAnneal: W=109 p=0.1889 wins=12/24 -> not significant
+Bicameral vs RandSearch: W=0 p=0.0000 wins=24/24 -> SIGNIFICANTLY BETTER
+--- FIXED-TARGET fraction of (run,target) pairs solved ---
+method     solved/total    frac ECDF@0.1  ECDF@0.3  ECDF@1.0
+Bicameral      1476/3672    40.2%     15.4%     23.0%     40.2%
+CMA-ES       1635/3672    44.5%     14.1%     23.7%     44.5%
+BIPOP        1683/3672    45.8%     14.1%     23.7%     45.8%
+DiffEvol      277/3672     7.5%      2.9%      4.0%      7.5%
+DualAnneal   1183/3672    32.2%     21.6%     27.6%     32.2%
+RandSearch    104/3672     2.8%      2.4%      2.7%      2.8%
+--- FIXED-TARGET solved fraction by group ---
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch
+separable          70.2%       61.7%       62.6%        6.1%       56.3%        0.5%
+low-cond           49.5%       64.5%       65.0%        3.3%       49.2%        0.0%
+high-cond          47.2%       66.5%       66.7%        5.5%       33.7%        1.8%
+multi-strong       22.6%       19.3%       23.9%       10.7%        9.7%        6.9%
+multi-weak         13.3%       14.5%       14.8%       11.2%       15.6%        4.3%
+--- WALL TIME per method ---
+Bicameral    278.6s total
+CMA-ES     108.7s total
+BIPOP      166.4s total
+DiffEvol   20.3s total
+DualAnneal 35.6s total
+RandSearch 9.8s total

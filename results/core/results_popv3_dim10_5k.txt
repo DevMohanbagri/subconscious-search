@@ -1,0 +1,51 @@
+Bicameral v3 — Full-CMA + Population + IPOP + terminal hopping (local=on)
+
+=== sphere (dim=10, evals=5000, runs=5) ===
+  run 1: loss=7.1479e-28 acc=100.00% improv=100.00% time=1.34s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 2: loss=1.15975e-27 acc=100.00% improv=100.00% time=1.32s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 3: loss=1.00641e-27 acc=100.00% improv=100.00% time=1.31s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 4: loss=1.08302e-27 acc=100.00% improv=100.00% time=1.43s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 5: loss=1.23163e-27 acc=100.00% improv=100.00% time=1.31s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  -> mean loss 1.03912e-27 | mean acc 100.00% | success 100%
+
+=== rastrigin (dim=10, evals=5000, runs=5) ===
+  run 1: loss=1.98992 acc=33.45% improv=98.38% time=0.70s (gens=210 restarts=2 bh_phase=True sub=0.03 ls=0.49)
+  run 2: loss=2.84217e-14 acc=100.00% improv=100.00% time=0.39s (gens=90 restarts=2 bh_phase=True sub=0.02 ls=0.74)
+  run 3: loss=0.994959 acc=50.13% improv=99.14% time=0.64s (gens=180 restarts=2 bh_phase=True sub=0.03 ls=0.55)
+  run 4: loss=0.994959 acc=50.13% improv=99.22% time=0.79s (gens=240 restarts=2 bh_phase=True sub=0.03 ls=0.43)
+  run 5: loss=4.9748 acc=16.74% improv=95.76% time=0.63s (gens=180 restarts=2 bh_phase=True sub=0.03 ls=0.55)
+  -> mean loss 1.79093 | mean acc 50.09% | success 60%
+
+=== rosenbrock (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.0573426 acc=94.58% improv=100.00% time=1.37s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 2: loss=0.124382 acc=88.94% improv=100.00% time=1.39s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 3: loss=0.00329397 acc=99.67% improv=100.00% time=1.41s (gens=482 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 4: loss=9.14375e-05 acc=99.99% improv=100.00% time=1.41s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 5: loss=5.15377e-08 acc=100.00% improv=100.00% time=1.36s (gens=482 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  -> mean loss 0.0370221 | mean acc 96.64% | success 100%
+
+=== ackley (dim=10, evals=5000, runs=5) ===
+  run 1: loss=5.01821e-14 acc=100.00% improv=100.00% time=1.35s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 2: loss=4.66294e-14 acc=100.00% improv=100.00% time=1.35s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 3: loss=3.95239e-14 acc=100.00% improv=100.00% time=1.35s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 4: loss=3.59712e-14 acc=100.00% improv=100.00% time=1.36s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 5: loss=4.66294e-14 acc=100.00% improv=100.00% time=1.36s (gens=482 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  -> mean loss 4.37872e-14 | mean acc 100.00% | success 100%
+
+=== griewank (dim=10, evals=5000, runs=5) ===
+  run 1: loss=0.0196777 acc=98.07% improv=97.96% time=0.72s (gens=210 restarts=2 bh_phase=True sub=0.03 ls=0.48)
+  run 2: loss=0 acc=100.00% improv=100.00% time=1.57s (gens=483 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  run 3: loss=0.00985728 acc=99.02% improv=99.04% time=0.65s (gens=180 restarts=2 bh_phase=True sub=0.03 ls=0.55)
+  run 4: loss=0.00739604 acc=99.27% improv=99.29% time=0.75s (gens=210 restarts=2 bh_phase=True sub=0.03 ls=0.49)
+  run 5: loss=0 acc=100.00% improv=100.00% time=1.56s (gens=484 restarts=0 bh_phase=False sub=0.03 ls=0.00)
+  -> mean loss 0.00738621 | mean acc 99.27% | success 80%
+
+Total wall time: 28.8s
+
+================ SUMMARY (mean accuracy %) ================
+sphere     acc=100.00%±0.00 (best run 100.00%) loss=1.039e-27 success=100%
+rastrigin  acc= 50.09%±27.86 (best run 100.00%) loss=1.791 success=60%
+rosenbrock acc= 96.64%±4.37 (best run 100.00%) loss=0.03702 success=100%
+ackley     acc=100.00%±0.00 (best run 100.00%) loss=4.379e-14 success=100%
+griewank   acc= 99.27%±0.72 (best run 100.00%) loss=0.007386 success=80%
+===========================================================

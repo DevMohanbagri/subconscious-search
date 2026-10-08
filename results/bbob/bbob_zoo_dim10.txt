@@ -1,0 +1,106 @@
+
+===== bbob_dim10.jsonl (24 funcs x 5 inst, budget=10000) =====
+--- FIXED-BUDGET mean precision per func (lower better) ---
+func       Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch         PSO          GA         GWO         WOA         ABC       SHADE         FOX         HBA         TSO
+f1        7.56e-13   7.105e-15   7.105e-15   0.0009258   2.912e-12       12.36   3.146e-10     0.01293     0.01285      0.1324     0.02694   1.554e-06       23.69     0.00311      0.1016
+f2       3.023e-05   8.527e-15   8.527e-15      0.8274   0.0008088   4.401e+04   8.263e-08        1113        1165         655       31.24     0.01497    5.05e+05       10.89        4142
+f3           3.582       14.73       9.976       32.64       0.597       125.9       21.21        5.36       33.02       66.46       51.38       16.87       155.2       26.56       39.03
+f4           5.373       21.69       11.34       38.25       0.597         163       21.58       6.472       21.74       108.4       61.99       21.18       222.4       30.73       60.93
+f5           1.695     2.7e-14   4.263e-15        4.79           0       57.23       9.471       2.742       1.306       5.565    0.006432           0       74.63           0           0
+f6        0.000314   3.915e-13   3.915e-13       4.431     0.00296        3075       3.618        12.4       1.785       64.28       19.88      0.2369   3.876e+04       1.029       10.02
+f7          0.4415       1.131     0.07627       1.003       9.009       48.53       2.218       8.904       2.303       27.77       7.298      0.2137       136.2       10.58       6.714
+f8       9.419e-10   4.263e-15   4.263e-15       6.891   7.646e-06        2405       15.66       24.07       22.81       33.11       53.83        6.26        5826       31.45        23.6
+f9        0.002163   1.563e-14   1.563e-14       8.826   5.659e-09        2903       71.49       41.55       7.398       94.44       37.95       6.907       58.38       5.473       8.361
+f10      5.622e-05   2.132e-14   2.132e-14        8098       8.012   8.223e+04        6971   1.676e+04        4694   1.947e+04   1.584e+04        3523   3.443e+05        9130        9132
+f11        0.02827   1.172e-14   1.172e-14       29.34     0.01641       71.55       34.39       99.25       32.77       41.39       74.78        32.1       843.5       28.01       38.04
+f12        0.08273      0.2027      0.2027        4328    0.004949   1.052e+07       5.358   2.254e+04        4932   1.755e+04   1.004e+05       529.8   2.718e+07        2052   6.005e+04
+f13        0.04398   1.122e-08   1.122e-08       19.74       13.77         652       3.943       39.56       25.16       91.71       106.2        5.49       866.9       37.89       71.44
+f14      1.509e-05   5.745e-12   5.745e-12    0.009656   2.768e-05       4.537    0.000541     0.03506     0.03076      0.8015      0.1137    0.001858        9.47     0.02229     0.07458
+f15          13.33       11.94       5.283       37.11       52.18       136.6       38.82       39.67       32.84       82.36       56.41       35.39       156.7       29.72       49.83
+f16         0.3756       1.802       1.798       10.75       7.747       11.52       3.527       7.578       4.061       5.083       10.32       10.04       22.19       3.562       5.936
+f17        0.05452      0.1328      0.0458      0.2965       2.075       4.942       1.268       1.184      0.1629       4.456       1.714      0.1639       7.101       1.501       1.771
+f18         0.1661      0.2562       0.102       1.379       8.606       16.33       5.862        4.93       1.142       11.51       6.366      0.8511       22.56        5.68       3.357
+f19         0.3387       1.214       1.058       2.967       1.864       7.727       2.687       3.681       2.129       2.526       4.047       2.842      0.2504       1.622      0.2115
+f20          1.524       1.745       1.248       2.036      0.9709       551.9       1.321      0.9554       1.253       2.219       2.356       1.647        2334       1.317       2.126
+f21          1.801       1.812       1.718       4.259       1.507       16.08      0.7873       4.626       1.528       4.365       7.527       0.358       43.14        1.39       1.403
+f22          5.187        5.01       3.694       3.413       1.186       19.29       2.135       4.189       6.676       12.05       6.032       2.294       61.47       10.57       1.359
+f23          1.133       1.617       1.509        1.36      0.9242       1.672       1.501       1.583       1.499       1.047       1.666       1.609       2.285       1.752       1.682
+f24          21.06        24.8       20.18       63.83       43.41       112.9       56.12       63.28        44.2       58.04       72.07       50.17       89.82       62.25       55.46
+--- FIXED-BUDGET mean rank + #best ---
+Bicameral    rank=3.67  best-on=1/24
+CMA-ES     rank=3.75  best-on=9/24
+BIPOP      rank=2.88  best-on=5/24
+DiffEvol   rank=8.04  best-on=0/24
+DualAnneal rank=4.88  best-on=6/24
+RandSearch rank=13.96  best-on=0/24
+PSO        rank=6.79  best-on=0/24
+GA         rank=9.21  best-on=1/24
+GWO        rank=7.29  best-on=0/24
+WOA        rank=11.42  best-on=0/24
+ABC        rank=11.50  best-on=0/24
+SHADE      rank=5.71  best-on=1/24
+FOX        rank=14.29  best-on=0/24
+HBA        rank=7.71  best-on=0/24
+TSO        rank=8.92  best-on=1/24
+--- FIXED-BUDGET mean rank by group ---
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch         PSO          GA         GWO         WOA         ABC       SHADE         FOX         HBA         TSO
+separable           4.00        4.00        3.40        8.80        2.40       14.00        6.80        7.40        9.40       12.20       10.20        5.00       15.00        7.20       10.20
+low-cond            3.25        2.00        1.75        7.00        5.50       14.25        8.50       10.50        7.25       13.00       11.00        4.50       14.25        8.50        8.75
+high-cond           3.00        1.40        2.40        7.20        3.60       13.60        6.00       11.40        8.00       11.80       12.40        5.80       15.00        7.60       10.80
+multi-strong        2.20        3.20        1.80        8.80       10.40       14.20        8.00        9.20        5.60       11.00       11.80        7.40       12.40        6.60        7.40
+multi-weak          5.80        7.80        4.80        8.20        2.60       13.80        5.00        7.80        6.20        9.40       12.00        5.60       14.80        8.80        7.40
+--- WILCOXON vs Bicameral on mean precision (paired by func) ---
+Bicameral vs CMA-ES: W=101 p=0.0844 wins=12/24 -> not significant
+Bicameral vs BIPOP: W=190 p=0.8739 wins=6/24 -> not significant
+Bicameral vs DiffEvol: W=9 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs DualAnneal: W=111 p=0.1384 wins=14/24 -> not significant
+Bicameral vs RandSearch: W=0 p=0.0000 wins=24/24 -> SIGNIFICANTLY BETTER
+Bicameral vs PSO: W=22 p=0.0000 wins=20/24 -> SIGNIFICANTLY BETTER
+Bicameral vs GA: W=9 p=0.0000 wins=22/24 -> SIGNIFICANTLY BETTER
+Bicameral vs GWO: W=16 p=0.0000 wins=21/24 -> SIGNIFICANTLY BETTER
+Bicameral vs WOA: W=1 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs ABC: W=7 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs SHADE: W=40 p=0.0005 wins=20/24 -> SIGNIFICANTLY BETTER
+Bicameral vs FOX: W=1 p=0.0000 wins=23/24 -> SIGNIFICANTLY BETTER
+Bicameral vs HBA: W=16 p=0.0000 wins=21/24 -> SIGNIFICANTLY BETTER
+Bicameral vs TSO: W=24 p=0.0000 wins=20/24 -> SIGNIFICANTLY BETTER
+--- FIXED-TARGET fraction of (run,target) pairs solved ---
+method     solved/total    frac ECDF@0.1  ECDF@0.3  ECDF@1.0
+Bicameral      3085/6120    50.4%     17.7%     31.5%     50.4%
+CMA-ES       3402/6120    55.6%     17.1%     32.2%     55.6%
+BIPOP        3660/6120    59.8%     17.1%     33.0%     59.8%
+DiffEvol      932/6120    15.2%      5.0%      8.2%     15.2%
+DualAnneal   2498/6120    40.8%     27.8%     34.0%     40.8%
+RandSearch    300/6120     4.9%      3.8%      4.4%      4.9%
+PSO          1450/6120    23.7%      6.7%     12.3%     23.7%
+GA            785/6120    12.8%      7.9%     10.1%     12.8%
+GWO          1079/6120    17.6%      8.4%     12.4%     17.6%
+WOA           796/6120    13.0%      7.2%     11.0%     13.0%
+ABC           736/6120    12.0%      4.3%      7.0%     12.0%
+SHADE        1415/6120    23.1%      5.9%     10.7%     23.1%
+FOX           279/6120     4.6%      4.5%      4.5%      4.6%
+HBA          1107/6120    18.1%      9.8%     14.1%     18.1%
+TSO           986/6120    16.1%      7.2%     10.8%     16.1%
+--- FIXED-TARGET solved fraction by group ---
+group            Bicameral      CMA-ES       BIPOP    DiffEvol  DualAnneal  RandSearch         PSO          GA         GWO         WOA         ABC       SHADE         FOX         HBA         TSO
+separable          68.0%       63.6%       64.3%       19.8%       73.3%        2.7%       44.3%       16.6%       25.0%       23.6%       20.5%       46.6%        2.1%       34.2%       27.8%
+low-cond           72.8%       80.2%       96.3%       14.8%       62.8%        1.2%       13.7%        9.8%       14.8%        6.3%        7.5%       19.9%        1.0%       14.3%       10.8%
+high-cond          70.3%       93.3%       93.3%       11.0%       38.0%        3.3%       20.9%        8.2%       11.0%        6.7%        6.6%       13.4%        2.6%       10.0%        8.0%
+multi-strong       26.0%       23.9%       29.5%       15.6%       12.7%        9.1%       14.5%       13.7%       18.5%       11.7%       12.0%       16.4%       11.0%       15.3%       16.0%
+multi-weak         19.4%       21.8%       22.9%       14.9%       21.6%        7.5%       23.0%       15.1%       18.3%       15.5%       12.7%       18.7%        5.4%       15.8%       16.9%
+--- WALL TIME per method ---
+Bicameral    244.4s total
+CMA-ES     71.7s total
+BIPOP      120.1s total
+DiffEvol   13.6s total
+DualAnneal 29.5s total
+RandSearch 6.5s total
+PSO        66.0s total
+GA         133.8s total
+GWO        66.3s total
+WOA        50.0s total
+ABC        165.4s total
+SHADE      210.2s total
+FOX        26.8s total
+HBA        62.6s total
+TSO        42.7s total

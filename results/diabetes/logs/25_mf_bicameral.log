@@ -1,0 +1,62 @@
+P_SOURCE=pilot:HGB-raw seed=42 budget=80
+HGB fit+predict: 5s  val PR-AUC(P)=0.4458
+folds A/B: 17210/17211 (== 18's future rows: StratifiedKFold depends on y only)
+rules: 18 (v1, FIXED -- refinement is M3's)
+default fold A: catch fuzzy 0.534 vs P 0.541 | tiers [0.0544, 0.1499, 0.3205, 0.4812] viol=0 empty=0 | PR-AUC fuzzy 0.4259 vs P 0.4363
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+[bicameral] evals=80 time=4s objective(A)=0.5376 gens=5
+tuned   fold A: catch fuzzy 0.538 vs P 0.541 | tiers [0.0505, 0.1888, 0.397, 0.4433] viol=0 empty=0 | PR-AUC fuzzy 0.4108 vs P 0.4363
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user/diabetes-project/25_mf_bicameral.py:92: RuntimeWarning: Mean of empty slice
+  obs = np.array([yy[t == i].mean() for i in range(4)])
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+random  fold A: catch fuzzy 0.533 vs P 0.541 | tiers [0.0635, 0.1835, 0.3941, 0.4729] viol=0 empty=0 | PR-AUC fuzzy 0.4151 vs P 0.4363
+--- fold B (confirmation) ---
+default fold B: catch fuzzy 0.546 vs P 0.549 | tiers [0.0514, 0.1501, 0.3397, 0.469] viol=0 empty=0 | PR-AUC fuzzy 0.4395 vs P 0.4565
+tuned   fold B: catch fuzzy 0.544 vs P 0.549 | tiers [0.0485, 0.1888, 0.4132, 0.4331] viol=0 empty=0 | PR-AUC fuzzy 0.4194 vs P 0.4565
+random  fold B: catch fuzzy 0.547 vs P 0.549 | tiers [0.0602, 0.1811, 0.4149, 0.4707] viol=0 empty=0 | PR-AUC fuzzy 0.4297 vs P 0.4565
+
+default cuts: [0.06, 0.1, 0.2, 0.3, 0.4, 0.5]
+tuned   cuts: [0.058, 0.234, 0.281, 0.301, 0.662, 0.853]
+B verdict: dCatch(tuned-default)=-0.002 dCatch(random-default)=+0.001
+
+Done in 0.2 min. Test sealed.

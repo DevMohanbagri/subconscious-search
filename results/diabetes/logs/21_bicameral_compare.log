@@ -1,0 +1,66 @@
+frozen data: hash fc3774b0bdf6... train/val = 160631/34421 (test structurally withheld: True)
+
+=== all_21 (21 features) ===
+PR-AUC baseline (prevalence): 0.1529
+majority-class accuracy:      0.8471   <- the accuracy trap
+
+[A-all_21] sklearn LR refit (anchor; registry says 0.4191)
+  logreg refit (LBFGS)           PR-AUC 0.4191  ROC-AUC 0.8126  Brier 0.1838  acc  71.72%  0.5s
+
+[A-all_21] Bicameral-direct: 22-D LR weights on train balanced log-loss (2000 evals)
+    train loss=0.53355 gens=146 restarts=0 bh=False time=8.5s
+  Bicameral-direct (LR w)        PR-AUC 0.4194  ROC-AUC 0.8126  Brier 0.1842  acc  71.69%  8.5s
+
+=== leakage_free (18 features) ===
+PR-AUC baseline (prevalence): 0.1529
+majority-class accuracy:      0.8471   <- the accuracy trap
+
+[A-leakage_free] sklearn LR refit (anchor; registry says 0.3906)
+  logreg refit (LBFGS)           PR-AUC 0.3906  ROC-AUC 0.7940  Brier 0.1914  acc  69.98%  0.4s
+
+[A-leakage_free] Bicameral-direct: 19-D LR weights on train balanced log-loss (2000 evals)
+    train loss=0.55428 gens=158 restarts=0 bh=False time=8.2s
+  Bicameral-direct (LR w)        PR-AUC 0.3901  ROC-AUC 0.7938  Brier 0.1921  acc  69.86%  8.2s
+
+[B-all_21] sklearn RF refit (anchor; registry says 0.4426)
+  randforest refit (300)         PR-AUC 0.4426  ROC-AUC 0.8176  Brier 0.1760  acc  72.17%  18.4s
+
+[B-all_21] HPO on HGB: Bicameral vs RandomSearch (108 evals each, val log-loss; fit on train)
+    Bicameral best val=0.33545 params={'lr': 0.12636751408832886, 'depth': 4, 'leaf': 15, 'l2': 0.8760753157445755} time=1547.0s
+  Bicameral-HPO (hgb)            PR-AUC 0.4479  ROC-AUC 0.8199  Brier 0.1046  acc  85.52%  1547.0s
+    RS  best val=0.33533 params={'lr': 0.16022698522949785, 'depth': 3, 'leaf': 1, 'l2': 11.888673275129037} time=1006.4s
+  randsearch-HPO (hgb)           PR-AUC 0.4473  ROC-AUC 0.8204  Brier 0.1046  acc  85.56%  1006.4s
+
+================ VAL (PR-AUC / ROC-AUC / Brier / acc) ================
+  lr_all_21          PR-AUC 0.4191  ROC-AUC 0.8126  Brier 0.1838  acc  71.72%
+  direct_all_21      PR-AUC 0.4194  ROC-AUC 0.8126  Brier 0.1842  acc  71.69%
+  rf_all_21          PR-AUC 0.4426  ROC-AUC 0.8176  Brier 0.1760  acc  72.17%
+  hpo_rs             PR-AUC 0.4473  ROC-AUC 0.8204  Brier 0.1046  acc  85.56%
+  hpo_bic            PR-AUC 0.4479  ROC-AUC 0.8199  Brier 0.1046  acc  85.52%
+  lr_leakage_free    PR-AUC 0.3906  ROC-AUC 0.7940  Brier 0.1914  acc  69.98%
+  direct_leakage_free PR-AUC 0.3901  ROC-AUC 0.7938  Brier 0.1921  acc  69.86%
+======================================================================
+
+[C] paired stats on VAL (DeLong ROC-AUC, McNemar acc, paired-bootstrap dPR-AUC, bootstrap CIs)
+  Bicameral-direct vs LR (all_21: can Bicameral train?)
+    DeLong ROC: z=-0.26 p=0.7986 n.s. | McNemar acc: b=56 c=67 p=0.3673 n.s.
+    dPR-AUC 95% CI: [-0.0000,+0.0006] (includes 0)
+    CI direct_all_21: pr [0.4060,0.4335] roc [0.8072,0.8183] acc [71.21,72.13]
+    CI lr_all_21: pr [0.4057,0.4331] roc [0.8073,0.8183] acc [71.24,72.16]
+  Bicameral-direct vs LR (leakage_free)
+    DeLong ROC: z=-3.54 p=0.0004 SIG | McNemar acc: b=41 c=80 p=0.0005 SIG
+    dPR-AUC 95% CI: [-0.0007,-0.0002] (excludes 0)
+    CI direct_leakage_free: pr [0.3781,0.4036] roc [0.7882,0.7994] acc [69.38,70.36]
+    CI lr_leakage_free: pr [0.3784,0.4040] roc [0.7883,0.7996] acc [69.51,70.49]
+  Bicameral-HPO vs randsearch-HPO (same budget)
+    DeLong ROC: z=-1.42 p=0.1548 n.s. | McNemar acc: b=116 c=130 p=0.4072 n.s.
+    dPR-AUC 95% CI: [-0.0013,+0.0024] (includes 0)
+    CI hpo_bic: pr [0.4336,0.4620] roc [0.8147,0.8254] acc [85.13,85.87]
+    CI hpo_rs: pr [0.4328,0.4612] roc [0.8151,0.8259] acc [85.18,85.92]
+  Bicameral-HPO vs project RF (tuning value?)
+    DeLong ROC: z=+3.64 p=0.0003 SIG | McNemar acc: b=7749 c=3151 p=0.0000 SIG
+    dPR-AUC 95% CI: [+0.0015,+0.0097] (excludes 0)
+    CI hpo_bic: pr [0.4336,0.4620] roc [0.8147,0.8254] acc [85.13,85.87]
+    CI rf_all_21: pr [0.4288,0.4565] roc [0.8123,0.8233] acc [71.69,72.62]
+
+Done. Test split was never touched. Registry appended with 4 new rows.

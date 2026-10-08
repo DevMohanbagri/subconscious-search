@@ -1,0 +1,55 @@
+{
+  "all_21": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "DiffWalk",
+      "Education",
+      "Fruits",
+      "GenHlth",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "PhysActivity",
+      "PhysHlth",
+      "Sex",
+      "Smoker",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 21,
+    "source": "data_io.features",
+    "saved": "2026-10-06"
+  },
+  "leakage_free": {
+    "features": [
+      "Age",
+      "AnyHealthcare",
+      "BMI",
+      "CholCheck",
+      "Education",
+      "Fruits",
+      "HeartDiseaseorAttack",
+      "HighBP",
+      "HighChol",
+      "HvyAlcoholConsump",
+      "Income",
+      "MentHlth",
+      "NoDocbcCost",
+      "PhysActivity",
+      "Sex",
+      "Smoker",
+      "Stroke",
+      "Veggies"
+    ],
+    "k": 18,
+    "source": "data_io.features(drop_leakage=True)",
+    "saved": "2026-10-06"
+  }
+}

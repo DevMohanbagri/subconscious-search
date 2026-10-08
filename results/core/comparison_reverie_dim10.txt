@@ -1,0 +1,64 @@
+Comparison: suite=core dim=10, budget=5000 evals, 5 runs per method/function
+
+=== sphere ===
+  Bicameral    acc=100.00% loss=1.039e-27 success=100% time=1.0s
+  Bicameral-Reverie  acc=100.00% loss=1.341e-27 success=100% time=3.0s
+  CMA-ES     acc=100.00% loss=1.041e-14 success=100% time=0.1s
+  DiffEvol   acc= 92.26% loss=0.08446 success=0% time=0.0s
+  DualAnneal acc=100.00% loss=1.599e-13 success=100% time=0.1s
+  RandSearch acc=  6.02% loss=15.88 success=0% time=0.0s
+
+=== rastrigin ===
+  Bicameral    acc= 50.09% loss=1.791 success=60% time=0.3s
+  Bicameral-Reverie  acc= 55.72% loss=1.791 success=40% time=0.9s
+  CMA-ES     acc=  7.51% loss=13.33 success=0% time=0.2s
+  DiffEvol   acc=  2.27% loss=43.31 success=0% time=0.0s
+  DualAnneal acc= 76.71% loss=0.597 success=80% time=0.1s
+  RandSearch acc=  1.33% loss=74.76 success=0% time=0.0s
+
+=== rosenbrock ===
+  Bicameral    acc= 96.64% loss=0.03702 success=100% time=0.7s
+  Bicameral-Reverie  acc= 83.76% loss=0.8023 success=80% time=3.0s
+  CMA-ES     acc= 83.62% loss=0.8013 success=80% time=0.4s
+  DiffEvol   acc=  2.88% loss=37.38 success=0% time=0.0s
+  DualAnneal acc= 84.01% loss=0.7973 success=80% time=0.1s
+  RandSearch acc=  0.04% loss=3467 success=0% time=0.0s
+
+=== ackley ===
+  Bicameral    acc=100.00% loss=4.379e-14 success=100% time=0.8s
+  Bicameral-Reverie  acc=100.00% loss=4.379e-14 success=100% time=2.7s
+  CMA-ES     acc=100.00% loss=1.919e-11 success=100% time=0.2s
+  DiffEvol   acc= 38.40% loss=1.695 success=0% time=0.0s
+  DualAnneal acc=100.00% loss=1.942e-08 success=100% time=0.1s
+  RandSearch acc= 10.82% loss=8.255 success=0% time=0.0s
+
+=== griewank ===
+  Bicameral    acc= 99.27% loss=0.007386 success=80% time=0.5s
+  Bicameral-Reverie  acc= 98.83% loss=0.01183 success=60% time=1.1s
+  CMA-ES     acc= 99.04% loss=0.009853 success=60% time=0.3s
+  DiffEvol   acc= 66.72% loss=0.5035 success=0% time=0.1s
+  DualAnneal acc= 95.60% loss=0.04625 success=0% time=0.1s
+  RandSearch acc= 66.22% loss=0.5158 success=0% time=0.0s
+
+================ MEAN ACCURACY % (higher better) ================
+function         Bicameral   Bicameral-Reverie      CMA-ES    DiffEvol  DualAnneal  RandSearch
+sphere           100.00%     100.00%     100.00%      92.26%     100.00%       6.02%
+rastrigin         50.09%      55.72%       7.51%       2.27%      76.71%       1.33%
+rosenbrock        96.64%      83.76%      83.62%       2.88%      84.01%       0.04%
+ackley           100.00%     100.00%     100.00%      38.40%     100.00%      10.82%
+griewank          99.27%      98.83%      99.04%      66.72%      95.60%      66.22%
+------------------------------------------------------------------------------------
+MEAN              89.20%      87.66%      78.03%      40.51%      91.26%      16.89%
+MEAN RANK           1.40        2.40        3.20        5.00        3.00        6.00
+====================================================================================
+
+================ MEAN LOSS (lower better) =======================
+function         Bicameral   Bicameral-Reverie      CMA-ES    DiffEvol  DualAnneal  RandSearch
+sphere         1.039e-27   1.341e-27   1.041e-14     0.08446   1.599e-13       15.88
+rastrigin          1.791       1.791       13.33       43.31       0.597       74.76
+rosenbrock       0.03702      0.8023      0.8013       37.38      0.7973        3467
+ackley         4.379e-14   4.379e-14   1.919e-11       1.695   1.942e-08       8.255
+griewank        0.007386     0.01183    0.009853      0.5035     0.04625      0.5158
+====================================================================================
+
+Total wall time: 80.4s

@@ -1,0 +1,124 @@
+pools=all_21,leakage_free seed=42 budget=80 train/val=160631/34421 prevalence=0.1529
+[all_21] restored 1678 cached subset evals
+[bicameral|all_21] per-k runs, budget=80/target
+  target k= 1: got k= 9 pr_cheap=0.4229
+  target k= 2: got k= 6 pr_cheap=0.4148
+  target k= 3: got k= 9 pr_cheap=0.4343
+  target k= 4: got k= 9 pr_cheap=0.4335
+  target k= 5: got k= 5 pr_cheap=0.3987
+  target k= 6: got k= 6 pr_cheap=0.4169
+  target k= 8: got k= 9 pr_cheap=0.4186
+  target k=10: got k=11 pr_cheap=0.4317
+  target k=13: got k=14 pr_cheap=0.4394
+  target k=16: got k=15 pr_cheap=0.4409
+  target k=21: got k=17 pr_cheap=0.4266
+  true fits: 0  time: 0s
+[nsga2|all_21] one run, total evals=880
+  true fits: 0  time: 0s
+[random|all_21] 400 uniform subsets
+  true fits: 0  time: 0s
+[all_21|bicameral] front size=12 hv_cheap=5.2445 true_fits=0
+[all_21|nsga2] front size=12 hv_cheap=5.6064 true_fits=0
+[all_21|random] front size=12 hv_cheap=5.4269 true_fits=0
+[all_21] proper re-eval of 35 unique front subsets
+  randpareto_k1                cheap=0.2748 lgbm=0.2748 lr=0.2748
+  bicpareto_k2                 cheap=0.2794 lgbm=0.2794 lr=0.2794
+  nsga2pareto_k2               cheap=0.3508 lgbm=0.3481 lr=0.3384
+  nsga2pareto_k3               cheap=0.3935 lgbm=0.3481 lr=0.3694
+  bicpareto_k4                 cheap=0.3607 lgbm=0.3602 lr=0.3453
+  nsga2pareto_k4               cheap=0.4147 lgbm=0.4098 lr=0.3910
+  randpareto_k4                cheap=0.3740 lgbm=0.3767 lr=0.3621
+  bicpareto_k5                 cheap=0.3987 lgbm=0.3966 lr=0.3843
+  nsga2pareto_k5               cheap=0.4283 lgbm=0.4187 lr=0.4086
+  bicpareto_k6                 cheap=0.4169 lgbm=0.4065 lr=0.3950
+  nsga2pareto_k6               cheap=0.4321 lgbm=0.4172 lr=0.4115
+  randpareto_k6                cheap=0.3891 lgbm=0.3805 lr=0.3658
+  bicpareto_k7                 cheap=0.4180 lgbm=0.4061 lr=0.4095
+  nsga2pareto_k7               cheap=0.4353 lgbm=0.4187 lr=0.4129
+  randpareto_k7                cheap=0.4160 lgbm=0.4060 lr=0.3958
+  bicpareto_k8                 cheap=0.4239 lgbm=0.4083 lr=0.3968
+  nsga2pareto_k8               cheap=0.4373 lgbm=0.4254 lr=0.4154
+  bicpareto_k9                 cheap=0.4343 lgbm=0.4178 lr=0.4140
+  nsga2pareto_k9               cheap=0.4391 lgbm=0.4220 lr=0.4171
+  nsga2pareto_k10              cheap=0.4417 lgbm=0.4222 lr=0.4183
+  randpareto_k10               cheap=0.4215 lgbm=0.4110 lr=0.3960
+  bicpareto_k11                cheap=0.4353 lgbm=0.4187 lr=0.4132
+  nsga2pareto_k11              cheap=0.4423 lgbm=0.4174 lr=0.4203
+  randpareto_k11               cheap=0.4255 lgbm=0.4074 lr=0.4148
+  bicpareto_k12                cheap=0.4388 lgbm=0.4201 lr=0.4168
+  nsga2pareto_k12              cheap=0.4432 lgbm=0.4198 lr=0.4207
+  randpareto_k12               cheap=0.4377 lgbm=0.4174 lr=0.4160
+  nsga2pareto_k13              cheap=0.4452 lgbm=0.4215 lr=0.4213
+  randpareto_k13               cheap=0.4409 lgbm=0.4193 lr=0.4187
+  bicpareto_k14                cheap=0.4394 lgbm=0.4211 lr=0.4149
+  randpareto_k14               cheap=0.4418 lgbm=0.4218 lr=0.4174
+  bicpareto_k15                cheap=0.4435 lgbm=0.4213 lr=0.4200
+  bicpareto_k17                cheap=0.4437 lgbm=0.4148 lr=0.4208
+  randpareto_k17               cheap=0.4443 lgbm=0.4142 lr=0.4209
+  randpareto_k18               cheap=0.4454 lgbm=0.4221 lr=0.4204
+[all_21] matched k=5 (LGBM-med P): bic=0.3966 nsga2=0.4187 DeLong z=-12.88 p=0.0000 dPR CI [-0.0288,-0.0144]
+[bicameral|leakage_free] per-k runs, budget=80/target
+  target k= 1: got k= 9 pr_cheap=0.3977
+  target k= 2: got k= 5 pr_cheap=0.3708
+  target k= 3: got k= 7 pr_cheap=0.3925
+  target k= 4: got k= 7 pr_cheap=0.3890
+  target k= 5: got k= 7 pr_cheap=0.4041
+  target k= 6: got k= 6 pr_cheap=0.3775
+  target k= 8: got k= 8 pr_cheap=0.3971
+  target k=10: got k=10 pr_cheap=0.4013
+  target k=12: got k=12 pr_cheap=0.4137
+  target k=15: got k=14 pr_cheap=0.4037
+  target k=18: got k=12 pr_cheap=0.3991
+  true fits: 833  time: 665s
+[nsga2|leakage_free] one run, total evals=880
+  true fits: 524  time: 394s
+[random|leakage_free] 400 uniform subsets
+  true fits: 354  time: 262s
+[leakage_free|bicameral] front size=13 hv_cheap=4.0527 true_fits=833
+[leakage_free|nsga2] front size=14 hv_cheap=4.3059 true_fits=524
+[leakage_free|random] front size=11 hv_cheap=4.0738 true_fits=354
+[leakage_free] proper re-eval of 37 unique front subsets
+  bicpareto_k1_noleak          cheap=0.2280 lgbm=0.2280 lr=0.2280
+  nsga2pareto_k1_noleak        cheap=0.2546 lgbm=0.2560 lr=0.2527
+  nsga2pareto_k2_noleak        cheap=0.3220 lgbm=0.3188 lr=0.3036
+  randpareto_k2_noleak         cheap=0.3174 lgbm=0.3171 lr=0.3114
+  bicpareto_k3_noleak          cheap=0.2665 lgbm=0.2307 lr=0.2628
+  nsga2pareto_k3_noleak        cheap=0.3511 lgbm=0.2653 lr=0.3403
+  bicpareto_k4_noleak          cheap=0.3696 lgbm=0.3647 lr=0.3482
+  nsga2pareto_k4_noleak        cheap=0.3725 lgbm=0.3703 lr=0.3606
+  randpareto_k4_noleak         cheap=0.3595 lgbm=0.3577 lr=0.3471
+  bicpareto_k5_noleak          cheap=0.3708 lgbm=0.3673 lr=0.3487
+  nsga2pareto_k5_noleak        cheap=0.3900 lgbm=0.3830 lr=0.3672
+  bicpareto_k6_noleak          cheap=0.3926 lgbm=0.3852 lr=0.3694
+  nsga2pareto_k6_noleak        cheap=0.4009 lgbm=0.3941 lr=0.3771
+  randpareto_k6_noleak         cheap=0.3750 lgbm=0.3696 lr=0.3542
+  bicpareto_k7_noleak          cheap=0.4041 lgbm=0.3907 lr=0.3793
+  nsga2pareto_k7_noleak        cheap=0.4044 lgbm=0.3904 lr=0.3792
+  bicpareto_k8_noleak          cheap=0.4046 lgbm=0.3952 lr=0.3795
+  nsga2pareto_k8_noleak        cheap=0.4089 lgbm=0.3890 lr=0.3828
+  randpareto_k8_noleak         cheap=0.3839 lgbm=0.3705 lr=0.3622
+  bicpareto_k9_noleak          cheap=0.4064 lgbm=0.3972 lr=0.3840
+  nsga2pareto_k9_noleak        cheap=0.4099 lgbm=0.3945 lr=0.3845
+  randpareto_k9_noleak         cheap=0.3937 lgbm=0.3771 lr=0.3657
+  bicpareto_k10_noleak         cheap=0.4118 lgbm=0.3919 lr=0.3863
+  nsga2pareto_k10_noleak       cheap=0.4129 lgbm=0.3897 lr=0.3867
+  nsga2pareto_k11_noleak       cheap=0.4141 lgbm=0.3876 lr=0.3890
+  randpareto_k11_noleak        cheap=0.4027 lgbm=0.3859 lr=0.3802
+  bicpareto_k12_noleak         cheap=0.4137 lgbm=0.3944 lr=0.3900
+  nsga2pareto_k12_noleak       cheap=0.4148 lgbm=0.3943 lr=0.3908
+  randpareto_k12_noleak        cheap=0.4074 lgbm=0.3917 lr=0.3853
+  bicpareto_k13_noleak         cheap=0.4143 lgbm=0.3921 lr=0.3907
+  nsga2pareto_k13_noleak       cheap=0.4161 lgbm=0.3938 lr=0.3911
+  randpareto_k13_noleak        cheap=0.4101 lgbm=0.3939 lr=0.3873
+  bicpareto_k14_noleak         cheap=0.4162 lgbm=0.3939 lr=0.3923
+  nsga2pareto_k14_noleak       cheap=0.4173 lgbm=0.3936 lr=0.3913
+  bicpareto_k15_noleak         cheap=0.4167 lgbm=0.3958 lr=0.3920
+  randpareto_k15_noleak        cheap=0.4117 lgbm=0.3964 lr=0.3885
+  randpareto_k16_noleak        cheap=0.4183 lgbm=0.3985 lr=0.3925
+[leakage_free] matched k=6 (LGBM-med P): bic=0.3852 nsga2=0.3941 DeLong z=-4.19 p=0.0000 dPR CI [-0.0125,-0.0051]
+
+Nominations for 16_main_grid FEATURE_SETS (add these names):
+  all_21: knee k=2 (features: CholCheck|GenHlth) pr=0.2794
+  leakage_free: knee k=1 (features: HighBP) pr=0.2280
+
+Done in 24 min. Test sealed. Registry +144 rows.

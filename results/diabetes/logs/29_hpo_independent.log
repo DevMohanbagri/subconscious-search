@@ -1,0 +1,28 @@
+================ 50/50 (independent RS) ================
+  seed 42: bic pr=0.8013 acc=0.7557 (96s) | rs-ind pr=0.8015 acc=0.7550 (167s) | d=-0.0002
+    Bicameral determinism: got 0.8013 want 0.8013 REPRODUCED
+  seed 101: bic pr=0.8010 acc=0.7566 (85s) | rs-ind pr=0.8010 acc=0.7552 (165s) | d=+0.0000
+    Bicameral determinism: got 0.8010 want 0.8010 REPRODUCED
+  seed 202: bic pr=0.8015 acc=0.7555 (102s) | rs-ind pr=0.8010 acc=0.7549 (151s) | d=+0.0005
+    Bicameral determinism: got 0.8015 want 0.8015 REPRODUCED
+[5050 (n=3)] bic 0.8013+-0.0003 | rs 0.8012+-0.0003 | mean_d=+0.0001 Welch t=+0.45 p=0.6749 -> TIE
+
+================ friend-full (independent RS) ================
+--- all_21 ---
+  seed 42: bic pr=0.4479 (331s) | rs-ind pr=0.4468 (506s) | d=+0.0011
+    Bicameral determinism: got 0.4479 want 0.4479 REPRODUCED
+  seed 101: bic pr=0.4477 (278s) | rs-ind pr=0.4480 (484s) | d=-0.0003
+    Bicameral determinism: got 0.4477 want 0.4477 REPRODUCED
+  seed 202: bic pr=0.4483 (350s) | rs-ind pr=0.4485 (459s) | d=-0.0002
+    Bicameral determinism: got 0.4483 want 0.4483 REPRODUCED
+  seed 303: bic pr=0.4473 (293s) | rs-ind pr=0.4470 (475s) | d=+0.0003
+    Bicameral determinism: got 0.4473 want 0.4473 REPRODUCED
+  seed 404: bic pr=0.4482 (349s) | rs-ind pr=0.4472 (472s) | d=+0.0010
+    Bicameral determinism: got 0.4482 want 0.4482 REPRODUCED
+--- leakage_free ---
+  seed 42: bic pr=0.4153 (331s) | rs-ind pr=0.4180 (442s) | d=-0.0027
+    Bicameral determinism: got 0.4153 want 0.4153 REPRODUCED
+[friend-full (n=5)] bic 0.4479+-0.0004 | rs 0.4475+-0.0007 | mean_d=+0.0004 Welch t=+1.03 p=0.3416 -> TIE
+
+Bicameral determinism: 9/9 reproduced bit-exactly
+Done in 93.7 min. Test sealed.

@@ -1,0 +1,1 @@
+{"method": "tso", "seed": 12346, "evals": 5000, "evals_used": 5000, "best_train_f1": 1.0, "evals_to_perfect": 1118, "n_est": 286, "depth": 11, "split": 2, "leaf": 1, "mask": "1111111110011111", "n_feats": 14, "clean_acc": 0.9871794871794872, "clean_f1": 0.9900990099009901, "clean_prec": 1.0, "clean_rec": 0.9803921568627451, "wall_s": 1024.0, "fold": 1}
